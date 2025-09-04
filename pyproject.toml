@@ -99,7 +99,7 @@ test = [
 "Release Notes" = "https://github.com/linear-cli/linear-cli/releases"
 
 [project.scripts]
-linear-cli = "linear_cli.cli.app:main"
+linear = "linear_cli.cli.app:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
