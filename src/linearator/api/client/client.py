@@ -518,7 +518,11 @@ class LinearClient:
         variables = {"id": issue_id}
         result = await self.execute_query(DELETE_ISSUE_MUTATION, variables)
         archive_data = result.get("issueArchive", {})
-        success_value = archive_data.get("success", False) if isinstance(archive_data, dict) else False
+        success_value = (
+            archive_data.get("success", False)
+            if isinstance(archive_data, dict)
+            else False
+        )
         return bool(success_value)
 
     async def get_labels(
@@ -623,6 +627,73 @@ class LinearClient:
             nodes_data = users_data.get("nodes", [])
             return list(nodes_data) if isinstance(nodes_data, list) else []
         return []
+
+    async def search_issues(
+        self,
+        query: str,
+        team_id: str | None = None,
+        team_key: str | None = None,
+        assignee_id: str | None = None,
+        assignee_email: str | None = None,
+        state_name: str | None = None,
+        labels: list[str] | None = None,
+        priority: int | None = None,
+        limit: int = 50,
+        after: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Search issues using full-text search with optional filtering.
+
+        Args:
+            query: Search query string
+            team_id: Filter by team ID
+            team_key: Filter by team key
+            assignee_id: Filter by assignee ID
+            assignee_email: Filter by assignee email
+            state_name: Filter by state name
+            labels: Filter by label names
+            priority: Filter by priority (0=None, 1=Low, 2=Normal, 3=High, 4=Urgent)
+            limit: Maximum number of issues to return
+            after: Cursor for pagination
+
+        Returns:
+            Search results with pagination info
+        """
+        from ..queries import SEARCH_ISSUES_QUERY, build_issue_filter
+
+        # Build filter - reuse the same filter builder from get_issues
+        filter_kwargs: dict[str, Any] = {}
+        if team_id:
+            filter_kwargs["team_id"] = team_id
+        elif team_key:
+            filter_kwargs["team_key"] = team_key
+
+        if assignee_id:
+            filter_kwargs["assignee_id"] = assignee_id
+        elif assignee_email:
+            filter_kwargs["assignee_email"] = assignee_email
+
+        if state_name:
+            filter_kwargs["state_name"] = state_name
+
+        if labels:
+            filter_kwargs["labels"] = labels
+
+        if priority is not None:
+            filter_kwargs["priority"] = priority
+
+        issue_filter = build_issue_filter(**filter_kwargs) if filter_kwargs else None
+
+        variables = {
+            "term": query,
+            "first": limit,
+            "after": after,
+            "filter": issue_filter,
+        }
+
+        result = await self.execute_query(SEARCH_ISSUES_QUERY, variables)
+        search_data = result.get("searchIssues", {})
+        return dict(search_data) if isinstance(search_data, dict) else {}
 
     async def test_connection(self) -> dict[str, Any]:
         """

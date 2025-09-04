@@ -61,11 +61,17 @@ def get_state_text(state: dict[str, Any] | None) -> Text:
         color_lower = color.lower()
         if "ff" in color_lower[:3]:  # Red-ish (blocked, urgent states)
             style = "red"
-        elif "00ff" in color_lower or "0f0" in color_lower:  # Green-ish (done, completed states)
+        elif (
+            "00ff" in color_lower or "0f0" in color_lower
+        ):  # Green-ish (done, completed states)
             style = "green"
-        elif "ff0" in color_lower or "ffff00" in color_lower:  # Yellow-ish (in progress, warning states)
+        elif (
+            "ff0" in color_lower or "ffff00" in color_lower
+        ):  # Yellow-ish (in progress, warning states)
             style = "yellow"
-        elif "00" in color_lower and "ff" in color_lower:  # Blue-ish (todo, planning states)
+        elif (
+            "00" in color_lower and "ff" in color_lower
+        ):  # Blue-ish (todo, planning states)
             style = "blue"
 
     return Text(name, style=style)
@@ -197,7 +203,9 @@ class OutputFormatter:
 
     def _format_issue_details(self, issue: dict[str, Any]) -> None:
         """Format detailed issue information."""
-        console.print(f"[bold cyan]{issue.get('identifier', '')}[/bold cyan]: {issue.get('title', '')}")
+        console.print(
+            f"[bold cyan]{issue.get('identifier', '')}[/bold cyan]: {issue.get('title', '')}"
+        )
         console.print()
 
         # Basic info
@@ -225,7 +233,9 @@ class OutputFormatter:
         # Team
         team = issue.get("team")
         if team:
-            console.print(f"[dim]Team:[/dim] {team.get('name', '')} ({team.get('key', '')})")
+            console.print(
+                f"[dim]Team:[/dim] {team.get('name', '')} ({team.get('key', '')})"
+            )
 
         # Labels
         labels_str = format_labels(issue.get("labels"))
@@ -237,7 +247,9 @@ class OutputFormatter:
         console.print(f"[dim]Updated:[/dim] {format_datetime(issue.get('updatedAt'))}")
 
         if issue.get("completedAt"):
-            console.print(f"[dim]Completed:[/dim] {format_datetime(issue.get('completedAt'))}")
+            console.print(
+                f"[dim]Completed:[/dim] {format_datetime(issue.get('completedAt'))}"
+            )
 
         # Description
         description = issue.get("description")
@@ -264,7 +276,9 @@ class OutputFormatter:
                 user_name = user.get("displayName") or user.get("name", "Unknown")
                 created = format_datetime(comment.get("createdAt"))
                 body = truncate_text(comment.get("body", ""), 100)
-                console.print(f"  [cyan]{user_name}[/cyan] [dim]({created}):[/dim] {body}")
+                console.print(
+                    f"  [cyan]{user_name}[/cyan] [dim]({created}):[/dim] {body}"
+                )
 
             if len(comments) > 3:
                 console.print(f"  [dim]... and {len(comments) - 3} more comments[/dim]")
@@ -372,6 +386,15 @@ class OutputFormatter:
 
         console.print(table)
         console.print(f"\n[dim]Found {len(users)} user(s)[/dim]")
+
+    def format_generic(self, data: Any) -> None:
+        """Format generic data structure."""
+        if self.output_format == "json":
+            self._print_json(data)
+        else:
+            # For table format, just print as JSON since we don't know the structure
+            console.print("[yellow]Generic data (use --format json for better output):[/yellow]")
+            self._print_json(data)
 
 
 def print_success(message: str) -> None:

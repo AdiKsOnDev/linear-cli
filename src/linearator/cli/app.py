@@ -18,7 +18,17 @@ from ..api.auth import LinearAuthenticator
 from ..api.client import LinearClient
 from ..config.manager import ConfigManager, LinearConfig
 from ..constants import TEAM_ID_MIN_LENGTH, TEAM_ID_PREFIX
-from .commands import auth, issue, label, team
+from .commands import (
+    auth,
+    bulk,
+    completion,
+    interactive,
+    issue,
+    label,
+    search,
+    team,
+    user,
+)
 from .commands import config as config_cmd
 
 # Initialize console for rich output
@@ -87,7 +97,8 @@ class LinearCLIContext:
                 )
                 sys.exit(1)
 
-            assert self.config is not None  # Initialized in initialize()
+            if self.config is None:
+                raise RuntimeError("Configuration not properly initialized")
             self.client = LinearClient(
                 config=self.config,
                 authenticator=self.authenticator,
@@ -257,6 +268,19 @@ main.add_command(config_cmd.config_group, name="config")
 main.add_command(team.team_group, name="team")
 main.add_command(issue.issue_group, name="issue")
 main.add_command(label.label_group, name="label")
+main.add_command(bulk.bulk_group, name="bulk")
+main.add_command(user.user_group, name="user")
+
+# Add interactive mode
+main.add_command(interactive.interactive, name="interactive")
+
+# Add completion commands
+main.add_command(completion.completion_group, name="completion")
+
+# Add search functionality - use convenient alias as main command
+main.add_command(search.search, name="search")
+# Also add the group version for advanced features
+main.add_command(search.search_group, name="search-advanced")
 
 
 if __name__ == "__main__":
