@@ -17,7 +17,8 @@ from rich.logging import RichHandler
 from ..api.auth import LinearAuthenticator
 from ..api.client import LinearClient
 from ..config.manager import ConfigManager, LinearConfig
-from .commands import auth, issue, team
+from ..constants import TEAM_ID_MIN_LENGTH, TEAM_ID_PREFIX
+from .commands import auth, issue, label, team
 from .commands import config as config_cmd
 
 # Initialize console for rich output
@@ -143,10 +144,10 @@ def main(
     ctx.ensure_object(dict)
 
     # Build configuration overrides from CLI options
-    config_overrides = {}
+    config_overrides: dict[str, Any] = {}
     if team:
         # Try to determine if it's an ID or key
-        if team.startswith("team_") or len(team) > 20:
+        if team.startswith(TEAM_ID_PREFIX) or len(team) > TEAM_ID_MIN_LENGTH:
             config_overrides["default_team_id"] = team
         else:
             config_overrides["default_team_key"] = team
@@ -225,8 +226,9 @@ def status(ctx: click.Context) -> None:
         try:
             client = cli_ctx.get_client()
 
-            async def test_connection():
-                return await client.test_connection()
+            async def test_connection() -> dict[str, Any]:
+                result = await client.test_connection()
+                return dict(result) if isinstance(result, dict) else {}
 
             result = asyncio.run(test_connection())
 
@@ -254,6 +256,7 @@ main.add_command(auth.auth_group, name="auth")
 main.add_command(config_cmd.config_group, name="config")
 main.add_command(team.team_group, name="team")
 main.add_command(issue.issue_group, name="issue")
+main.add_command(label.label_group, name="label")
 
 
 if __name__ == "__main__":

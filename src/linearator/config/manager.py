@@ -257,5 +257,5 @@ class ConfigManager:
             self.config_file.unlink()
             logger.info(f"Removed config file {self.config_file}")
 
-        self._config = LinearConfig()
+        self._config = LinearConfig.model_validate({})
         logger.info("Configuration reset to defaults")

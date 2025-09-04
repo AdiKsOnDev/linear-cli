@@ -3,7 +3,7 @@ Unit tests for Linear GraphQL client.
 """
 
 import time
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
@@ -145,7 +145,7 @@ class TestLinearClient:
         with patch(
             "src.linearator.api.client.LinearClient.execute_query"
         ) as mock_execute:
-            mock_execute.return_value = {"data": {"viewer": {"name": "Test User"}}}
+            mock_execute.return_value = {"viewer": {"name": "Test User"}}
 
             client = LinearClient(config=config, authenticator=mock_auth)
             result = await client.get_viewer()
@@ -164,13 +164,11 @@ class TestLinearClient:
             "src.linearator.api.client.LinearClient.execute_query"
         ) as mock_execute:
             mock_execute.return_value = {
-                "data": {
-                    "teams": {
-                        "nodes": [
-                            {"id": "1", "name": "Team 1", "key": "T1"},
-                            {"id": "2", "name": "Team 2", "key": "T2"},
-                        ]
-                    }
+                "teams": {
+                    "nodes": [
+                        {"id": "1", "name": "Team 1", "key": "T1"},
+                        {"id": "2", "name": "Team 2", "key": "T2"},
+                    ]
                 }
             }
 
@@ -208,19 +206,16 @@ class TestLinearClient:
         mock_auth = Mock()
         mock_auth.get_access_token.return_value = "test_token"
 
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"data": {"test": "success"}}
-
-        with patch("httpx.AsyncClient") as mock_http:
-            mock_client = mock_http.return_value.__aenter__.return_value
-            mock_client.post.return_value = mock_response
+        # Mock the GQL client in the client module
+        with patch("src.linearator.api.client.client.Client") as mock_gql_client_class:
+            mock_gql_client = mock_gql_client_class.return_value
+            mock_gql_client.execute_async = AsyncMock(return_value={"test": "success"})
 
             client = LinearClient(config=config, authenticator=mock_auth)
-            result = await client.execute_query("test query", {})
+            result = await client.execute_query("{ viewer { id } }", {})
 
-            assert result == {"data": {"test": "success"}}
-            mock_client.post.assert_called_once()
+            assert result == {"test": "success"}
+            mock_gql_client.execute_async.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_execute_query_unauthenticated(self):
@@ -231,8 +226,8 @@ class TestLinearClient:
 
         client = LinearClient(config=config, authenticator=mock_auth)
 
-        with pytest.raises(Exception, match="Not authenticated"):
-            await client.execute_query("test query", {})
+        with pytest.raises(Exception, match="No valid access token available"):
+            await client.execute_query("{ viewer { id } }", {})
 
     @pytest.mark.asyncio
     async def test_test_connection_success(self):
@@ -241,7 +236,10 @@ class TestLinearClient:
         mock_auth = Mock()
 
         with patch("src.linearator.api.client.LinearClient.get_viewer") as mock_viewer:
-            mock_viewer.return_value = {"name": "Test User"}
+            mock_viewer.return_value = {
+                "name": "Test User", 
+                "organization": {"name": "Test Org"}
+            }
 
             client = LinearClient(config=config, authenticator=mock_auth)
             start_time = time.time()
@@ -249,7 +247,7 @@ class TestLinearClient:
 
             assert result["success"] is True
             assert result["user"] == "Test User"
-            assert result["organization"] is None  # No org data in mock
+            assert result["organization"] == "Test Org"
             assert result["response_time"] >= 0
             assert result["response_time"] <= time.time() - start_time + 1
 
@@ -267,8 +265,8 @@ class TestLinearClient:
 
             assert result["success"] is False
             assert "Connection failed" in result["error"]
-            assert result["user"] is None
-            assert result["organization"] is None
+            assert "user" not in result
+            assert "organization" not in result
 
     def test_generate_cache_key(self):
         """Test cache key generation."""

@@ -31,7 +31,7 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
         self.auth_error: str | None = None
         super().__init__(*args, **kwargs)
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         """Handle GET request for OAuth callback."""
         parsed_url = urlparse(self.path)
         params = parse_qs(parsed_url.query)
@@ -85,7 +85,7 @@ class OAuthCallbackHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Invalid OAuth callback request")
 
-    def log_message(self, format, *args):
+    def log_message(self, format: str, *args: Any) -> None:
         """Suppress log messages from HTTP server."""
         pass
 
@@ -100,7 +100,7 @@ def start_oauth_callback_server(
         Tuple of (server, handler_instance)
     """
 
-    def handler_factory(*args, **kwargs):
+    def handler_factory(*args: Any, **kwargs: Any) -> OAuthCallbackHandler:
         handler = OAuthCallbackHandler(expected_state, *args, **kwargs)
         handler_factory.handler = handler
         return handler
@@ -164,9 +164,9 @@ def login(
             console.print("Testing connection...")
             client = cli_ctx.get_client()
 
-            async def test_auth():
+            async def test_auth() -> dict[str, Any]:
                 viewer = await client.get_viewer()
-                return viewer
+                return dict(viewer) if isinstance(viewer, dict) else {}
 
             viewer = asyncio.run(test_auth())
             console.print(
@@ -259,9 +259,9 @@ def login(
                 console.print("Testing connection...")
                 client = cli_ctx.get_client()
 
-                async def test_auth():
+                async def test_auth() -> dict[str, Any]:
                     viewer = await client.get_viewer()
-                    return viewer
+                    return dict(viewer) if isinstance(viewer, dict) else {}
 
                 viewer = asyncio.run(test_auth())
                 console.print(
@@ -371,8 +371,9 @@ def status(ctx: click.Context) -> None:
         try:
             client = cli_ctx.get_client()
 
-            async def test_connection():
-                return await client.test_connection()
+            async def test_connection() -> dict[str, Any]:
+                result = await client.test_connection()
+                return dict(result) if isinstance(result, dict) else {}
 
             result = asyncio.run(test_connection())
 
@@ -438,8 +439,9 @@ def refresh(ctx: click.Context) -> None:
         console.print("Testing refreshed token...")
         client = cli_ctx.get_client()
 
-        async def test_connection():
-            return await client.test_connection()
+        async def test_connection() -> dict[str, Any]:
+            result = await client.test_connection()
+            return dict(result) if isinstance(result, dict) else {}
 
         result = asyncio.run(test_connection())
 

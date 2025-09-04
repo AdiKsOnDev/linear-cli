@@ -180,7 +180,7 @@ class LinearAuthenticator:
             logger.warning(f"API key validation failed: {e}")
             return False
 
-    def start_oauth_flow(self):
+    def start_oauth_flow(self) -> tuple[str, str]:
         """Start OAuth 2.0 authorization flow."""
         return self._oauth_manager.start_oauth_flow()
 

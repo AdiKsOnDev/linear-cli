@@ -126,8 +126,14 @@ class CredentialStorage:
             # Decrypt credentials
             encrypted_data = base64.urlsafe_b64decode(encoded_data.encode())
             decrypted_data = self._cipher.decrypt(encrypted_data)
-            credentials = json.loads(decrypted_data.decode())
+            credentials_raw = json.loads(decrypted_data.decode())
 
+            # Ensure we have a dictionary
+            if not isinstance(credentials_raw, dict):
+                logger.error("Invalid credentials format")
+                return None
+
+            credentials: dict[str, Any] = credentials_raw
             logger.debug("Credentials retrieved successfully")
             return credentials
         except Exception as e:
