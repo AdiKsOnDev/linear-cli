@@ -393,7 +393,9 @@ class OutputFormatter:
             self._print_json(data)
         else:
             # For table format, just print as JSON since we don't know the structure
-            console.print("[yellow]Generic data (use --format json for better output):[/yellow]")
+            console.print(
+                "[yellow]Generic data (use --format json for better output):[/yellow]"
+            )
             self._print_json(data)
 
 

@@ -272,7 +272,9 @@ def show(
                             color = (
                                 "red"
                                 if priority >= 3
-                                else "yellow" if priority == 2 else "dim"
+                                else "yellow"
+                                if priority == 2
+                                else "dim"
                             )
                             priority_table.add_row(
                                 f"[{color}]{priority_names[priority]}[/{color}]",
@@ -425,13 +427,19 @@ def workload(
                 if assignee:
                     user_id = assignee.get("id")
                     if user_id:
-                        user_workloads[user_id]["total"] = user_workloads[user_id].get("total", 0) + 1
+                        user_workloads[user_id]["total"] = (
+                            user_workloads[user_id].get("total", 0) + 1
+                        )
                         user_workloads[user_id]["user_info"] = assignee
 
                         if priority >= 3:  # High or Urgent
-                            user_workloads[user_id]["high_priority"] = user_workloads[user_id].get("high_priority", 0) + 1
+                            user_workloads[user_id]["high_priority"] = (
+                                user_workloads[user_id].get("high_priority", 0) + 1
+                            )
                         if priority == 4:  # Urgent
-                            user_workloads[user_id]["urgent"] = user_workloads[user_id].get("urgent", 0) + 1
+                            user_workloads[user_id]["urgent"] = (
+                                user_workloads[user_id].get("urgent", 0) + 1
+                            )
                 else:
                     unassigned_count += 1
                     if priority >= 3:
