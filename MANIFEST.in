@@ -1,0 +1,35 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include pyproject.toml
+include Makefile
+
+# Include documentation
+recursive-include docs *.rst *.py *.md
+recursive-include docs/_static *
+recursive-exclude docs/_build *
+
+# Include tests for source distributions
+recursive-include tests *.py
+recursive-include tests/fixtures *.json *.yaml *.toml
+
+# Include configuration examples
+recursive-include examples *.toml *.yaml *.json *.sh
+
+# Include completion scripts
+recursive-include completion *.bash *.zsh *.fish
+
+# Exclude development and build artifacts
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store
+global-exclude .git*
+global-exclude .coverage*
+global-exclude *.log
+recursive-exclude * .pytest_cache
+recursive-exclude * .mypy_cache
+recursive-exclude * .ruff_cache
+recursive-exclude * htmlcov
+recursive-exclude * .tox
+recursive-exclude * venv
+recursive-exclude * .venv
