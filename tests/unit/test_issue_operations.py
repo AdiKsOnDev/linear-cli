@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.linear-cli.api.client import LinearClient
-from src.linear-cli.api.client.exceptions import LinearAPIError
-from src.linear-cli.config.manager import LinearConfig
+from linear_cli.api.client import LinearClient
+from linear_cli.api.client.exceptions import LinearAPIError
+from linear_cli.config.manager import LinearConfig
 
 
 @pytest.fixture

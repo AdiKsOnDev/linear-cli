@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 import httpx
 import pytest
 
-from src.linear-cli.api.auth import (
+from linear_cli.api.auth import (
     AuthenticationError,
     LinearAuthenticator,
     OAuthFlowError,

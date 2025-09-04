@@ -1,6 +1,5 @@
 """Tests for utility helpers."""
 
-
 import pytest
 
 from linear_cli.utils.helpers import (
@@ -84,7 +83,7 @@ class TestDateHelpers:
         for date_input in relative_inputs:
             parsed = parse_date_input(date_input)
             # Should either parse successfully or return None
-            assert parsed is None or hasattr(parsed, 'year')
+            assert parsed is None or hasattr(parsed, "year")
 
     def test_parse_date_input_invalid(self):
         """Test parsing invalid date input."""
@@ -104,7 +103,7 @@ class TestStringHelpers:
         safe_name = sanitize_filename(unsafe_name)
 
         # Should remove/replace unsafe characters
-        unsafe_chars = ['/', '\\', ':', '*', '?', '<', '>', '|']
+        unsafe_chars = ["/", "\\", ":", "*", "?", "<", ">", "|"]
         for char in unsafe_chars:
             assert char not in safe_name
 
@@ -162,7 +161,7 @@ class TestValidationHelpers:
             "user@example.com",
             "test.user@domain.co.uk",
             "user+tag@example.org",
-            "firstname.lastname@company.com"
+            "firstname.lastname@company.com",
         ]
 
         for email in valid_emails:
@@ -176,7 +175,7 @@ class TestValidationHelpers:
             "user@",
             "user..double.dot@example.com",
             "",
-            None
+            None,
         ]
 
         for email in invalid_emails:
@@ -189,7 +188,7 @@ class TestValidationHelpers:
         valid_uuids = [
             str(uuid.uuid4()),
             "550e8400-e29b-41d4-a716-446655440000",
-            "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+            "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
         ]
 
         for uuid_str in valid_uuids:
@@ -202,7 +201,7 @@ class TestValidationHelpers:
             "550e8400-e29b-41d4-a716",  # Too short
             "550e8400-e29b-41d4-a716-446655440000-extra",  # Too long
             "",
-            None
+            None,
         ]
 
         for uuid_str in invalid_uuids:
@@ -224,13 +223,10 @@ class TestDataHelpers:
 
     def test_deep_merge_dicts_nested(self):
         """Test merging nested dictionaries."""
-        dict1 = {
-            "user": {"name": "John", "age": 30},
-            "settings": {"theme": "dark"}
-        }
+        dict1 = {"user": {"name": "John", "age": 30}, "settings": {"theme": "dark"}}
         dict2 = {
             "user": {"email": "john@example.com"},
-            "settings": {"notifications": True}
+            "settings": {"notifications": True},
         }
 
         merged = deep_merge_dicts(dict1, dict2)
@@ -254,14 +250,8 @@ class TestDataHelpers:
     def test_flatten_dict_simple(self):
         """Test flattening simple dictionary."""
         nested_dict = {
-            "user": {
-                "name": "John",
-                "profile": {
-                    "age": 30,
-                    "city": "New York"
-                }
-            },
-            "active": True
+            "user": {"name": "John", "profile": {"age": 30, "city": "New York"}},
+            "active": True,
         }
 
         flattened = flatten_dict(nested_dict)
@@ -455,37 +445,42 @@ class TestMiscHelpers:
     def test_ensure_list_with_list(self):
         """Test ensuring list when input is already a list."""
         input_list = [1, 2, 3]
-        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'ensure_list'):
+        if hasattr(
+            __import__("linear_cli.utils.helpers", fromlist=[""]), "ensure_list"
+        ):
             from linear_cli.utils.helpers import ensure_list
+
             result = ensure_list(input_list)
             assert result == input_list
 
     def test_ensure_list_with_single_item(self):
         """Test ensuring list when input is a single item."""
-        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'ensure_list'):
+        if hasattr(
+            __import__("linear_cli.utils.helpers", fromlist=[""]), "ensure_list"
+        ):
             from linear_cli.utils.helpers import ensure_list
+
             result = ensure_list("single_item")
             assert result == ["single_item"]
 
     def test_ensure_list_with_none(self):
         """Test ensuring list when input is None."""
-        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'ensure_list'):
+        if hasattr(
+            __import__("linear_cli.utils.helpers", fromlist=[""]), "ensure_list"
+        ):
             from linear_cli.utils.helpers import ensure_list
+
             result = ensure_list(None)
             assert result == []
 
     def test_get_nested_value(self):
         """Test getting nested dictionary value."""
-        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'get_nested_value'):
+        if hasattr(
+            __import__("linear_cli.utils.helpers", fromlist=[""]), "get_nested_value"
+        ):
             from linear_cli.utils.helpers import get_nested_value
 
-            data = {
-                "user": {
-                    "profile": {
-                        "name": "John Doe"
-                    }
-                }
-            }
+            data = {"user": {"profile": {"name": "John Doe"}}}
 
             result = get_nested_value(data, "user.profile.name")
             assert result == "John Doe"
@@ -496,13 +491,15 @@ class TestMiscHelpers:
 
     def test_calculate_file_hash(self):
         """Test file hash calculation."""
-        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'calculate_file_hash'):
+        if hasattr(
+            __import__("linear_cli.utils.helpers", fromlist=[""]), "calculate_file_hash"
+        ):
             import tempfile
 
             from linear_cli.utils.helpers import calculate_file_hash
 
             # Create temporary file
-            with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
                 f.write("test content")
                 temp_path = f.name
 
@@ -512,11 +509,15 @@ class TestMiscHelpers:
                 assert len(hash_value) > 0
             finally:
                 import os
+
                 os.unlink(temp_path)
 
     def test_normalize_line_endings(self):
         """Test normalizing line endings."""
-        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'normalize_line_endings'):
+        if hasattr(
+            __import__("linear_cli.utils.helpers", fromlist=[""]),
+            "normalize_line_endings",
+        ):
             from linear_cli.utils.helpers import normalize_line_endings
 
             # Test different line endings
@@ -526,5 +527,9 @@ class TestMiscHelpers:
 
             for text in [windows_text, mac_text, mixed_text]:
                 normalized = normalize_line_endings(text)
-                assert "\r\n" not in normalized or "\r\n" in normalized  # Should be consistent
-                assert "\r" not in normalized or normalized.count("\r") == normalized.count("\r\n")
+                assert (
+                    "\r\n" not in normalized or "\r\n" in normalized
+                )  # Should be consistent
+                assert "\r" not in normalized or normalized.count(
+                    "\r"
+                ) == normalized.count("\r\n")

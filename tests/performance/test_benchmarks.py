@@ -1,6 +1,5 @@
 """Performance benchmarks for Linearator CLI operations."""
 
-
 import pytest
 
 from linear_cli.api.client.client import LinearClient

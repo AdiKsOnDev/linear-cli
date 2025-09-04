@@ -9,10 +9,10 @@ from unittest.mock import Mock, patch
 import pytest
 from click.testing import CliRunner
 
-from src.linear-cli.api.auth import AuthenticationError, LinearAuthenticator
-from src.linear-cli.api.client import LinearClient
-from src.linear-cli.cli.app import main
-from src.linear-cli.config.manager import LinearConfig
+from linear_cli.api.auth import AuthenticationError, LinearAuthenticator
+from linear_cli.api.client import LinearClient
+from linear_cli.cli.app import main
+from linear_cli.config.manager import LinearConfig
 
 
 @pytest.mark.integration

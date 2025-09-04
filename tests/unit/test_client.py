@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.linear-cli.api.client import LinearClient, RateLimiter, ResponseCache
-from src.linear-cli.config.manager import LinearConfig
+from linear_cli.api.client import LinearClient, RateLimiter, ResponseCache
+from linear_cli.config.manager import LinearConfig
 
 
 class TestRateLimiter:

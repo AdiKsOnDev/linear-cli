@@ -1,6 +1,5 @@
 """Tests for constants module."""
 
-
 from linear_cli.constants import (
     COLOR_PATTERNS,
     DEFAULT_API_TIMEOUT,

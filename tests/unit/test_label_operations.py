@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from click.testing import CliRunner
 
-from src.linear-cli.cli.app import LinearCLIContext, main
+from linear_cli.cli.app import LinearCLIContext, main
 
 
 @pytest.fixture

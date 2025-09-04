@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.linear-cli.config.manager import ConfigManager, LinearConfig
+from linear_cli.config.manager import ConfigManager, LinearConfig
 
 
 class TestLinearConfig:

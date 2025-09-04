@@ -1,6 +1,5 @@
 """Simple API tests for core functionality."""
 
-
 from linear_cli.api.client.client import LinearClient
 from linear_cli.config.manager import LinearConfig
 
@@ -34,17 +33,15 @@ class TestLinearClientBasics:
         client = LinearClient(config)
 
         # Check for expected methods
-        assert hasattr(client, 'execute_query')
-        assert hasattr(client, 'get_teams')
-        assert hasattr(client, 'get_issues')
-        assert hasattr(client, 'get_users')
+        assert hasattr(client, "execute_query")
+        assert hasattr(client, "get_teams")
+        assert hasattr(client, "get_issues")
+        assert hasattr(client, "get_users")
 
     def test_client_config_access(self):
         """Test client configuration access."""
         config = LinearConfig(
-            access_token="test-token",
-            api_url="https://custom.api.url",
-            timeout=60
+            access_token="test-token", api_url="https://custom.api.url", timeout=60
         )
         client = LinearClient(config)
 

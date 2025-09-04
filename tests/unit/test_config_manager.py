@@ -25,6 +25,7 @@ class TestConfigManager:
         """Clean up test fixtures."""
         # Clean up temp directory
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_manager_initialization(self):
@@ -41,7 +42,7 @@ class TestConfigManager:
 
     def test_get_default_config_dir(self):
         """Test getting default configuration directory."""
-        with patch('platformdirs.user_config_dir') as mock_config_dir:
+        with patch("platformdirs.user_config_dir") as mock_config_dir:
             mock_config_dir.return_value = "/home/user/.config/linear-cli"
 
             default_dir = ConfigManager._get_default_config_dir()
@@ -170,7 +171,7 @@ class TestConfigManager:
         config_data = {
             "api_token": "test-token",
             "cache_ttl": 300,
-            "output_format": "table"
+            "output_format": "table",
         }
 
         # Set config values
@@ -210,7 +211,7 @@ class TestConfigManager:
         valid_config = {
             "api_token": "valid-token",
             "cache_ttl": 300,
-            "output_format": "table"
+            "output_format": "table",
         }
 
         # Should not raise error
@@ -254,7 +255,7 @@ class TestConfigManager:
         permissions = oct(stat.st_mode)[-3:]
 
         # Should be restrictive (600 or similar)
-        assert permissions in ['600', '644', '640']  # Common secure permissions
+        assert permissions in ["600", "644", "640"]  # Common secure permissions
 
     def test_concurrent_access(self):
         """Test concurrent access to configuration."""
@@ -281,14 +282,14 @@ class TestConfigManager:
         original_config = {
             "api_token": "original-token",
             "cache_ttl": 300,
-            "setting": "value"
+            "setting": "value",
         }
 
         for key, value in original_config.items():
             self.manager.set(key, value)
 
         # If backup/restore methods exist, test them
-        if hasattr(self.manager, 'backup_config'):
+        if hasattr(self.manager, "backup_config"):
             backup_path = self.manager.backup_config()
             assert backup_path.exists()
 
@@ -296,7 +297,7 @@ class TestConfigManager:
             self.manager.set("api_token", "modified-token")
 
             # Restore from backup
-            if hasattr(self.manager, 'restore_config'):
+            if hasattr(self.manager, "restore_config"):
                 self.manager.restore_config(backup_path)
                 assert self.manager.get("api_token") == "original-token"
 
@@ -304,7 +305,7 @@ class TestConfigManager:
         """Test environment variable overrides."""
         with patch.dict(os.environ, {"LINEARATOR_API_TOKEN": "env-token"}):
             # If environment variable support exists
-            if hasattr(self.manager, '_get_env_override'):
+            if hasattr(self.manager, "_get_env_override"):
                 token = self.manager._get_env_override("api_token")
                 assert token == "env-token"
 
@@ -315,7 +316,7 @@ class TestConfigManager:
         self.manager._save_config(old_config)
 
         # If migration exists, test it
-        if hasattr(self.manager, '_migrate_config'):
+        if hasattr(self.manager, "_migrate_config"):
             migrated = self.manager._migrate_config(old_config)
             # Should convert old keys to new format
             assert "api_token" in migrated or migrated == old_config
@@ -323,19 +324,16 @@ class TestConfigManager:
     def test_config_schema_validation(self):
         """Test configuration schema validation."""
         # If schema validation exists
-        if hasattr(self.manager, 'SCHEMA'):
+        if hasattr(self.manager, "SCHEMA"):
             # Test valid config passes validation
-            valid_config = {
-                "api_token": "token-123",
-                "cache_ttl": 300
-            }
+            valid_config = {"api_token": "token-123", "cache_ttl": 300}
             # Should not raise
             self.manager._validate_config(valid_config)
 
             # Test invalid config fails validation
             invalid_config = {
                 "api_token": 123,  # Should be string
-                "cache_ttl": "invalid"  # Should be int
+                "cache_ttl": "invalid",  # Should be int
             }
 
             with pytest.raises((ConfigurationError, TypeError, ValueError)):
@@ -344,7 +342,7 @@ class TestConfigManager:
     def test_config_defaults(self):
         """Test configuration defaults."""
         # Test that defaults are applied for missing keys
-        if hasattr(self.manager, 'DEFAULTS'):
+        if hasattr(self.manager, "DEFAULTS"):
             for key, default_value in self.manager.DEFAULTS.items():
                 assert self.manager.get(key, default_value) == default_value
 
