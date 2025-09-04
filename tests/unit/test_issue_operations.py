@@ -41,7 +41,7 @@ def client(mock_config, mock_authenticator):
     return LinearClient(
         config=mock_config,
         authenticator=mock_authenticator,
-        enable_cache=False  # Disable cache for testing
+        enable_cache=False,  # Disable cache for testing
     )
 
 
@@ -68,14 +68,13 @@ class TestIssueOperations:
                         "updatedAt": "2024-01-01T00:00:00Z",
                     }
                 ],
-                "pageInfo": {
-                    "hasNextPage": False,
-                    "endCursor": None
-                }
+                "pageInfo": {"hasNextPage": False, "endCursor": None},
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.get_issues(limit=50)
@@ -94,11 +93,13 @@ class TestIssueOperations:
         mock_response = {
             "issues": {
                 "nodes": [],
-                "pageInfo": {"hasNextPage": False, "endCursor": None}
+                "pageInfo": {"hasNextPage": False, "endCursor": None},
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             await client.get_issues(
@@ -107,7 +108,7 @@ class TestIssueOperations:
                 state_name="In Progress",
                 labels=["bug", "urgent"],
                 priority=3,
-                limit=25
+                limit=25,
             )
 
             mock_execute.assert_called_once()
@@ -132,7 +133,9 @@ class TestIssueOperations:
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.get_issue("issue_123")
@@ -154,7 +157,9 @@ class TestIssueOperations:
             ]
         }
 
-        with patch.object(client, 'get_issues', new_callable=AsyncMock) as mock_get_issues:
+        with patch.object(
+            client, "get_issues", new_callable=AsyncMock
+        ) as mock_get_issues:
             mock_get_issues.return_value = mock_issues_response
 
             result = await client.get_issue("ENG-123")
@@ -165,7 +170,9 @@ class TestIssueOperations:
     @pytest.mark.asyncio
     async def test_get_issue_not_found(self, client):
         """Test getting an issue that doesn't exist."""
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = {"issue": None}
 
             result = await client.get_issue("nonexistent_issue")
@@ -183,18 +190,20 @@ class TestIssueOperations:
                     "identifier": "ENG-124",
                     "title": "New Issue",
                     "description": "New issue description",
-                }
+                },
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.create_issue(
                 title="New Issue",
                 description="New issue description",
                 team_id="team_123",
-                priority=2
+                priority=2,
             )
 
             assert result == mock_response["issueCreate"]
@@ -220,11 +229,13 @@ class TestIssueOperations:
                     "id": "issue_minimal",
                     "identifier": "ENG-125",
                     "title": "Minimal Issue",
-                }
+                },
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.create_issue(title="Minimal Issue")
@@ -251,18 +262,20 @@ class TestIssueOperations:
                     "identifier": "ENG-123",
                     "title": "Updated Title",
                     "description": "Updated description",
-                }
+                },
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.update_issue(
                 issue_id="issue_123",
                 title="Updated Title",
                 description="Updated description",
-                priority=3
+                priority=3,
             )
 
             assert result == mock_response["issueUpdate"]
@@ -285,7 +298,7 @@ class TestIssueOperations:
         mock_issue = {
             "id": "issue_123",
             "identifier": "ENG-123",
-            "title": "Original Title"
+            "title": "Original Title",
         }
 
         mock_update_response = {
@@ -294,20 +307,23 @@ class TestIssueOperations:
                 "issue": {
                     "id": "issue_123",
                     "identifier": "ENG-123",
-                    "title": "Updated Title"
-                }
+                    "title": "Updated Title",
+                },
             }
         }
 
-        with patch.object(client, 'get_issue', new_callable=AsyncMock) as mock_get, \
-             patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with (
+            patch.object(client, "get_issue", new_callable=AsyncMock) as mock_get,
+            patch.object(
+                client, "execute_query", new_callable=AsyncMock
+            ) as mock_execute,
+        ):
 
             mock_get.return_value = mock_issue
             mock_execute.return_value = mock_update_response
 
             result = await client.update_issue(
-                issue_id="ENG-123",
-                title="Updated Title"
+                issue_id="ENG-123", title="Updated Title"
             )
 
             assert result == mock_update_response["issueUpdate"]
@@ -317,25 +333,20 @@ class TestIssueOperations:
     @pytest.mark.asyncio
     async def test_update_issue_not_found(self, client):
         """Test updating an issue that doesn't exist."""
-        with patch.object(client, 'get_issue', new_callable=AsyncMock) as mock_get:
+        with patch.object(client, "get_issue", new_callable=AsyncMock) as mock_get:
             mock_get.return_value = None
 
             with pytest.raises(LinearAPIError, match="Issue not found"):
-                await client.update_issue(
-                    issue_id="ENG-999",
-                    title="Updated Title"
-                )
+                await client.update_issue(issue_id="ENG-999", title="Updated Title")
 
     @pytest.mark.asyncio
     async def test_delete_issue_success(self, client):
         """Test successful issue deletion (archiving)."""
-        mock_response = {
-            "issueArchive": {
-                "success": True
-            }
-        }
+        mock_response = {"issueArchive": {"success": True}}
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.delete_issue("issue_123")
@@ -351,19 +362,16 @@ class TestIssueOperations:
     @pytest.mark.asyncio
     async def test_delete_issue_by_identifier(self, client):
         """Test deleting an issue using its identifier."""
-        mock_issue = {
-            "id": "issue_123",
-            "identifier": "ENG-123"
-        }
+        mock_issue = {"id": "issue_123", "identifier": "ENG-123"}
 
-        mock_delete_response = {
-            "issueArchive": {
-                "success": True
-            }
-        }
+        mock_delete_response = {"issueArchive": {"success": True}}
 
-        with patch.object(client, 'get_issue', new_callable=AsyncMock) as mock_get, \
-             patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with (
+            patch.object(client, "get_issue", new_callable=AsyncMock) as mock_get,
+            patch.object(
+                client, "execute_query", new_callable=AsyncMock
+            ) as mock_execute,
+        ):
 
             mock_get.return_value = mock_issue
             mock_execute.return_value = mock_delete_response
@@ -377,13 +385,11 @@ class TestIssueOperations:
     @pytest.mark.asyncio
     async def test_delete_issue_failure(self, client):
         """Test issue deletion failure."""
-        mock_response = {
-            "issueArchive": {
-                "success": False
-            }
-        }
+        mock_response = {"issueArchive": {"success": False}}
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.delete_issue("issue_123")
@@ -393,7 +399,7 @@ class TestIssueOperations:
     @pytest.mark.asyncio
     async def test_delete_issue_not_found(self, client):
         """Test deleting an issue that doesn't exist."""
-        with patch.object(client, 'get_issue', new_callable=AsyncMock) as mock_get:
+        with patch.object(client, "get_issue", new_callable=AsyncMock) as mock_get:
             mock_get.return_value = None
 
             with pytest.raises(LinearAPIError, match="Issue not found"):
@@ -414,17 +420,16 @@ class TestLabelOperations:
                         "name": "bug",
                         "color": "#ff0000",
                         "description": "Bug label",
-                        "team": {"id": "team_123", "key": "ENG"}
+                        "team": {"id": "team_123", "key": "ENG"},
                     }
                 ],
-                "pageInfo": {
-                    "hasNextPage": False,
-                    "endCursor": None
-                }
+                "pageInfo": {"hasNextPage": False, "endCursor": None},
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.get_labels(limit=100)
@@ -438,11 +443,13 @@ class TestLabelOperations:
         mock_response = {
             "issueLabels": {
                 "nodes": [],
-                "pageInfo": {"hasNextPage": False, "endCursor": None}
+                "pageInfo": {"hasNextPage": False, "endCursor": None},
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             await client.get_labels(team_id="team_123", limit=50)
@@ -466,19 +473,21 @@ class TestLabelOperations:
                     "id": "label_new",
                     "name": "feature",
                     "color": "#00ff00",
-                    "description": "Feature label"
-                }
+                    "description": "Feature label",
+                },
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.create_label(
                 name="feature",
                 color="#00ff00",
                 description="Feature label",
-                team_id="team_123"
+                team_id="team_123",
             )
 
             assert result == mock_response["issueLabelCreate"]
@@ -503,12 +512,14 @@ class TestLabelOperations:
                 "issueLabel": {
                     "id": "label_minimal",
                     "name": "minimal",
-                    "color": "#808080"
-                }
+                    "color": "#808080",
+                },
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.create_label(name="minimal")
@@ -541,17 +552,16 @@ class TestUserOperations:
                         "displayName": "John Doe",
                         "email": "john@example.com",
                         "active": True,
-                        "admin": False
+                        "admin": False,
                     }
                 ],
-                "pageInfo": {
-                    "hasNextPage": False,
-                    "endCursor": None
-                }
+                "pageInfo": {"hasNextPage": False, "endCursor": None},
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             result = await client.get_users(limit=100)
@@ -565,11 +575,13 @@ class TestUserOperations:
         mock_response = {
             "users": {
                 "nodes": [],
-                "pageInfo": {"hasNextPage": False, "endCursor": None}
+                "pageInfo": {"hasNextPage": False, "endCursor": None},
             }
         }
 
-        with patch.object(client, 'execute_query', new_callable=AsyncMock) as mock_execute:
+        with patch.object(
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
             mock_execute.return_value = mock_response
 
             await client.get_users(active_only=True, limit=50)

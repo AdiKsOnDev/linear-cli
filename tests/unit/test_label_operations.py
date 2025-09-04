@@ -48,7 +48,7 @@ class TestLabelListCommand:
                     "color": "#ff0000",
                     "description": "Bug reports",
                     "team": {"key": "ENG", "name": "Engineering"},
-                    "createdAt": "2024-01-01T00:00:00Z"
+                    "createdAt": "2024-01-01T00:00:00Z",
                 },
                 {
                     "id": "label_2",
@@ -56,19 +56,19 @@ class TestLabelListCommand:
                     "color": "#00ff00",
                     "description": "New features",
                     "team": None,  # Global label
-                    "createdAt": "2024-01-01T00:00:00Z"
-                }
+                    "createdAt": "2024-01-01T00:00:00Z",
+                },
             ]
         }
 
         client.get_labels = AsyncMock(return_value=mock_labels)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_labels
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, ['label', 'list'])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(main, ["label", "list"])
 
         assert result.exit_code == 0
         assert "bug" in result.output
@@ -79,25 +79,21 @@ class TestLabelListCommand:
         ctx, client = mock_cli_context
 
         # Mock team lookup
-        mock_teams = [
-            {"id": "team_456", "key": "DESIGN"}
-        ]
+        mock_teams = [{"id": "team_456", "key": "DESIGN"}]
 
         mock_labels = {"nodes": []}
 
         client.get_teams = AsyncMock(return_value=mock_teams)
         client.get_labels = AsyncMock(return_value=mock_labels)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_labels
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, [
-                    'label', 'list',
-                    '--team', 'DESIGN',
-                    '--limit', '50'
-                ])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(
+                    main, ["label", "list", "--team", "DESIGN", "--limit", "50"]
+                )
 
         assert result.exit_code == 0
 
@@ -107,15 +103,12 @@ class TestLabelListCommand:
 
         client.get_teams = AsyncMock(return_value=[])  # No teams found
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.side_effect = ValueError("Team not found: INVALID")
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, [
-                    'label', 'list',
-                    '--team', 'INVALID'
-                ])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(main, ["label", "list", "--team", "INVALID"])
 
         assert result.exit_code != 0
         assert "Team not found" in result.output
@@ -125,24 +118,16 @@ class TestLabelListCommand:
         ctx, client = mock_cli_context
         ctx.config.output_format = "json"
 
-        mock_labels = {
-            "nodes": [
-                {
-                    "id": "label_1",
-                    "name": "bug",
-                    "color": "#ff0000"
-                }
-            ]
-        }
+        mock_labels = {"nodes": [{"id": "label_1", "name": "bug", "color": "#ff0000"}]}
 
         client.get_labels = AsyncMock(return_value=mock_labels)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_labels
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, ['label', 'list'])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(main, ["label", "list"])
 
         assert result.exit_code == 0
         # Should contain JSON-formatted output
@@ -162,21 +147,20 @@ class TestLabelCreateCommand:
                 "id": "label_new",
                 "name": "enhancement",
                 "color": "#0000ff",
-                "description": None
-            }
+                "description": None,
+            },
         }
 
         client.create_label = AsyncMock(return_value=mock_response)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_response
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, [
-                    'label', 'create', 'enhancement',
-                    '--color', '#0000ff'
-                ])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(
+                    main, ["label", "create", "enhancement", "--color", "#0000ff"]
+                )
 
         assert result.exit_code == 0
         assert "Created label: enhancement" in result.output
@@ -186,9 +170,7 @@ class TestLabelCreateCommand:
         ctx, client = mock_cli_context
 
         # Mock team lookup
-        mock_teams = [
-            {"id": "team_456", "key": "QA"}
-        ]
+        mock_teams = [{"id": "team_456", "key": "QA"}]
 
         mock_response = {
             "success": True,
@@ -197,24 +179,32 @@ class TestLabelCreateCommand:
                 "name": "testing",
                 "color": "#ffff00",
                 "description": "QA testing label",
-                "team": {"key": "QA"}
-            }
+                "team": {"key": "QA"},
+            },
         }
 
         client.get_teams = AsyncMock(return_value=mock_teams)
         client.create_label = AsyncMock(return_value=mock_response)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_response
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, [
-                    'label', 'create', 'testing',
-                    '--color', '#ffff00',
-                    '--description', 'QA testing label',
-                    '--team', 'QA'
-                ])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(
+                    main,
+                    [
+                        "label",
+                        "create",
+                        "testing",
+                        "--color",
+                        "#ffff00",
+                        "--description",
+                        "QA testing label",
+                        "--team",
+                        "QA",
+                    ],
+                )
 
         assert result.exit_code == 0
         assert "Created label: testing" in result.output
@@ -223,15 +213,14 @@ class TestLabelCreateCommand:
         """Test label creation with invalid color format."""
         ctx, client = mock_cli_context
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.side_effect = ValueError("Color must be a hex code")
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, [
-                    'label', 'create', 'bad-color',
-                    '--color', 'invalid-color'
-                ])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(
+                    main, ["label", "create", "bad-color", "--color", "invalid-color"]
+                )
 
         assert result.exit_code != 0
         assert "Color must be a hex code" in result.output
@@ -242,15 +231,14 @@ class TestLabelCreateCommand:
 
         client.get_teams = AsyncMock(return_value=[])
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.side_effect = ValueError("Team not found: INVALID")
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, [
-                    'label', 'create', 'test-label',
-                    '--team', 'INVALID'
-                ])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(
+                    main, ["label", "create", "test-label", "--team", "INVALID"]
+                )
 
         assert result.exit_code != 0
         assert "Team not found" in result.output
@@ -261,14 +249,12 @@ class TestLabelCreateCommand:
 
         mock_response = {"success": False}
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_response
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, [
-                    'label', 'create', 'failed-label'
-                ])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(main, ["label", "create", "failed-label"])
 
         assert result.exit_code != 0
         assert "Failed to create label" in result.output
@@ -291,19 +277,19 @@ class TestLabelShowCommand:
                     "team": {"name": "Engineering", "key": "ENG"},
                     "creator": {"displayName": "John Doe", "name": "john.doe"},
                     "createdAt": "2024-01-01T00:00:00Z",
-                    "updatedAt": "2024-01-02T00:00:00Z"
+                    "updatedAt": "2024-01-02T00:00:00Z",
                 }
             ]
         }
 
         client.get_labels = AsyncMock(return_value=mock_labels)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_labels["nodes"][0]
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, ['label', 'show', 'bug'])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(main, ["label", "show", "bug"])
 
         assert result.exit_code == 0
         assert "bug" in result.output
@@ -315,9 +301,7 @@ class TestLabelShowCommand:
         ctx, client = mock_cli_context
 
         # Mock team lookup
-        mock_teams = [
-            {"id": "team_456", "key": "DESIGN"}
-        ]
+        mock_teams = [{"id": "team_456", "key": "DESIGN"}]
 
         mock_labels = {
             "nodes": [
@@ -326,7 +310,7 @@ class TestLabelShowCommand:
                     "name": "wireframe",
                     "color": "#purple",
                     "description": "Wireframe tasks",
-                    "team": {"name": "Design", "key": "DESIGN"}
+                    "team": {"name": "Design", "key": "DESIGN"},
                 }
             ]
         }
@@ -334,15 +318,14 @@ class TestLabelShowCommand:
         client.get_teams = AsyncMock(return_value=mock_teams)
         client.get_labels = AsyncMock(return_value=mock_labels)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_labels["nodes"][0]
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, [
-                    'label', 'show', 'wireframe',
-                    '--team', 'DESIGN'
-                ])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(
+                    main, ["label", "show", "wireframe", "--team", "DESIGN"]
+                )
 
         assert result.exit_code == 0
         assert "wireframe" in result.output
@@ -356,12 +339,12 @@ class TestLabelShowCommand:
 
         client.get_labels = AsyncMock(return_value=mock_labels)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = None
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, ['label', 'show', 'nonexistent'])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(main, ["label", "show", "nonexistent"])
 
         assert result.exit_code != 0
         assert "Label not found: nonexistent" in result.output
@@ -379,19 +362,19 @@ class TestLabelShowCommand:
                     "description": "Urgent priority",
                     "team": None,  # Global label
                     "creator": {"displayName": "Admin"},
-                    "createdAt": "2024-01-01T00:00:00Z"
+                    "createdAt": "2024-01-01T00:00:00Z",
                 }
             ]
         }
 
         client.get_labels = AsyncMock(return_value=mock_labels)
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.return_value = mock_labels["nodes"][0]
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, ['label', 'show', 'urgent'])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(main, ["label", "show", "urgent"])
 
         assert result.exit_code == 0
         assert "urgent" in result.output
@@ -401,12 +384,12 @@ class TestLabelShowCommand:
         """Test label show error handling."""
         ctx, client = mock_cli_context
 
-        with patch('src.linearator.cli.commands.label.asyncio.run') as mock_run:
+        with patch("src.linearator.cli.commands.label.asyncio.run") as mock_run:
             mock_run.side_effect = Exception("API Error")
 
             runner = CliRunner()
-            with patch('src.linearator.cli.app.cli_context', ctx):
-                result = runner.invoke(main, ['label', 'show', 'test'])
+            with patch("src.linearator.cli.app.cli_context", ctx):
+                result = runner.invoke(main, ["label", "show", "test"])
 
         assert result.exit_code != 0
         assert "Failed to get label" in result.output

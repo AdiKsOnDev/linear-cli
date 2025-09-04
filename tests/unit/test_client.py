@@ -237,8 +237,8 @@ class TestLinearClient:
 
         with patch("src.linearator.api.client.LinearClient.get_viewer") as mock_viewer:
             mock_viewer.return_value = {
-                "name": "Test User", 
-                "organization": {"name": "Test Org"}
+                "name": "Test User",
+                "organization": {"name": "Test Org"},
             }
 
             client = LinearClient(config=config, authenticator=mock_auth)
