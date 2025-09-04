@@ -272,9 +272,7 @@ def show(
                             color = (
                                 "red"
                                 if priority >= 3
-                                else "yellow"
-                                if priority == 2
-                                else "dim"
+                                else "yellow" if priority == 2 else "dim"
                             )
                             priority_table.add_row(
                                 f"[{color}]{priority_names[priority]}[/{color}]",
