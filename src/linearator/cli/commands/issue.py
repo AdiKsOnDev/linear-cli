@@ -99,7 +99,7 @@ def list(
         issues_result = await client.get_issues(
             team_id=team_id,
             team_key=team_key,
-                # WHY: Allow users to specify assignees by email OR ID for flexibility
+            # WHY: Allow users to specify assignees by email OR ID for flexibility
             # Email is more user-friendly, but IDs are needed for API calls
             assignee_email=assignee if assignee and "@" in assignee else None,
             assignee_id=assignee if assignee and "@" not in assignee else None,
@@ -207,14 +207,18 @@ def create(
             # We need to resolve names to IDs and gracefully handle non-existent labels
             label_names = [label.strip() for label in labels.split(",")]
             labels_data = await client.get_labels(team_id=team_id)
-            label_map = {label["name"]: label["id"] for label in labels_data.get("nodes", [])}
+            label_map = {
+                label["name"]: label["id"] for label in labels_data.get("nodes", [])
+            }
             label_ids = []
             for label_name in label_names:
                 if label_name in label_map:
                     label_ids.append(label_map[label_name])
                 else:
                     # WHY: Warn but don't fail - partial label assignment is better than complete failure
-                    console.print(f"[yellow]Warning: Label '{label_name}' not found, skipping[/yellow]")
+                    console.print(
+                        f"[yellow]Warning: Label '{label_name}' not found, skipping[/yellow]"
+                    )
 
         # Parse priority
         priority_int = None
@@ -392,14 +396,18 @@ def update(
 
             team_id = issue.get("team", {}).get("id")
             labels_data = await client.get_labels(team_id=team_id)
-            label_map = {label["name"]: label["id"] for label in labels_data.get("nodes", [])}
+            label_map = {
+                label["name"]: label["id"] for label in labels_data.get("nodes", [])
+            }
 
             label_ids = []
             for label_name in label_names:
                 if label_name in label_map:
                     label_ids.append(label_map[label_name])
                 else:
-                    console.print(f"[yellow]Warning: Label '{label_name}' not found, skipping[/yellow]")
+                    console.print(
+                        f"[yellow]Warning: Label '{label_name}' not found, skipping[/yellow]"
+                    )
 
         # Parse priority
         priority_int = None

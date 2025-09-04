@@ -127,6 +127,7 @@ def info(ctx: click.Context, team_identifier: str) -> None:
 
         # Use the detailed team query to get members and states
         from ...api.queries import GET_TEAM_QUERY
+
         result = await client.execute_query(GET_TEAM_QUERY, {"id": team_id})
         team_data = result.get("team")
         return team_data if isinstance(team_data, dict) else None
@@ -140,7 +141,9 @@ def info(ctx: click.Context, team_identifier: str) -> None:
             raise click.Abort()
 
         # Display team information
-        console.print(f"[bold cyan]{team.get('name', '')}[/bold cyan] ([green]{team.get('key', '')}[/green])")
+        console.print(
+            f"[bold cyan]{team.get('name', '')}[/bold cyan] ([green]{team.get('key', '')}[/green])"
+        )
         console.print()
 
         # Basic info
@@ -176,6 +179,7 @@ def info(ctx: click.Context, team_identifier: str) -> None:
 
             for state in states_sorted:
                 from rich.text import Text
+
                 color = state.get("color", "#808080")
                 color_display = Text("●", style=f"color({color})")
 
@@ -203,6 +207,7 @@ def info(ctx: click.Context, team_identifier: str) -> None:
 
             for label in labels_sorted[:10]:  # Show first 10 labels
                 from rich.text import Text
+
                 color = label.get("color", "#808080")
                 color_display = Text("●", style=f"color({color})")
 
@@ -238,6 +243,7 @@ def info(ctx: click.Context, team_identifier: str) -> None:
 
             for member in members_sorted[:15]:  # Show first 15 members
                 from rich.text import Text
+
                 status = "Active" if member.get("active", False) else "Inactive"
                 status_style = "green" if member.get("active", False) else "red"
 

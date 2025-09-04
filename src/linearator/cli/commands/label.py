@@ -221,7 +221,9 @@ def show(ctx: click.Context, label_name: str, team: str) -> None:
         # Team info
         team_info = label.get("team")
         if team_info:
-            console.print(f"[dim]Team:[/dim] {team_info.get('name', '')} ({team_info.get('key', '')})")
+            console.print(
+                f"[dim]Team:[/dim] {team_info.get('name', '')} ({team_info.get('key', '')})"
+            )
         else:
             console.print("[dim]Team:[/dim] Global label")
 
@@ -232,6 +234,7 @@ def show(ctx: click.Context, label_name: str, team: str) -> None:
             console.print(f"[dim]Created by:[/dim] {creator_name}")
 
         from ..formatters import format_datetime
+
         console.print(f"[dim]Created:[/dim] {format_datetime(label.get('createdAt'))}")
         console.print(f"[dim]Updated:[/dim] {format_datetime(label.get('updatedAt'))}")
 

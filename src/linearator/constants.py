@@ -5,8 +5,6 @@ Contains priority mappings, color schemes, and other magic numbers used
 throughout the application to improve maintainability and reduce duplication.
 """
 
-
-
 # Linear Priority Mappings
 # Maps Linear priority integers to display text and Rich style colors
 PRIORITY_LEVELS: dict[int, tuple[str, str]] = {
@@ -23,12 +21,12 @@ DEFAULT_PRIORITY = 0
 # Color Pattern Mappings for Hex to Rich Color Approximation
 # Used to convert Linear's hex colors to terminal-friendly Rich color names
 COLOR_PATTERNS: dict[str, str] = {
-    "ff_in_first_three": "red",    # Red-ish colors
-    "00ff_green": "green",         # Green-ish colors
-    "0f0_green": "green",          # Green shorthand
-    "ff0_yellow": "yellow",        # Yellow colors
-    "ffff00_yellow": "yellow",     # Yellow hex
-    "blue_pattern": "blue",        # Blue-ish colors
+    "ff_in_first_three": "red",  # Red-ish colors
+    "00ff_green": "green",  # Green-ish colors
+    "0f0_green": "green",  # Green shorthand
+    "ff0_yellow": "yellow",  # Yellow colors
+    "ffff00_yellow": "yellow",  # Yellow hex
+    "blue_pattern": "blue",  # Blue-ish colors
 }
 
 # Default color style for unknown/invalid colors
@@ -39,13 +37,13 @@ DEFAULT_STATE_COLOR = "#808080"
 
 # Linear API Constants
 LINEAR_API_RATE_LIMIT_WINDOW = 60  # Rate limit reset window in seconds
-DEFAULT_CACHE_TTL = 300           # Default cache time-to-live in seconds
-DEFAULT_API_TIMEOUT = 30          # Default API request timeout in seconds
+DEFAULT_CACHE_TTL = 300  # Default cache time-to-live in seconds
+DEFAULT_API_TIMEOUT = 30  # Default API request timeout in seconds
 
 # CLI Display Constants
-DEFAULT_ISSUE_LIMIT = 50          # Default number of issues to fetch
-MAX_ISSUE_LIMIT = 250            # Maximum issues allowed in single request
-DEFAULT_LABEL_LIMIT = 100        # Default number of labels to fetch
+DEFAULT_ISSUE_LIMIT = 50  # Default number of issues to fetch
+MAX_ISSUE_LIMIT = 250  # Maximum issues allowed in single request
+DEFAULT_LABEL_LIMIT = 100  # Default number of labels to fetch
 
 # OAuth Constants
 OAUTH_REDIRECT_URI = "http://localhost:8080/callback"

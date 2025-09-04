@@ -99,13 +99,17 @@ def start_oauth_callback_server(
     Returns:
         Tuple of (server, handler_instance)
     """
+    
+    class HandlerFactory:
+        def __init__(self) -> None:
+            self.handler: OAuthCallbackHandler | None = None
+        
+        def __call__(self, *args: Any, **kwargs: Any) -> OAuthCallbackHandler:
+            handler = OAuthCallbackHandler(expected_state, *args, **kwargs)
+            self.handler = handler
+            return handler
 
-    def handler_factory(*args: Any, **kwargs: Any) -> OAuthCallbackHandler:
-        handler = OAuthCallbackHandler(expected_state, *args, **kwargs)
-        handler_factory.handler = handler
-        return handler
-
-    handler_factory.handler = None
+    handler_factory = HandlerFactory()
 
     server = HTTPServer(("localhost", port), handler_factory)
 
