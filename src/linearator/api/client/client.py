@@ -261,7 +261,8 @@ class LinearClient:
         """
 
         result = await self.execute_query(query)
-        return result.get("viewer", {})
+        viewer_data = result.get("viewer", {})
+        return dict(viewer_data) if isinstance(viewer_data, dict) else {}
 
     async def get_teams(self) -> list[dict[str, Any]]:
         """
@@ -287,7 +288,341 @@ class LinearClient:
         """
 
         result = await self.execute_query(query)
-        return result.get("teams", {}).get("nodes", [])
+        teams_data = result.get("teams", {}).get("nodes", [])
+        return list(teams_data) if isinstance(teams_data, list) else []
+
+    async def get_issues(
+        self,
+        team_id: str | None = None,
+        team_key: str | None = None,
+        assignee_id: str | None = None,
+        assignee_email: str | None = None,
+        state_name: str | None = None,
+        labels: list[str] | None = None,
+        priority: int | None = None,
+        limit: int = 50,
+        after: str | None = None,
+        order_by: str = "updatedAt",
+    ) -> dict[str, Any]:
+        """
+        Get list of issues with optional filtering.
+
+        Args:
+            team_id: Filter by team ID
+            team_key: Filter by team key
+            assignee_id: Filter by assignee ID
+            assignee_email: Filter by assignee email
+            state_name: Filter by state name
+            labels: Filter by label names
+            priority: Filter by priority (0=None, 1=Low, 2=Normal, 3=High, 4=Urgent)
+            limit: Maximum number of issues to return
+            after: Cursor for pagination
+            order_by: Order by field (default: updatedAt)
+
+        Returns:
+            Issues data with pagination info
+        """
+        from ..queries import GET_ISSUES_QUERY, build_issue_filter
+
+        # Build filter
+        filter_kwargs: dict[str, Any] = {}
+        if team_id:
+            filter_kwargs["team_id"] = team_id
+        elif team_key:
+            filter_kwargs["team_key"] = team_key
+
+        if assignee_id:
+            filter_kwargs["assignee_id"] = assignee_id
+        elif assignee_email:
+            filter_kwargs["assignee_email"] = assignee_email
+
+        if state_name:
+            filter_kwargs["state_name"] = state_name
+
+        if labels:
+            filter_kwargs["labels"] = labels
+
+        if priority is not None:
+            filter_kwargs["priority"] = priority
+
+        issue_filter = build_issue_filter(**filter_kwargs) if filter_kwargs else None
+
+        variables = {
+            "first": limit,
+            "after": after,
+            "filter": issue_filter,
+            "orderBy": {"field": order_by, "direction": "DESC"},
+        }
+
+        result = await self.execute_query(GET_ISSUES_QUERY, variables)
+        issues_data = result.get("issues", {})
+        return dict(issues_data) if isinstance(issues_data, dict) else {}
+
+    async def get_issue(self, issue_id: str) -> dict[str, Any] | None:
+        """
+        Get a single issue by ID or identifier.
+
+        Args:
+            issue_id: Issue ID or identifier (e.g., 'ENG-123')
+
+        Returns:
+            Issue data or None if not found
+        """
+        from ..queries import GET_ISSUE_QUERY
+
+        # If it looks like an identifier (has a dash), we need to search for it
+        if "-" in issue_id and not issue_id.startswith("issue_"):
+            # Search by identifier
+            issues = await self.get_issues(limit=1)
+            for issue in issues.get("nodes", []):
+                if issue.get("identifier") == issue_id:
+                    return dict(issue) if isinstance(issue, dict) else None
+            return None
+        else:
+            # Direct ID lookup
+            variables = {"id": issue_id}
+            result = await self.execute_query(GET_ISSUE_QUERY, variables)
+            issue_data = result.get("issue")
+            return dict(issue_data) if isinstance(issue_data, dict) else None
+
+    async def create_issue(
+        self,
+        title: str,
+        description: str | None = None,
+        team_id: str | None = None,
+        assignee_id: str | None = None,
+        state_id: str | None = None,
+        priority: int | None = None,
+        label_ids: list[str] | None = None,
+        parent_id: str | None = None,
+        project_id: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Create a new issue.
+
+        Args:
+            title: Issue title
+            description: Issue description
+            team_id: Team ID (required)
+            assignee_id: Assignee user ID
+            state_id: Workflow state ID
+            priority: Priority level (0=None, 1=Low, 2=Normal, 3=High, 4=Urgent)
+            label_ids: List of label IDs
+            parent_id: Parent issue ID
+            project_id: Project ID
+
+        Returns:
+            Created issue data
+        """
+        from ..queries import CREATE_ISSUE_MUTATION
+
+        # Build input
+        input_data: dict[str, Any] = {"title": title}
+
+        if description:
+            input_data["description"] = description
+        if team_id:
+            input_data["teamId"] = team_id
+        if assignee_id:
+            input_data["assigneeId"] = assignee_id
+        if state_id:
+            input_data["stateId"] = state_id
+        if priority is not None:
+            input_data["priority"] = priority
+        if label_ids:
+            input_data["labelIds"] = label_ids
+        if parent_id:
+            input_data["parentId"] = parent_id
+        if project_id:
+            input_data["projectId"] = project_id
+
+        variables = {"input": input_data}
+        result = await self.execute_query(CREATE_ISSUE_MUTATION, variables)
+        issue_create_data = result.get("issueCreate", {})
+        return dict(issue_create_data) if isinstance(issue_create_data, dict) else {}
+
+    async def update_issue(
+        self,
+        issue_id: str,
+        title: str | None = None,
+        description: str | None = None,
+        assignee_id: str | None = None,
+        state_id: str | None = None,
+        priority: int | None = None,
+        label_ids: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Update an existing issue.
+
+        Args:
+            issue_id: Issue ID or identifier
+            title: New title
+            description: New description
+            assignee_id: New assignee user ID
+            state_id: New workflow state ID
+            priority: New priority level
+            label_ids: New list of label IDs
+
+        Returns:
+            Updated issue data
+        """
+        from ..queries import UPDATE_ISSUE_MUTATION
+
+        # If using identifier, get the actual ID first
+        if "-" in issue_id and not issue_id.startswith("issue_"):
+            issue = await self.get_issue(issue_id)
+            if not issue:
+                raise LinearAPIError(f"Issue not found: {issue_id}")
+            issue_id = issue["id"]
+
+        # Build input
+        input_data: dict[str, Any] = {}
+
+        if title is not None:
+            input_data["title"] = title
+        if description is not None:
+            input_data["description"] = description
+        if assignee_id is not None:
+            input_data["assigneeId"] = assignee_id
+        if state_id is not None:
+            input_data["stateId"] = state_id
+        if priority is not None:
+            input_data["priority"] = priority
+        if label_ids is not None:
+            input_data["labelIds"] = label_ids
+
+        variables = {"id": issue_id, "input": input_data}
+        result = await self.execute_query(UPDATE_ISSUE_MUTATION, variables)
+        issue_update_data = result.get("issueUpdate", {})
+        return dict(issue_update_data) if isinstance(issue_update_data, dict) else {}
+
+    async def delete_issue(self, issue_id: str) -> bool:
+        """
+        Delete (archive) an issue.
+
+        Args:
+            issue_id: Issue ID or identifier
+
+        Returns:
+            True if successful
+        """
+        from ..queries import DELETE_ISSUE_MUTATION
+
+        # If using identifier, get the actual ID first
+        if "-" in issue_id and not issue_id.startswith("issue_"):
+            issue = await self.get_issue(issue_id)
+            if not issue:
+                raise LinearAPIError(f"Issue not found: {issue_id}")
+            issue_id = issue["id"]
+
+        variables = {"id": issue_id}
+        result = await self.execute_query(DELETE_ISSUE_MUTATION, variables)
+        archive_data = result.get("issueArchive", {})
+        success_value = archive_data.get("success", False) if isinstance(archive_data, dict) else False
+        return bool(success_value)
+
+    async def get_labels(
+        self,
+        team_id: str | None = None,
+        limit: int = 100,
+        after: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get list of labels.
+
+        Args:
+            team_id: Filter by team ID
+            limit: Maximum number of labels to return
+            after: Cursor for pagination
+
+        Returns:
+            Labels data with pagination info
+        """
+        from ..queries import GET_LABELS_QUERY
+
+        filter_obj = {}
+        if team_id:
+            filter_obj = {"team": {"id": {"eq": team_id}}}
+
+        variables = {
+            "first": limit,
+            "after": after,
+            "filter": filter_obj if filter_obj else None,
+        }
+
+        result = await self.execute_query(GET_LABELS_QUERY, variables)
+        labels_data = result.get("issueLabels", {})
+        return dict(labels_data) if isinstance(labels_data, dict) else {}
+
+    async def create_label(
+        self,
+        name: str,
+        color: str = "#808080",
+        description: str | None = None,
+        team_id: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Create a new label.
+
+        Args:
+            name: Label name
+            color: Label color (hex code)
+            description: Label description
+            team_id: Team ID (optional, for team-specific labels)
+
+        Returns:
+            Created label data
+        """
+        from ..queries import CREATE_LABEL_MUTATION
+
+        input_data = {"name": name, "color": color}
+
+        if description:
+            input_data["description"] = description
+        if team_id:
+            input_data["teamId"] = team_id
+
+        variables = {"input": input_data}
+        result = await self.execute_query(CREATE_LABEL_MUTATION, variables)
+        label_create_data = result.get("issueLabelCreate", {})
+        return dict(label_create_data) if isinstance(label_create_data, dict) else {}
+
+    async def get_users(
+        self,
+        team_id: str | None = None,
+        active_only: bool = True,
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """
+        Get list of users.
+
+        Args:
+            team_id: Filter by team membership
+            active_only: Only return active users
+            limit: Maximum number of users to return
+
+        Returns:
+            List of user data
+        """
+        from ..queries import GET_USERS_QUERY, build_user_filter
+
+        filter_kwargs = {}
+        if active_only:
+            filter_kwargs["active"] = True
+
+        user_filter = build_user_filter(**filter_kwargs) if filter_kwargs else None
+
+        variables = {
+            "first": limit,
+            "filter": user_filter,
+        }
+
+        result = await self.execute_query(GET_USERS_QUERY, variables)
+        users_data = result.get("users", {})
+        if isinstance(users_data, dict):
+            nodes_data = users_data.get("nodes", [])
+            return list(nodes_data) if isinstance(nodes_data, list) else []
+        return []
 
     async def test_connection(self) -> dict[str, Any]:
         """
