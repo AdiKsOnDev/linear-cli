@@ -187,7 +187,6 @@ class TestCLIAuthCommands:
             patch("src.linearator.cli.app.ConfigManager") as mock_cm,
             patch("src.linearator.api.auth.core.CredentialStorage") as mock_storage,
         ):
-
             # Mock empty credentials
             mock_storage.return_value.retrieve_credentials.return_value = None
 
@@ -225,7 +224,6 @@ class TestCLIAuthCommands:
             patch("src.linearator.cli.app.ConfigManager") as mock_cm,
             patch("src.linearator.api.client.LinearClient.get_viewer") as mock_viewer,
         ):
-
             mock_client.return_value.__enter__.return_value.post.return_value = (
                 mock_response
             )
@@ -278,7 +276,6 @@ class TestCLIAuthCommands:
             patch("httpx.Client") as mock_client,
             patch("src.linearator.cli.app.ConfigManager") as mock_cm,
         ):
-
             mock_client.return_value.__enter__.return_value.post.return_value = (
                 mock_response
             )

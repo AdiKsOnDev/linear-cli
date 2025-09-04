@@ -318,7 +318,6 @@ class TestIssueOperations:
                 client, "execute_query", new_callable=AsyncMock
             ) as mock_execute,
         ):
-
             mock_get.return_value = mock_issue
             mock_execute.return_value = mock_update_response
 
@@ -372,7 +371,6 @@ class TestIssueOperations:
                 client, "execute_query", new_callable=AsyncMock
             ) as mock_execute,
         ):
-
             mock_get.return_value = mock_issue
             mock_execute.return_value = mock_delete_response
 

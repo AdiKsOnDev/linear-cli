@@ -9,8 +9,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from linearator.cli.commands.user import list as user_list
-
 
 @pytest.fixture
 def mock_context():
@@ -64,65 +62,66 @@ def sample_users():
 def sample_user_issues():
     """Sample issues assigned to users for workload testing."""
     return {
-            "nodes": [
-                {
-                    "id": "issue-1",
-                    "identifier": "ENG-123",
-                    "title": "Authentication bug fix",
-                    "priority": 3,  # High
-                    "state": {"name": "In Progress"},
-                    "assignee": {
-                        "id": "user-1",
-                        "displayName": "John Doe",
-                        "email": "john@company.com",
-                    },
-                    "updatedAt": "2025-01-15T10:00:00Z",
+        "nodes": [
+            {
+                "id": "issue-1",
+                "identifier": "ENG-123",
+                "title": "Authentication bug fix",
+                "priority": 3,  # High
+                "state": {"name": "In Progress"},
+                "assignee": {
+                    "id": "user-1",
+                    "displayName": "John Doe",
+                    "email": "john@company.com",
                 },
-                {
-                    "id": "issue-2",
-                    "identifier": "ENG-124",
-                    "title": "Login timeout handling",
-                    "priority": 2,  # Normal
-                    "state": {"name": "To Do"},
-                    "assignee": {
-                        "id": "user-1",
-                        "displayName": "John Doe",
-                        "email": "john@company.com",
-                    },
-                    "updatedAt": "2025-01-15T09:00:00Z",
+                "updatedAt": "2025-01-15T10:00:00Z",
+            },
+            {
+                "id": "issue-2",
+                "identifier": "ENG-124",
+                "title": "Login timeout handling",
+                "priority": 2,  # Normal
+                "state": {"name": "To Do"},
+                "assignee": {
+                    "id": "user-1",
+                    "displayName": "John Doe",
+                    "email": "john@company.com",
                 },
-                {
-                    "id": "issue-3",
-                    "identifier": "ENG-125",
-                    "title": "Security enhancement",
-                    "priority": 4,  # Urgent
-                    "state": {"name": "Done"},
-                    "assignee": {
-                        "id": "user-1",
-                        "displayName": "John Doe",
-                        "email": "john@company.com",
-                    },
-                    "updatedAt": "2025-01-14T15:30:00Z",
+                "updatedAt": "2025-01-15T09:00:00Z",
+            },
+            {
+                "id": "issue-3",
+                "identifier": "ENG-125",
+                "title": "Security enhancement",
+                "priority": 4,  # Urgent
+                "state": {"name": "Done"},
+                "assignee": {
+                    "id": "user-1",
+                    "displayName": "John Doe",
+                    "email": "john@company.com",
                 },
-                {
-                    "id": "issue-4",
-                    "identifier": "ENG-126",
-                    "title": "UI improvement",
-                    "priority": 1,  # Low
-                    "state": {"name": "In Progress"},
-                    "assignee": {
-                        "id": "user-2",
-                        "displayName": "Jane Smith",
-                        "email": "jane@company.com",
-                    },
-                    "updatedAt": "2025-01-15T08:00:00Z",
+                "updatedAt": "2025-01-14T15:30:00Z",
+            },
+            {
+                "id": "issue-4",
+                "identifier": "ENG-126",
+                "title": "UI improvement",
+                "priority": 1,  # Low
+                "state": {"name": "In Progress"},
+                "assignee": {
+                    "id": "user-2",
+                    "displayName": "Jane Smith",
+                    "email": "jane@company.com",
                 },
-            ]
-        }
+                "updatedAt": "2025-01-15T08:00:00Z",
+            },
+        ]
+    }
 
 
 class TestUserManagement:
     """Test user management functionality."""
+
     pass
 
 

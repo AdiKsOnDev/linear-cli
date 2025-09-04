@@ -369,7 +369,11 @@ class TestBulkLabel:
             (["new-label"], None, True),  # Adding new label - change
             (None, ["nonexistent"], False),  # Removing non-existent label - no change
             (None, ["bug"], True),  # Removing existing label - change
-            (["bug"], ["bug"], True),  # Add and remove same existing label - change (removes it)
+            (
+                ["bug"],
+                ["bug"],
+                True,
+            ),  # Add and remove same existing label - change (removes it)
             (["new"], ["bug"], True),  # Add new, remove existing - change
         ]
 
@@ -383,9 +387,9 @@ class TestBulkLabel:
                 new_set = new_set - set(remove_labels)
 
             has_change = original_set != new_set
-            assert (
-                has_change == should_change
-            ), f"Failed for add={add_labels}, remove={remove_labels}"
+            assert has_change == should_change, (
+                f"Failed for add={add_labels}, remove={remove_labels}"
+            )
 
 
 class TestBulkOperationsCommon:
