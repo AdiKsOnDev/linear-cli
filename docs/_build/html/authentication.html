@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authentication &mdash; Linearator 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=08840e99" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Basic Usage" href="basic_usage.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Linearator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Authentication</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#oauth-authentication-recommended">OAuth Authentication (Recommended)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initial-setup">Initial Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#checking-authentication-status">Checking Authentication Status</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#api-key-authentication">API Key Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-api-keys">Using API Keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-api-keys">Generating API Keys</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#credential-storage">Credential Storage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#manual-credential-management">Manual Credential Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file-authentication">Configuration File Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#team-specific-authentication">Team-Specific Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting-authentication">Troubleshooting Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#permission-scopes">Permission Scopes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#api-key-permissions">API Key Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#oauth-permissions">OAuth Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#security-best-practices">Security Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-ci-cd-setup">Example: CI/CD Setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/cli.html">CLI Module API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Linearator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Authentication</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/authentication.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="authentication">
+<h1>Authentication<a class="headerlink" href="#authentication" title="Link to this heading"></a></h1>
+<p>Linearator supports multiple authentication methods to connect with Linear’s API. This guide covers all authentication options and credential management.</p>
+<section id="oauth-authentication-recommended">
+<h2>OAuth Authentication (Recommended)<a class="headerlink" href="#oauth-authentication-recommended" title="Link to this heading"></a></h2>
+<p>OAuth provides the most secure authentication method with automatic token refresh.</p>
+<section id="initial-setup">
+<h3>Initial Setup<a class="headerlink" href="#initial-setup" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start OAuth flow</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>login
+
+<span class="c1"># Follow the browser prompts to authorize Linearator</span>
+<span class="c1"># Tokens will be securely stored in your system keyring</span>
+</pre></div>
+</div>
+</section>
+<section id="checking-authentication-status">
+<h3>Checking Authentication Status<a class="headerlink" href="#checking-authentication-status" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check current authentication status</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>status
+
+<span class="c1"># View stored credentials (without exposing secrets)</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>info
+</pre></div>
+</div>
+</section>
+</section>
+<section id="api-key-authentication">
+<h2>API Key Authentication<a class="headerlink" href="#api-key-authentication" title="Link to this heading"></a></h2>
+<p>For automation or environments where OAuth isn’t suitable, you can use API keys.</p>
+<section id="using-api-keys">
+<h3>Using API Keys<a class="headerlink" href="#using-api-keys" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set API key via command line</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>--api-key<span class="w"> </span>YOUR_API_KEY
+
+<span class="c1"># Or set via environment variable</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEAR_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key-here&quot;</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>login
+</pre></div>
+</div>
+</section>
+<section id="generating-api-keys">
+<h3>Generating API Keys<a class="headerlink" href="#generating-api-keys" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Go to Linear Settings &gt; API</p></li>
+<li><p>Click “Create new key”</p></li>
+<li><p>Give it a descriptive name (e.g., “Linearator CLI”)</p></li>
+<li><p>Copy the generated key immediately (it won’t be shown again)</p></li>
+</ol>
+</section>
+</section>
+<section id="environment-variables">
+<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<p>Linearator recognizes several environment variables for authentication:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Primary API token</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEAR_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
+
+<span class="c1"># OAuth tokens (managed automatically)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEAR_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">&quot;oauth-access-token&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEAR_REFRESH_TOKEN</span><span class="o">=</span><span class="s2">&quot;oauth-refresh-token&quot;</span>
+
+<span class="c1"># API endpoint (rarely needed to change)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEAR_API_URL</span><span class="o">=</span><span class="s2">&quot;https://api.linear.app/graphql&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="credential-storage">
+<h2>Credential Storage<a class="headerlink" href="#credential-storage" title="Link to this heading"></a></h2>
+<p>Linearator uses your system’s secure keyring to store credentials:</p>
+<ul class="simple">
+<li><p><strong>macOS</strong>: Keychain</p></li>
+<li><p><strong>Linux</strong>: Secret Service (GNOME Keyring, KWallet)</p></li>
+<li><p><strong>Windows</strong>: Windows Credential Locker</p></li>
+</ul>
+<section id="manual-credential-management">
+<h3>Manual Credential Management<a class="headerlink" href="#manual-credential-management" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove stored credentials</span>
+linearator<span class="w"> </span>auth<span class="w"> </span><span class="nb">logout</span>
+
+<span class="c1"># Force refresh of OAuth tokens</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>refresh
+
+<span class="c1"># Clear all stored authentication data</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>reset
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration-file-authentication">
+<h2>Configuration File Authentication<a class="headerlink" href="#configuration-file-authentication" title="Link to this heading"></a></h2>
+<p>You can also store authentication in your configuration file (less secure):</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ~/.linearator/config.toml</span>
+<span class="k">[auth]</span>
+<span class="n">api_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;your-api-key&quot;</span>
+<span class="c1"># Note: OAuth tokens should not be stored in config files</span>
+</pre></div>
+</div>
+</section>
+<section id="team-specific-authentication">
+<h2>Team-Specific Authentication<a class="headerlink" href="#team-specific-authentication" title="Link to this heading"></a></h2>
+<p>For organizations with multiple Linear workspaces:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Authenticate with specific workspace</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>--workspace<span class="w"> </span><span class="s2">&quot;company-workspace&quot;</span>
+
+<span class="c1"># Switch between authenticated workspaces</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>switch-workspace<span class="w"> </span><span class="s2">&quot;other-workspace&quot;</span>
+
+<span class="c1"># List available workspaces</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>list-workspaces
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting-authentication">
+<h2>Troubleshooting Authentication<a class="headerlink" href="#troubleshooting-authentication" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<p><strong>Token Expired</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Refresh OAuth tokens</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>refresh
+
+<span class="c1"># Or re-authenticate</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>login
+</pre></div>
+</div>
+<p><strong>Invalid API Key</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify your API key</span>
+linearator<span class="w"> </span>auth<span class="w"> </span>status<span class="w"> </span>--verbose
+
+<span class="c1"># Generate a new API key from Linear Settings</span>
+</pre></div>
+</div>
+<p><strong>Keyring Access Issues</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use environment variables instead</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEAR_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span>
+
+<span class="c1"># Or store in config file</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>auth.api_key<span class="w"> </span><span class="s2">&quot;your-key&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="permission-scopes">
+<h2>Permission Scopes<a class="headerlink" href="#permission-scopes" title="Link to this heading"></a></h2>
+<p>Different authentication methods provide different permission levels:</p>
+<section id="api-key-permissions">
+<h3>API Key Permissions<a class="headerlink" href="#api-key-permissions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Read/write access to issues</p></li>
+<li><p>Team and user information</p></li>
+<li><p>Label management</p></li>
+<li><p>Search capabilities</p></li>
+</ul>
+</section>
+<section id="oauth-permissions">
+<h3>OAuth Permissions<a class="headerlink" href="#oauth-permissions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All API key permissions</p></li>
+<li><p>Secure token refresh</p></li>
+<li><p>Workspace-level permissions</p></li>
+<li><p>Enhanced rate limiting</p></li>
+</ul>
+</section>
+</section>
+<section id="security-best-practices">
+<h2>Security Best Practices<a class="headerlink" href="#security-best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Use OAuth when possible</strong> - Most secure with automatic token refresh</p></li>
+<li><p><strong>Rotate API keys regularly</strong> - Generate new keys periodically</p></li>
+<li><p><strong>Don’t share credentials</strong> - Each user should have their own authentication</p></li>
+<li><p><strong>Use environment variables in CI/CD</strong> - Never commit credentials to repositories</p></li>
+<li><p><strong>Monitor API usage</strong> - Check Linear’s API usage dashboard regularly</p></li>
+</ol>
+<section id="example-ci-cd-setup">
+<h3>Example: CI/CD Setup<a class="headerlink" href="#example-ci-cd-setup" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># GitHub Actions example</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Linear Integration</span>
+<span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">create-issue</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup Python</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.12&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install Linearator</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip install linearator</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create issue on failure</span>
+<span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">failure()</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">linearator issue create \</span>
+<span class="w">            </span><span class="no">--title &quot;Build failed: ${{ github.sha }}&quot; \</span>
+<span class="w">            </span><span class="no">--description &quot;Build failed on ${{ github.ref }}&quot; \</span>
+<span class="w">            </span><span class="no">--team &quot;Engineering&quot;</span>
+<span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">LINEAR_API_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.LINEAR_API_KEY }}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="basic_usage.html" class="btn btn-neutral float-right" title="Basic Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Linearator Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

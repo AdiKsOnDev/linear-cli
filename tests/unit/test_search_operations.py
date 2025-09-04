@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from linearator.api.client.client import LinearClient
+from linear_cli.api.client.client import LinearClient
 
 
 class TestSearchOperations:
@@ -231,7 +231,7 @@ class TestSearchCLICommand:
 
         return ctx, cli_ctx, client, config
 
-    @patch("linearator.cli.commands.search.asyncio.run")
+    @patch("linear-cli.cli.commands.search.asyncio.run")
     def test_search_command_basic(self, mock_asyncio_run, mock_context):
         """Test basic search command execution."""
         ctx, cli_ctx, client, config = mock_context

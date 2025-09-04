@@ -50,7 +50,7 @@ jobs:
           
       - name: Run MyPy type checking
         run: |
-          mypy src/linearator
+          mypy src/linear-cli
           
       - name: Check imports with isort
         run: |
@@ -89,7 +89,7 @@ jobs:
           
       - name: Run unit tests
         run: |
-          pytest tests/unit/ -v --tb=short --cov=src/linearator --cov-report=xml --cov-report=term-missing
+          pytest tests/unit/ -v --tb=short --cov=src/linear-cli --cov-report=xml --cov-report=term-missing
           
       - name: Run integration tests
         run: |
@@ -122,8 +122,8 @@ jobs:
           
       - name: Run Bandit security scan
         run: |
-          bandit -r src/linearator/ -f json -o bandit-report.json || true
-          bandit -r src/linearator/
+          bandit -r src/linear-cli/ -f json -o bandit-report.json || true
+          bandit -r src/linear-cli/
           
       - name: Run Safety vulnerability scan
         run: |
@@ -212,7 +212,7 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
     environment:
       name: pypi
-      url: https://pypi.org/p/linearator
+      url: https://pypi.org/p/linear-cli
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
@@ -251,15 +251,15 @@ jobs:
       - name: Test wheel installation
         run: |
           pip install dist/*.whl
-          linearator --version
-          linearator --help
+          linear-cli --version
+          linear-cli --help
           
       - name: Test source installation
         run: |
-          pip uninstall -y linearator
+          pip uninstall -y linear-cli
           pip install dist/*.tar.gz
-          linearator --version
-          linearator --help
+          linear-cli --version
+          linear-cli --help
 
   performance:
     name: Performance Benchmarks

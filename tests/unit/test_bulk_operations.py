@@ -100,8 +100,8 @@ class TestBulkStateUpdate:
 
         return ctx, cli_ctx, client, config
 
-    @patch("linearator.cli.commands.bulk.asyncio.run")
-    @patch("linearator.cli.commands.bulk.Confirm.ask")
+    @patch("linear-cli.cli.commands.bulk.asyncio.run")
+    @patch("linear-cli.cli.commands.bulk.Confirm.ask")
     def test_bulk_state_update_basic(
         self, mock_confirm, mock_asyncio_run, mock_context
     ):

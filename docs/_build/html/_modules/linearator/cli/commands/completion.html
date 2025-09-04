@@ -1,0 +1,495 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>linearator.cli.commands.completion &mdash; Linearator 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=08840e99" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Linearator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../advanced_features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/cli.html">CLI Module API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Linearator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">linearator.cli.commands.completion</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for linearator.cli.commands.completion</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Shell completion commands for Linearator CLI.</span>
+
+<span class="sd">Provides shell completion scripts for bash, zsh, and fish shells.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+
+<span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">completion_group</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shell completion commands.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@completion_group</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;shell&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;zsh&quot;</span><span class="p">,</span> <span class="s2">&quot;fish&quot;</span><span class="p">]))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">install</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">shell</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Install shell completion for the specified shell.</span>
+
+<span class="sd">    \b</span>
+<span class="sd">    Supported shells:</span>
+<span class="sd">        bash    - Bash shell completion</span>
+<span class="sd">        zsh     - Zsh shell completion</span>
+<span class="sd">        fish    - Fish shell completion</span>
+
+<span class="sd">    \b</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        linearator completion install bash    # Install bash completion</span>
+<span class="sd">        linearator completion install zsh     # Install zsh completion</span>
+<span class="sd">        linearator completion install fish    # Install fish completion</span>
+
+<span class="sd">    \b</span>
+<span class="sd">    Installation instructions will be displayed for manual setup.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;[bold blue]Installing </span><span class="si">{</span><span class="n">shell</span><span class="si">}</span><span class="s2"> completion for Linearator[/bold blue]&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;bash&quot;</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">[bold]Bash Completion Setup:[/bold]</span>
+
+<span class="sd">1. Generate completion script:</span>
+<span class="sd">   [dim]linearator completion show bash &gt; ~/.linearator-completion.bash[/dim]</span>
+
+<span class="sd">2. Add to your ~/.bashrc or ~/.bash_profile:</span>
+<span class="sd">   [dim]source ~/.linearator-completion.bash[/dim]</span>
+
+<span class="sd">3. Reload your shell or run:</span>
+<span class="sd">   [dim]source ~/.bashrc[/dim]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;zsh&quot;</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">[bold]Zsh Completion Setup:[/bold]</span>
+
+<span class="sd">1. Generate completion script:</span>
+<span class="sd">   [dim]linearator completion show zsh &gt; ~/.linearator-completion.zsh[/dim]</span>
+
+<span class="sd">2. Add to your ~/.zshrc:</span>
+<span class="sd">   [dim]source ~/.linearator-completion.zsh[/dim]</span>
+
+<span class="sd">3. Reload your shell or run:</span>
+<span class="sd">   [dim]source ~/.zshrc[/dim]</span>
+
+<span class="sd">Alternative (using compinit):</span>
+<span class="sd">1. Create completion function:</span>
+<span class="sd">   [dim]linearator completion show zsh &gt; ~/.zsh/completions/_linearator[/dim]</span>
+
+<span class="sd">2. Add to ~/.zshrc (before compinit):</span>
+<span class="sd">   [dim]fpath=(~/.zsh/completions $fpath)[/dim]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;fish&quot;</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">[bold]Fish Completion Setup:[/bold]</span>
+
+<span class="sd">1. Create fish completions directory:</span>
+<span class="sd">   [dim]mkdir -p ~/.config/fish/completions[/dim]</span>
+
+<span class="sd">2. Generate completion script:</span>
+<span class="sd">   [dim]linearator completion show fish &gt; ~/.config/fish/completions/linearator.fish[/dim]</span>
+
+<span class="sd">3. Reload fish:</span>
+<span class="sd">   [dim]exec fish[/dim]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@completion_group</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;shell&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;zsh&quot;</span><span class="p">,</span> <span class="s2">&quot;fish&quot;</span><span class="p">]))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">shell</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Show shell completion script for the specified shell.</span>
+
+<span class="sd">    Output the completion script that can be saved to a file or sourced directly.</span>
+
+<span class="sd">    \b</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        linearator completion show bash &gt; ~/.linearator-completion.bash</span>
+<span class="sd">        linearator completion show zsh &gt; ~/.config/zsh/completions/_linearator</span>
+<span class="sd">        linearator completion show fish &gt; ~/.config/fish/completions/linearator.fish</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;bash&quot;</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">generate_bash_completion</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;zsh&quot;</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">generate_zsh_completion</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;fish&quot;</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">generate_fish_completion</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="generate_bash_completion">
+<a class="viewcode-back" href="../../../../api/cli.html#linearator.cli.commands.completion.generate_bash_completion">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_bash_completion</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate bash completion script.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># Bash completion for linearator</span>
+<span class="s2">_linearator_completion() {</span>
+<span class="s2">    local IFS=$&#39;</span><span class="se">\n</span><span class="s2">&#39;</span>
+<span class="s2">    local response</span>
+
+<span class="s2">    # WHY: Dynamic completion strategy with fallback for reliability:</span>
+<span class="s2">    # Primary: Try dynamic completion service for context-aware suggestions</span>
+<span class="s2">    # Fallback: Use static completion when dynamic completion service unavailable</span>
+<span class="s2">    # This approach provides the best user experience when possible while maintaining</span>
+<span class="s2">    # basic completion functionality even when the dynamic service fails</span>
+<span class="s2">    response=$(env COMP_WORDS=&quot;$</span><span class="si">{COMP_WORDS[*]}</span><span class="s2">&quot; COMP_CWORD=$COMP_CWORD linearator-complete 2&gt;/dev/null)</span>
+
+<span class="s2">    if [ $? -eq 0 ]; then</span>
+<span class="s2">        eval $response</span>
+<span class="s2">    else</span>
+<span class="s2">        # Fallback to basic completion</span>
+<span class="s2">        local cur=&quot;$</span><span class="si">{COMP_WORDS[COMP_CWORD]}</span><span class="s2">&quot;</span>
+<span class="s2">        local commands=&quot;auth config team issue label search bulk user interactive completion status version&quot;</span>
+<span class="s2">        local options=&quot;--help --version --config-dir --team --output-format --no-color --verbose --debug&quot;</span>
+
+<span class="s2">        case &quot;$</span><span class="si">{COMP_WORDS[1]}</span><span class="s2">&quot; in</span>
+<span class="s2">            auth)</span>
+<span class="s2">                COMPREPLY=($(compgen -W &quot;login logout status&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                ;;</span>
+<span class="s2">            issue)</span>
+<span class="s2">                COMPREPLY=($(compgen -W &quot;list create update show delete&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                ;;</span>
+<span class="s2">            search)</span>
+<span class="s2">                COMPREPLY=($(compgen -W &quot;issues history save list&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                ;;</span>
+<span class="s2">            bulk)</span>
+<span class="s2">                COMPREPLY=($(compgen -W &quot;update-state assign label&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                ;;</span>
+<span class="s2">            user)</span>
+<span class="s2">                COMPREPLY=($(compgen -W &quot;list show workload suggest&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                ;;</span>
+<span class="s2">            team)</span>
+<span class="s2">                COMPREPLY=($(compgen -W &quot;list info&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                ;;</span>
+<span class="s2">            label)</span>
+<span class="s2">                COMPREPLY=($(compgen -W &quot;list create show&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                ;;</span>
+<span class="s2">            completion)</span>
+<span class="s2">                COMPREPLY=($(compgen -W &quot;install show&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                ;;</span>
+<span class="s2">            *)</span>
+<span class="s2">                if [[ $cur == -* ]]; then</span>
+<span class="s2">                    COMPREPLY=($(compgen -W &quot;$options&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                else</span>
+<span class="s2">                    COMPREPLY=($(compgen -W &quot;$commands&quot; -- &quot;$cur&quot;))</span>
+<span class="s2">                fi</span>
+<span class="s2">                ;;</span>
+<span class="s2">        esac</span>
+<span class="s2">    fi</span>
+<span class="s2">}</span>
+
+<span class="s2">complete -o bashdefault -o default -F _linearator_completion linearator</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="generate_zsh_completion">
+<a class="viewcode-back" href="../../../../api/cli.html#linearator.cli.commands.completion.generate_zsh_completion">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_zsh_completion</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate zsh completion script.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#compdef linearator</span>
+
+<span class="s2">_linearator() {</span>
+<span class="s2">    local context curcontext=&quot;$curcontext&quot; state line</span>
+<span class="s2">    _arguments -C </span><span class="se">\</span>
+<span class="s2">        &#39;--help[Show help message]&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;--version[Show version]&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;--config-dir[Configuration directory]:directory:_directories&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;--team[Default team]:team:&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;--output-format[Output format]:format:(table json yaml)&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;--no-color[Disable colored output]&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;--verbose[Enable verbose output]&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;--debug[Enable debug output]&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;1: :_linearator_commands&#39; </span><span class="se">\</span>
+<span class="s2">        &#39;*: :-&gt;args&#39;</span>
+
+<span class="s2">    case $state in</span>
+<span class="s2">    args)</span>
+<span class="s2">        case $line[1] in</span>
+<span class="s2">        auth)</span>
+<span class="s2">            _arguments </span><span class="se">\</span>
+<span class="s2">                &#39;1: :(login logout status)&#39;</span>
+<span class="s2">            ;;</span>
+<span class="s2">        issue)</span>
+<span class="s2">            _arguments </span><span class="se">\</span>
+<span class="s2">                &#39;1: :(list create update show delete)&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--team[Team]:team:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--assignee[Assignee]:assignee:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--state[State]:state:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--labels[Labels]:labels:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--priority[Priority]:priority:(0 1 2 3 4)&#39;</span>
+<span class="s2">            ;;</span>
+<span class="s2">        search)</span>
+<span class="s2">            _arguments </span><span class="se">\</span>
+<span class="s2">                &#39;1: :(issues history save list)&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--team[Team]:team:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--assignee[Assignee]:assignee:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--state[State]:state:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--labels[Labels]:labels:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--priority[Priority]:priority:(0 1 2 3 4)&#39;</span>
+<span class="s2">            ;;</span>
+<span class="s2">        bulk)</span>
+<span class="s2">            _arguments </span><span class="se">\</span>
+<span class="s2">                &#39;1: :(update-state assign label)&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--query[Search query]:query:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--team[Team]:team:&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--dry-run[Dry run mode]&#39;</span>
+<span class="s2">            ;;</span>
+<span class="s2">        user)</span>
+<span class="s2">            _arguments </span><span class="se">\</span>
+<span class="s2">                &#39;1: :(list show workload suggest)&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--team[Team]:team:&#39;</span>
+<span class="s2">            ;;</span>
+<span class="s2">        team)</span>
+<span class="s2">            _arguments </span><span class="se">\</span>
+<span class="s2">                &#39;1: :(list info)&#39;</span>
+<span class="s2">            ;;</span>
+<span class="s2">        label)</span>
+<span class="s2">            _arguments </span><span class="se">\</span>
+<span class="s2">                &#39;1: :(list create show)&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;--team[Team]:team:&#39;</span>
+<span class="s2">            ;;</span>
+<span class="s2">        completion)</span>
+<span class="s2">            _arguments </span><span class="se">\</span>
+<span class="s2">                &#39;1: :(install show)&#39; </span><span class="se">\</span>
+<span class="s2">                &#39;2: :(bash zsh fish)&#39;</span>
+<span class="s2">            ;;</span>
+<span class="s2">        esac</span>
+<span class="s2">        ;;</span>
+<span class="s2">    esac</span>
+<span class="s2">}</span>
+
+<span class="s2">_linearator_commands() {</span>
+<span class="s2">    local commands</span>
+<span class="s2">    commands=(</span>
+<span class="s2">        &#39;auth:Authentication commands&#39;</span>
+<span class="s2">        &#39;config:Configuration management&#39;</span>
+<span class="s2">        &#39;team:Team management&#39;</span>
+<span class="s2">        &#39;issue:Issue management&#39;</span>
+<span class="s2">        &#39;label:Label management&#39;</span>
+<span class="s2">        &#39;search:Search issues&#39;</span>
+<span class="s2">        &#39;bulk:Bulk operations&#39;</span>
+<span class="s2">        &#39;user:User management&#39;</span>
+<span class="s2">        &#39;interactive:Interactive mode&#39;</span>
+<span class="s2">        &#39;completion:Shell completion&#39;</span>
+<span class="s2">        &#39;status:Show status&#39;</span>
+<span class="s2">        &#39;version:Show version&#39;</span>
+<span class="s2">    )</span>
+<span class="s2">    _describe &#39;commands&#39; commands</span>
+<span class="s2">}</span>
+
+<span class="s2">_linearator</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="generate_fish_completion">
+<a class="viewcode-back" href="../../../../api/cli.html#linearator.cli.commands.completion.generate_fish_completion">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_fish_completion</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate fish completion script.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># Fish completion for linearator</span>
+
+<span class="s2"># Global options</span>
+<span class="s2">complete -c linearator -l help -d &#39;Show help message&#39;</span>
+<span class="s2">complete -c linearator -l version -d &#39;Show version&#39;</span>
+<span class="s2">complete -c linearator -l config-dir -d &#39;Configuration directory&#39; -r</span>
+<span class="s2">complete -c linearator -l team -d &#39;Default team&#39; -r</span>
+<span class="s2">complete -c linearator -l output-format -d &#39;Output format&#39; -x -a &#39;table json yaml&#39;</span>
+<span class="s2">complete -c linearator -l no-color -d &#39;Disable colored output&#39;</span>
+<span class="s2">complete -c linearator -l verbose -d &#39;Enable verbose output&#39;</span>
+<span class="s2">complete -c linearator -l debug -d &#39;Enable debug output&#39;</span>
+
+<span class="s2"># Main commands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;auth&#39; -d &#39;Authentication commands&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;config&#39; -d &#39;Configuration management&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;team&#39; -d &#39;Team management&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;issue&#39; -d &#39;Issue management&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;label&#39; -d &#39;Label management&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;search&#39; -d &#39;Search issues&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;bulk&#39; -d &#39;Bulk operations&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;user&#39; -d &#39;User management&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;interactive&#39; -d &#39;Interactive mode&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;completion&#39; -d &#39;Shell completion&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;status&#39; -d &#39;Show status&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_use_subcommand&#39; -a &#39;version&#39; -d &#39;Show version&#39;</span>
+
+<span class="s2"># Auth subcommands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from auth&#39; -a &#39;login&#39; -d &#39;Login to Linear&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from auth&#39; -a &#39;logout&#39; -d &#39;Logout from Linear&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from auth&#39; -a &#39;status&#39; -d &#39;Show auth status&#39;</span>
+
+<span class="s2"># Issue subcommands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from issue&#39; -a &#39;list&#39; -d &#39;List issues&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from issue&#39; -a &#39;create&#39; -d &#39;Create issue&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from issue&#39; -a &#39;update&#39; -d &#39;Update issue&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from issue&#39; -a &#39;show&#39; -d &#39;Show issue details&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from issue&#39; -a &#39;delete&#39; -d &#39;Delete issue&#39;</span>
+
+<span class="s2"># Issue options</span>
+<span class="s2">complete -c linearator -n &#39;__fish_seen_subcommand_from issue&#39; -l team -d &#39;Team filter&#39; -r</span>
+<span class="s2">complete -c linearator -n &#39;__fish_seen_subcommand_from issue&#39; -l assignee -d &#39;Assignee filter&#39; -r</span>
+<span class="s2">complete -c linearator -n &#39;__fish_seen_subcommand_from issue&#39; -l state -d &#39;State filter&#39; -r</span>
+<span class="s2">complete -c linearator -n &#39;__fish_seen_subcommand_from issue&#39; -l labels -d &#39;Labels filter&#39; -r</span>
+<span class="s2">complete -c linearator -n &#39;__fish_seen_subcommand_from issue&#39; -l priority -d &#39;Priority filter&#39; -x -a &#39;0 1 2 3 4&#39;</span>
+
+<span class="s2"># Search subcommands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from search&#39; -a &#39;issues&#39; -d &#39;Search issues&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from search&#39; -a &#39;history&#39; -d &#39;Search history&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from search&#39; -a &#39;save&#39; -d &#39;Save search&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from search&#39; -a &#39;list&#39; -d &#39;List saved searches&#39;</span>
+
+<span class="s2"># Bulk subcommands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from bulk&#39; -a &#39;update-state&#39; -d &#39;Bulk state updates&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from bulk&#39; -a &#39;assign&#39; -d &#39;Bulk assignments&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from bulk&#39; -a &#39;label&#39; -d &#39;Bulk labeling&#39;</span>
+
+<span class="s2"># User subcommands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from user&#39; -a &#39;list&#39; -d &#39;List users&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from user&#39; -a &#39;show&#39; -d &#39;Show user details&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from user&#39; -a &#39;workload&#39; -d &#39;Workload analysis&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from user&#39; -a &#39;suggest&#39; -d &#39;Assignment suggestions&#39;</span>
+
+<span class="s2"># Team subcommands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from team&#39; -a &#39;list&#39; -d &#39;List teams&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from team&#39; -a &#39;info&#39; -d &#39;Show team info&#39;</span>
+
+<span class="s2"># Label subcommands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from label&#39; -a &#39;list&#39; -d &#39;List labels&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from label&#39; -a &#39;create&#39; -d &#39;Create label&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from label&#39; -a &#39;show&#39; -d &#39;Show label details&#39;</span>
+
+<span class="s2"># Completion subcommands</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from completion&#39; -a &#39;install&#39; -d &#39;Install completion&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from completion&#39; -a &#39;show&#39; -d &#39;Show completion script&#39;</span>
+<span class="s2">complete -c linearator -f -n &#39;__fish_seen_subcommand_from completion; and __fish_seen_subcommand_from install show&#39; -a &#39;bash zsh fish&#39;</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># Standalone completion command (alternative to group)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;shell&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;zsh&quot;</span><span class="p">,</span> <span class="s2">&quot;fish&quot;</span><span class="p">]))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">completion</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">shell</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate shell completion script.</span>
+
+<span class="sd">    This is a convenient alias for &#39;completion show&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">show</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="n">shell</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Linearator Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

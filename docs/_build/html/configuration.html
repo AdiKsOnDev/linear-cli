@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration &mdash; Linearator 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=08840e99" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CLI Module API" href="api/cli.html" />
+    <link rel="prev" title="Advanced Features" href="advanced_features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Linearator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_features.html">Advanced Features</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-methods">Configuration Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-files">Configuration Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#default-configuration-file">Default Configuration File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#project-specific-configuration">Project-Specific Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-sections">Configuration Sections</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#default-settings">Default Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api-configuration">API Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authentication-settings">Authentication Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#display-configuration">Display Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#caching-settings">Caching Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#search-configuration">Search Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bulk-operation-settings">Bulk Operation Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment Variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authentication">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Default Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api-settings">API Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#display-settings">Display Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-configuration">Command-Line Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#viewing-configuration">Viewing Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-configuration">Setting Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#removing-configuration">Removing Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-validation">Configuration Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#aliases">Aliases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-aliases">Creating Aliases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-aliases">Using Aliases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#managing-aliases">Managing Aliases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#profiles">Profiles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-profiles">Creating Profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-profiles">Using Profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#managing-profiles">Managing Profiles</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-configuration">Advanced Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#custom-output-templates">Custom Output Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plugin-configuration">Plugin Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting-configuration">Troubleshooting Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#migration-and-backup">Migration and Backup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backup-configuration">Backup Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#restore-configuration">Restore Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#migration-between-versions">Migration Between Versions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/cli.html">CLI Module API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Linearator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/configuration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h1>
+<p>Linearator provides flexible configuration options through configuration files, environment variables, and command-line options. This guide covers all configuration methods and available settings.</p>
+<section id="configuration-methods">
+<h2>Configuration Methods<a class="headerlink" href="#configuration-methods" title="Link to this heading"></a></h2>
+<p>Linearator follows a standard configuration precedence:</p>
+<ol class="arabic simple">
+<li><p><strong>Command-line options</strong> (highest priority)</p></li>
+<li><p><strong>Environment variables</strong></p></li>
+<li><p><strong>Configuration files</strong></p></li>
+<li><p><strong>Default values</strong> (lowest priority)</p></li>
+</ol>
+</section>
+<section id="configuration-files">
+<h2>Configuration Files<a class="headerlink" href="#configuration-files" title="Link to this heading"></a></h2>
+<p>Linearator uses TOML format for configuration files.</p>
+<section id="default-configuration-file">
+<h3>Default Configuration File<a class="headerlink" href="#default-configuration-file" title="Link to this heading"></a></h3>
+<p>The main configuration file is located at:</p>
+<ul class="simple">
+<li><p><strong>Linux/macOS</strong>: <code class="docutils literal notranslate"><span class="pre">~/.linearator/config.toml</span></code></p></li>
+<li><p><strong>Windows</strong>: <code class="docutils literal notranslate"><span class="pre">%APPDATA%\Linearator\config.toml</span></code></p></li>
+</ul>
+<p>Example configuration file:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[default]</span>
+<span class="n">team</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Engineering&quot;</span>
+<span class="n">output_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;table&quot;</span>
+<span class="n">editor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;code&quot;</span>
+
+<span class="k">[api]</span>
+<span class="n">timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span>
+<span class="n">retries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="n">rate_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+
+<span class="k">[auth]</span>
+<span class="c1"># API key can be stored here (less secure than keyring)</span>
+<span class="c1"># api_key = &quot;your-api-key&quot;</span>
+
+<span class="k">[display]</span>
+<span class="n">colors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">progress_bars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">table_style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;grid&quot;</span>
+
+<span class="k">[cache]</span>
+<span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;5m&quot;</span>
+<span class="n">max_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;100MB&quot;</span>
+
+<span class="k">[aliases]</span>
+<span class="n">bugs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;issue list --label bug --status Todo&quot;</span>
+<span class="n">my-issues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;issue list --assignee me&quot;</span>
+<span class="n">urgent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;search --priority urgent&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="project-specific-configuration">
+<h3>Project-Specific Configuration<a class="headerlink" href="#project-specific-configuration" title="Link to this heading"></a></h3>
+<p>You can also create project-specific configuration files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create project config in current directory</span>
+linearator<span class="w"> </span>config<span class="w"> </span>init<span class="w"> </span>--local
+</pre></div>
+</div>
+<p>This creates <code class="docutils literal notranslate"><span class="pre">.linearator.toml</span></code> in the current directory with project-specific settings.</p>
+</section>
+</section>
+<section id="configuration-sections">
+<h2>Configuration Sections<a class="headerlink" href="#configuration-sections" title="Link to this heading"></a></h2>
+<section id="default-settings">
+<h3>Default Settings<a class="headerlink" href="#default-settings" title="Link to this heading"></a></h3>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[default]</span>
+<span class="c1"># Default team for operations</span>
+<span class="n">team</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Engineering&quot;</span>
+
+<span class="c1"># Default output format: table, json, plain, yaml</span>
+<span class="n">output_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;table&quot;</span>
+
+<span class="c1"># Default text editor for issue descriptions</span>
+<span class="n">editor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vim&quot;</span>
+
+<span class="c1"># Default assignee for new issues: me, unassigned, or email</span>
+<span class="n">assignee</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;me&quot;</span>
+
+<span class="c1"># Default priority for new issues (1-4)</span>
+<span class="n">priority</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+</pre></div>
+</div>
+</section>
+<section id="api-configuration">
+<h3>API Configuration<a class="headerlink" href="#api-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[api]</span>
+<span class="c1"># API endpoint (rarely needs to change)</span>
+<span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://api.linear.app/graphql&quot;</span>
+
+<span class="c1"># Request timeout in seconds</span>
+<span class="n">timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span>
+
+<span class="c1"># Number of retry attempts for failed requests</span>
+<span class="n">retries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+
+<span class="c1"># Rate limit (requests per minute)</span>
+<span class="n">rate_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+
+<span class="c1"># Enable request/response logging for debugging</span>
+<span class="n">debug</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+
+<span class="c1"># User agent string</span>
+<span class="n">user_agent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Linearator/1.0&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="authentication-settings">
+<h3>Authentication Settings<a class="headerlink" href="#authentication-settings" title="Link to this heading"></a></h3>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[auth]</span>
+<span class="c1"># API key (less secure than keyring storage)</span>
+<span class="c1"># api_key = &quot;your-api-key-here&quot;</span>
+
+<span class="c1"># OAuth settings</span>
+<span class="n">client_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;your-oauth-client-id&quot;</span>
+<span class="n">redirect_uri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://localhost:8080/callback&quot;</span>
+
+<span class="c1"># Token refresh settings</span>
+<span class="n">auto_refresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">refresh_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;5m&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="display-configuration">
+<h3>Display Configuration<a class="headerlink" href="#display-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[display]</span>
+<span class="c1"># Enable colored output</span>
+<span class="n">colors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Show progress bars for long operations</span>
+<span class="n">progress_bars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Table display style: simple, grid, fancy_grid, outline</span>
+<span class="n">table_style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;grid&quot;</span>
+
+<span class="c1"># Maximum width for table columns</span>
+<span class="n">max_column_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span>
+
+<span class="c1"># Date format for timestamps</span>
+<span class="n">date_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;%Y-%m-%d %H:%M&quot;</span>
+
+<span class="c1"># Truncate long text in tables</span>
+<span class="n">truncate_text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</pre></div>
+</div>
+</section>
+<section id="caching-settings">
+<h3>Caching Settings<a class="headerlink" href="#caching-settings" title="Link to this heading"></a></h3>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[cache]</span>
+<span class="c1"># Enable response caching</span>
+<span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Cache duration (e.g., &quot;5m&quot;, &quot;1h&quot;, &quot;30s&quot;)</span>
+<span class="n">duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;5m&quot;</span>
+
+<span class="c1"># Maximum cache size</span>
+<span class="n">max_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;100MB&quot;</span>
+
+<span class="c1"># Cache directory</span>
+<span class="n">directory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;~/.linearator/cache&quot;</span>
+
+<span class="c1"># Cache compression</span>
+<span class="n">compress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</pre></div>
+</div>
+</section>
+<section id="search-configuration">
+<h3>Search Configuration<a class="headerlink" href="#search-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[search]</span>
+<span class="c1"># Default search limit</span>
+<span class="n">default_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span>
+
+<span class="c1"># Enable fuzzy search</span>
+<span class="n">fuzzy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Search result highlighting</span>
+<span class="n">highlight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Save search history</span>
+<span class="n">save_history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Maximum saved searches</span>
+<span class="n">max_saved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+</pre></div>
+</div>
+</section>
+<section id="bulk-operation-settings">
+<h3>Bulk Operation Settings<a class="headerlink" href="#bulk-operation-settings" title="Link to this heading"></a></h3>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[bulk]</span>
+<span class="c1"># Batch size for bulk operations</span>
+<span class="n">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span>
+
+<span class="c1"># Enable parallel processing</span>
+<span class="n">parallel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Maximum parallel workers</span>
+<span class="n">max_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+
+<span class="c1"># Confirmation prompt for bulk operations</span>
+<span class="n">confirm_operations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Dry run by default</span>
+<span class="n">dry_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="environment-variables">
+<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<p>All configuration options can be set via environment variables using the format <code class="docutils literal notranslate"><span class="pre">LINEARATOR_SECTION_OPTION</span></code>:</p>
+<section id="authentication">
+<h3>Authentication<a class="headerlink" href="#authentication" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Primary API authentication</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_AUTH_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="w">  </span><span class="c1"># Alternative format</span>
+
+<span class="c1"># OAuth tokens (managed automatically)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_AUTH_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">&quot;access-token&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_AUTH_REFRESH_TOKEN</span><span class="o">=</span><span class="s2">&quot;refresh-token&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h3>Default Settings<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default team</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_DEFAULT_TEAM</span><span class="o">=</span><span class="s2">&quot;Engineering&quot;</span>
+
+<span class="c1"># Output format</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_DEFAULT_OUTPUT_FORMAT</span><span class="o">=</span><span class="s2">&quot;json&quot;</span>
+
+<span class="c1"># Default assignee</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_DEFAULT_ASSIGNEE</span><span class="o">=</span><span class="s2">&quot;john@company.com&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="api-settings">
+<h3>API Settings<a class="headerlink" href="#api-settings" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># API configuration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_API_URL</span><span class="o">=</span><span class="s2">&quot;https://api.linear.app/graphql&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_API_TIMEOUT</span><span class="o">=</span><span class="s2">&quot;30&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_API_RETRIES</span><span class="o">=</span><span class="s2">&quot;3&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_API_DEBUG</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="display-settings">
+<h3>Display Settings<a class="headerlink" href="#display-settings" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Display preferences</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_DISPLAY_COLORS</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_DISPLAY_PROGRESS_BARS</span><span class="o">=</span><span class="s2">&quot;false&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LINEARATOR_DISPLAY_TABLE_STYLE</span><span class="o">=</span><span class="s2">&quot;simple&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="command-line-configuration">
+<h2>Command-Line Configuration<a class="headerlink" href="#command-line-configuration" title="Link to this heading"></a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">linearator</span> <span class="pre">config</span></code> command to manage configuration:</p>
+<section id="viewing-configuration">
+<h3>Viewing Configuration<a class="headerlink" href="#viewing-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show all configuration</span>
+linearator<span class="w"> </span>config<span class="w"> </span>show
+
+<span class="c1"># Show specific section</span>
+linearator<span class="w"> </span>config<span class="w"> </span>show<span class="w"> </span>auth
+
+<span class="c1"># Get specific value</span>
+linearator<span class="w"> </span>config<span class="w"> </span>get<span class="w"> </span>default.team
+</pre></div>
+</div>
+</section>
+<section id="setting-configuration">
+<h3>Setting Configuration<a class="headerlink" href="#setting-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set configuration values</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>default.team<span class="w"> </span><span class="s2">&quot;Frontend&quot;</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>api.timeout<span class="w"> </span><span class="m">60</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>display.colors<span class="w"> </span><span class="nb">false</span>
+
+<span class="c1"># Set nested values</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>auth.auto_refresh<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+</section>
+<section id="removing-configuration">
+<h3>Removing Configuration<a class="headerlink" href="#removing-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove specific setting</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>default.team
+
+<span class="c1"># Reset section to defaults</span>
+linearator<span class="w"> </span>config<span class="w"> </span>reset<span class="w"> </span>auth
+
+<span class="c1"># Reset entire configuration</span>
+linearator<span class="w"> </span>config<span class="w"> </span>reset<span class="w"> </span>--all
+</pre></div>
+</div>
+</section>
+<section id="configuration-validation">
+<h3>Configuration Validation<a class="headerlink" href="#configuration-validation" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Validate current configuration</span>
+linearator<span class="w"> </span>config<span class="w"> </span>validate
+
+<span class="c1"># Check for configuration issues</span>
+linearator<span class="w"> </span>config<span class="w"> </span>doctor
+</pre></div>
+</div>
+</section>
+</section>
+<section id="aliases">
+<h2>Aliases<a class="headerlink" href="#aliases" title="Link to this heading"></a></h2>
+<p>Create command aliases for frequently used operations:</p>
+<section id="creating-aliases">
+<h3>Creating Aliases<a class="headerlink" href="#creating-aliases" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create simple aliases</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="s2">&quot;bugs&quot;</span><span class="w"> </span><span class="s2">&quot;issue list --label bug&quot;</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="s2">&quot;my-todo&quot;</span><span class="w"> </span><span class="s2">&quot;issue list --assignee me --status Todo&quot;</span>
+
+<span class="c1"># Complex aliases with multiple commands</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="s2">&quot;standup&quot;</span><span class="w"> </span><span class="s2">&quot;issue list --assignee me --status &#39;In Progress,Todo&#39;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="using-aliases">
+<h3>Using Aliases<a class="headerlink" href="#using-aliases" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use aliases like regular commands</span>
+linearator<span class="w"> </span>bugs
+linearator<span class="w"> </span>my-todo
+linearator<span class="w"> </span>standup
+</pre></div>
+</div>
+</section>
+<section id="managing-aliases">
+<h3>Managing Aliases<a class="headerlink" href="#managing-aliases" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List all aliases</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>list
+
+<span class="c1"># Show alias definition</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>show<span class="w"> </span><span class="s2">&quot;bugs&quot;</span>
+
+<span class="c1"># Remove alias</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>remove<span class="w"> </span><span class="s2">&quot;bugs&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="profiles">
+<h2>Profiles<a class="headerlink" href="#profiles" title="Link to this heading"></a></h2>
+<p>Profiles allow you to maintain different configuration sets for different contexts.</p>
+<section id="creating-profiles">
+<h3>Creating Profiles<a class="headerlink" href="#creating-profiles" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create work profile</span>
+linearator<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;work&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--team<span class="w"> </span><span class="s2">&quot;Engineering&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--format<span class="w"> </span><span class="s2">&quot;table&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--colors<span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># Create personal profile</span>
+linearator<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;personal&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--team<span class="w"> </span><span class="s2">&quot;Personal Projects&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--format<span class="w"> </span><span class="s2">&quot;json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--colors<span class="w"> </span><span class="nb">false</span>
+</pre></div>
+</div>
+</section>
+<section id="using-profiles">
+<h3>Using Profiles<a class="headerlink" href="#using-profiles" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Switch to a profile</span>
+linearator<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>use<span class="w"> </span><span class="s2">&quot;work&quot;</span>
+
+<span class="c1"># Run command with specific profile</span>
+linearator<span class="w"> </span>--profile<span class="w"> </span><span class="s2">&quot;personal&quot;</span><span class="w"> </span>issue<span class="w"> </span>list
+
+<span class="c1"># Show current profile</span>
+linearator<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>current
+</pre></div>
+</div>
+</section>
+<section id="managing-profiles">
+<h3>Managing Profiles<a class="headerlink" href="#managing-profiles" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List all profiles</span>
+linearator<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>list
+
+<span class="c1"># Show profile settings</span>
+linearator<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>show<span class="w"> </span><span class="s2">&quot;work&quot;</span>
+
+<span class="c1"># Delete profile</span>
+linearator<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>delete<span class="w"> </span><span class="s2">&quot;personal&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-configuration">
+<h2>Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Link to this heading"></a></h2>
+<section id="custom-output-templates">
+<h3>Custom Output Templates<a class="headerlink" href="#custom-output-templates" title="Link to this heading"></a></h3>
+<p>Define custom output formats:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[templates]</span>
+<span class="n">brief</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;{{.id}}: {{.title}} ({{.status}})&quot;</span>
+<span class="n">detailed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">ID: {{.id}}</span>
+<span class="s2">Title: {{.title}}</span>
+<span class="s2">Status: {{.status}}</span>
+<span class="s2">Assignee: {{.assignee.name}}</span>
+<span class="s2">Created: {{.created_at | date}}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use custom template</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--template<span class="w"> </span>brief
+</pre></div>
+</div>
+</section>
+<section id="plugin-configuration">
+<h3>Plugin Configuration<a class="headerlink" href="#plugin-configuration" title="Link to this heading"></a></h3>
+<p>Configure plugins and extensions:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[plugins]</span>
+<span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;jira-sync&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;slack-notifications&quot;</span><span class="p">]</span>
+
+<span class="k">[plugins.jira-sync]</span>
+<span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://company.atlassian.net&quot;</span>
+<span class="n">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;integration@company.com&quot;</span>
+
+<span class="k">[plugins.slack-notifications]</span>
+<span class="n">webhook_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://hooks.slack.com/services/...&quot;</span>
+<span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;#engineering&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting-configuration">
+<h2>Troubleshooting Configuration<a class="headerlink" href="#troubleshooting-configuration" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<p><strong>Configuration Not Loading</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check configuration file location</span>
+linearator<span class="w"> </span>config<span class="w"> </span>file-path
+
+<span class="c1"># Validate configuration syntax</span>
+linearator<span class="w"> </span>config<span class="w"> </span>validate
+
+<span class="c1"># Show effective configuration (after merging all sources)</span>
+linearator<span class="w"> </span>config<span class="w"> </span>show<span class="w"> </span>--effective
+</pre></div>
+</div>
+<p><strong>Environment Variable Issues</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List environment variables affecting Linearator</span>
+linearator<span class="w"> </span>config<span class="w"> </span>env-vars
+
+<span class="c1"># Show configuration sources and precedence</span>
+linearator<span class="w"> </span>config<span class="w"> </span>debug
+</pre></div>
+</div>
+<p><strong>Permission Issues</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check configuration directory permissions</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.linearator/
+
+<span class="c1"># Reset configuration directory</span>
+linearator<span class="w"> </span>config<span class="w"> </span>init<span class="w"> </span>--reset
+</pre></div>
+</div>
+</section>
+</section>
+<section id="migration-and-backup">
+<h2>Migration and Backup<a class="headerlink" href="#migration-and-backup" title="Link to this heading"></a></h2>
+<section id="backup-configuration">
+<h3>Backup Configuration<a class="headerlink" href="#backup-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Export current configuration</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">export</span><span class="w"> </span>&gt;<span class="w"> </span>my-linearator-config.toml
+
+<span class="c1"># Export specific profile</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--profile<span class="w"> </span>work<span class="w"> </span>&gt;<span class="w"> </span>work-config.toml
+</pre></div>
+</div>
+</section>
+<section id="restore-configuration">
+<h3>Restore Configuration<a class="headerlink" href="#restore-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import configuration</span>
+linearator<span class="w"> </span>config<span class="w"> </span>import<span class="w"> </span>my-linearator-config.toml
+
+<span class="c1"># Import as new profile</span>
+linearator<span class="w"> </span>config<span class="w"> </span>import<span class="w"> </span>work-config.toml<span class="w"> </span>--profile<span class="w"> </span>work
+</pre></div>
+</div>
+</section>
+<section id="migration-between-versions">
+<h3>Migration Between Versions<a class="headerlink" href="#migration-between-versions" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Migrate configuration to new format</span>
+linearator<span class="w"> </span>config<span class="w"> </span>migrate
+
+<span class="c1"># Show migration status</span>
+linearator<span class="w"> </span>config<span class="w"> </span>migration-status
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="advanced_features.html" class="btn btn-neutral float-left" title="Advanced Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/cli.html" class="btn btn-neutral float-right" title="CLI Module API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Linearator Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

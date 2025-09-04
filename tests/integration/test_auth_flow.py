@@ -9,10 +9,10 @@ from unittest.mock import Mock, patch
 import pytest
 from click.testing import CliRunner
 
-from src.linearator.api.auth import AuthenticationError, LinearAuthenticator
-from src.linearator.api.client import LinearClient
-from src.linearator.cli.app import main
-from src.linearator.config.manager import LinearConfig
+from src.linear-cli.api.auth import AuthenticationError, LinearAuthenticator
+from src.linear-cli.api.client import LinearClient
+from src.linear-cli.cli.app import main
+from src.linear-cli.config.manager import LinearConfig
 
 
 @pytest.mark.integration
@@ -184,8 +184,8 @@ class TestCLIAuthCommands:
         runner = CliRunner()
 
         with (
-            patch("src.linearator.cli.app.ConfigManager") as mock_cm,
-            patch("src.linearator.api.auth.core.CredentialStorage") as mock_storage,
+            patch("src.linear-cli.cli.app.ConfigManager") as mock_cm,
+            patch("src.linear-cli.api.auth.core.CredentialStorage") as mock_storage,
         ):
             # Mock empty credentials
             mock_storage.return_value.retrieve_credentials.return_value = None
@@ -221,8 +221,8 @@ class TestCLIAuthCommands:
 
         with (
             patch("httpx.Client") as mock_client,
-            patch("src.linearator.cli.app.ConfigManager") as mock_cm,
-            patch("src.linearator.api.client.LinearClient.get_viewer") as mock_viewer,
+            patch("src.linear-cli.cli.app.ConfigManager") as mock_cm,
+            patch("src.linear-cli.api.client.LinearClient.get_viewer") as mock_viewer,
         ):
             mock_client.return_value.__enter__.return_value.post.return_value = (
                 mock_response
@@ -274,7 +274,7 @@ class TestCLIAuthCommands:
 
         with (
             patch("httpx.Client") as mock_client,
-            patch("src.linearator.cli.app.ConfigManager") as mock_cm,
+            patch("src.linear-cli.cli.app.ConfigManager") as mock_cm,
         ):
             mock_client.return_value.__enter__.return_value.post.return_value = (
                 mock_response
@@ -311,7 +311,7 @@ class TestCLIAuthCommands:
         """Test successful logout via CLI."""
         runner = CliRunner()
 
-        with patch("src.linearator.cli.app.ConfigManager") as mock_cm:
+        with patch("src.linear-cli.cli.app.ConfigManager") as mock_cm:
             mock_cm.return_value.config_dir = temp_config_dir
             mock_cm.return_value.load_config.return_value = LinearConfig(
                 debug=False,

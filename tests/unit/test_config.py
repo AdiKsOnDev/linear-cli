@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.linearator.config.manager import ConfigManager, LinearConfig
+from src.linear-cli.config.manager import ConfigManager, LinearConfig
 
 
 class TestLinearConfig:
@@ -53,7 +53,7 @@ class TestLinearConfig:
     def test_cache_dir_default(self):
         """Test cache directory default value."""
         config = LinearConfig()
-        expected_dir = Path.home() / ".linearator" / "cache"
+        expected_dir = Path.home() / ".linear-cli" / "cache"
         assert config.cache_dir == expected_dir
 
     def test_cache_dir_custom(self):
@@ -69,7 +69,7 @@ class TestConfigManager:
     def test_init_default_dir(self):
         """Test initialization with default directory."""
         manager = ConfigManager()
-        expected_dir = Path.home() / ".linearator"
+        expected_dir = Path.home() / ".linear-cli"
         assert manager.config_dir == expected_dir
         assert manager.config_file == expected_dir / "config.toml"
 

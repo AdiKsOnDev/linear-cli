@@ -3,7 +3,7 @@
 
 import pytest
 
-from linearator.utils.helpers import (
+from linear_cli.utils.helpers import (
     batch_items,
     deep_merge_dicts,
     flatten_dict,
@@ -455,29 +455,29 @@ class TestMiscHelpers:
     def test_ensure_list_with_list(self):
         """Test ensuring list when input is already a list."""
         input_list = [1, 2, 3]
-        if hasattr(__import__('linearator.utils.helpers', fromlist=['']), 'ensure_list'):
-            from linearator.utils.helpers import ensure_list
+        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'ensure_list'):
+            from linear_cli.utils.helpers import ensure_list
             result = ensure_list(input_list)
             assert result == input_list
 
     def test_ensure_list_with_single_item(self):
         """Test ensuring list when input is a single item."""
-        if hasattr(__import__('linearator.utils.helpers', fromlist=['']), 'ensure_list'):
-            from linearator.utils.helpers import ensure_list
+        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'ensure_list'):
+            from linear_cli.utils.helpers import ensure_list
             result = ensure_list("single_item")
             assert result == ["single_item"]
 
     def test_ensure_list_with_none(self):
         """Test ensuring list when input is None."""
-        if hasattr(__import__('linearator.utils.helpers', fromlist=['']), 'ensure_list'):
-            from linearator.utils.helpers import ensure_list
+        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'ensure_list'):
+            from linear_cli.utils.helpers import ensure_list
             result = ensure_list(None)
             assert result == []
 
     def test_get_nested_value(self):
         """Test getting nested dictionary value."""
-        if hasattr(__import__('linearator.utils.helpers', fromlist=['']), 'get_nested_value'):
-            from linearator.utils.helpers import get_nested_value
+        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'get_nested_value'):
+            from linear_cli.utils.helpers import get_nested_value
 
             data = {
                 "user": {
@@ -496,10 +496,10 @@ class TestMiscHelpers:
 
     def test_calculate_file_hash(self):
         """Test file hash calculation."""
-        if hasattr(__import__('linearator.utils.helpers', fromlist=['']), 'calculate_file_hash'):
+        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'calculate_file_hash'):
             import tempfile
 
-            from linearator.utils.helpers import calculate_file_hash
+            from linear_cli.utils.helpers import calculate_file_hash
 
             # Create temporary file
             with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
@@ -516,8 +516,8 @@ class TestMiscHelpers:
 
     def test_normalize_line_endings(self):
         """Test normalizing line endings."""
-        if hasattr(__import__('linearator.utils.helpers', fromlist=['']), 'normalize_line_endings'):
-            from linearator.utils.helpers import normalize_line_endings
+        if hasattr(__import__('linear_cli.utils.helpers', fromlist=['']), 'normalize_line_endings'):
+            from linear_cli.utils.helpers import normalize_line_endings
 
             # Test different line endings
             windows_text = "line1\r\nline2\r\nline3"

@@ -14,9 +14,9 @@ from unittest.mock import patch
 
 import pytest
 
-from src.linearator.api.auth import CredentialStorage, LinearAuthenticator
-from src.linearator.api.client import LinearClient
-from src.linearator.config.manager import ConfigManager, LinearConfig
+from src.linear-cli.api.auth import CredentialStorage, LinearAuthenticator
+from src.linear-cli.api.client import LinearClient
+from src.linear-cli.config.manager import ConfigManager, LinearConfig
 
 
 @pytest.fixture

@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.linearator.api.client import LinearClient, RateLimiter, ResponseCache
-from src.linearator.config.manager import LinearConfig
+from src.linear-cli.api.client import LinearClient, RateLimiter, ResponseCache
+from src.linear-cli.config.manager import LinearConfig
 
 
 class TestRateLimiter:
@@ -127,7 +127,7 @@ class TestLinearClient:
         """Test client initialization."""
         config = LinearConfig()
 
-        with patch("src.linearator.api.auth.LinearAuthenticator") as mock_auth:
+        with patch("src.linear-cli.api.auth.LinearAuthenticator") as mock_auth:
             client = LinearClient(config=config, authenticator=mock_auth)
 
             assert client.config == config
@@ -143,7 +143,7 @@ class TestLinearClient:
         mock_auth.get_access_token.return_value = "test_token"
 
         with patch(
-            "src.linearator.api.client.LinearClient.execute_query"
+            "src.linear-cli.api.client.LinearClient.execute_query"
         ) as mock_execute:
             mock_execute.return_value = {"viewer": {"name": "Test User"}}
 
@@ -161,7 +161,7 @@ class TestLinearClient:
         mock_auth.get_access_token.return_value = "test_token"
 
         with patch(
-            "src.linearator.api.client.LinearClient.execute_query"
+            "src.linear-cli.api.client.LinearClient.execute_query"
         ) as mock_execute:
             mock_execute.return_value = {
                 "teams": {
@@ -207,7 +207,7 @@ class TestLinearClient:
         mock_auth.get_access_token.return_value = "test_token"
 
         # Mock the GQL client in the client module
-        with patch("src.linearator.api.client.client.Client") as mock_gql_client_class:
+        with patch("src.linear-cli.api.client.client.Client") as mock_gql_client_class:
             mock_gql_client = mock_gql_client_class.return_value
             mock_gql_client.execute_async = AsyncMock(return_value={"test": "success"})
 
@@ -235,7 +235,7 @@ class TestLinearClient:
         config = LinearConfig()
         mock_auth = Mock()
 
-        with patch("src.linearator.api.client.LinearClient.get_viewer") as mock_viewer:
+        with patch("src.linear-cli.api.client.LinearClient.get_viewer") as mock_viewer:
             mock_viewer.return_value = {
                 "name": "Test User",
                 "organization": {"name": "Test Org"},
@@ -257,7 +257,7 @@ class TestLinearClient:
         config = LinearConfig()
         mock_auth = Mock()
 
-        with patch("src.linearator.api.client.LinearClient.get_viewer") as mock_viewer:
+        with patch("src.linear-cli.api.client.LinearClient.get_viewer") as mock_viewer:
             mock_viewer.side_effect = Exception("Connection failed")
 
             client = LinearClient(config=config, authenticator=mock_auth)
@@ -291,7 +291,7 @@ class TestLinearClient:
         )
         mock_auth = Mock()
 
-        with patch("src.linearator.api.auth.LinearAuthenticator"):
+        with patch("src.linear-cli.api.auth.LinearAuthenticator"):
             client = LinearClient(config=config, authenticator=mock_auth)
 
             assert client.config.api_url == "https://custom.api.url/graphql"

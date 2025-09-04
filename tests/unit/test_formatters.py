@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from rich.text import Text
 
-from linearator.cli.formatters import (
+from linear_cli.cli.formatters import (
     format_datetime,
     format_labels,
     get_priority_text,
@@ -178,7 +178,7 @@ class TestTextUtilities:
 class TestPrintFunctions:
     """Test printing utility functions."""
 
-    @patch("linearator.cli.formatters.console")
+    @patch("linear-cli.cli.formatters.console")
     def test_print_success(self, mock_console):
         """Test success message printing."""
         print_success("Operation completed")
@@ -188,7 +188,7 @@ class TestPrintFunctions:
         call_args = mock_console.print.call_args
         assert "Operation completed" in str(call_args)
 
-    @patch("linearator.cli.formatters.console")
+    @patch("linear-cli.cli.formatters.console")
     def test_print_error(self, mock_console):
         """Test error message printing."""
         print_error("Something went wrong")
@@ -197,7 +197,7 @@ class TestPrintFunctions:
         call_args = mock_console.print.call_args
         assert "Something went wrong" in str(call_args)
 
-    @patch("linearator.cli.formatters.console")
+    @patch("linear-cli.cli.formatters.console")
     def test_print_warning(self, mock_console):
         """Test warning message printing."""
         print_warning("This is a warning")
@@ -206,7 +206,7 @@ class TestPrintFunctions:
         call_args = mock_console.print.call_args
         assert "This is a warning" in str(call_args)
 
-    @patch("linearator.cli.formatters.console")
+    @patch("linear-cli.cli.formatters.console")
     def test_print_info(self, mock_console):
         """Test info message printing."""
         print_info("Information message")

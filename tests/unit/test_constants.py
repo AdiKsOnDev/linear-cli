@@ -1,7 +1,7 @@
 """Tests for constants module."""
 
 
-from linearator.constants import (
+from linear_cli.constants import (
     COLOR_PATTERNS,
     DEFAULT_API_TIMEOUT,
     DEFAULT_CACHE_TTL,

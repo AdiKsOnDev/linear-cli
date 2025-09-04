@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>linearator.cli.formatters &mdash; Linearator 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=08840e99" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Linearator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basic_usage.html">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/cli.html">CLI Module API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Linearator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">linearator.cli.formatters</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for linearator.cli.formatters</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Output formatters for CLI commands.</span>
+
+<span class="sd">Provides various output formats including tables, JSON, and colored text.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.json</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSON</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">Text</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_COLOR_STYLE</span><span class="p">,</span>
+    <span class="n">DEFAULT_PRIORITY</span><span class="p">,</span>
+    <span class="n">DEFAULT_STATE_COLOR</span><span class="p">,</span>
+    <span class="n">PRIORITY_LEVELS</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="format_datetime">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.format_datetime">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_datetime</span><span class="p">(</span><span class="n">dt_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format datetime string for display.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dt_str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">dt_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;+00:00&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dt_str</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_priority_text">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.get_priority_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_priority_text</span><span class="p">(</span><span class="n">priority</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get formatted priority text with color.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">priority</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">priority</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PRIORITY_LEVELS</span><span class="p">:</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="n">DEFAULT_PRIORITY</span>
+
+    <span class="n">text</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="n">PRIORITY_LEVELS</span><span class="p">[</span><span class="n">priority</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_state_text">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.get_state_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_state_text</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get formatted state text with color.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">state</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Unknown&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="n">DEFAULT_STATE_COLOR</span><span class="p">)</span>
+
+    <span class="c1"># WHY: Linear provides hex colors (like &quot;#ff0000&quot;) but terminal Rich library uses named colors</span>
+    <span class="c1"># We need to approximate hex colors to the nearest terminal color for consistent display</span>
+    <span class="c1"># This heuristic works well for common Linear state colors (red=blocked, green=done, etc.)</span>
+    <span class="n">style</span> <span class="o">=</span> <span class="n">DEFAULT_COLOR_STYLE</span>
+    <span class="k">if</span> <span class="n">color</span><span class="p">:</span>
+        <span class="c1"># Simple color mapping based on common Linear state colors</span>
+        <span class="n">color_lower</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;ff&quot;</span> <span class="ow">in</span> <span class="n">color_lower</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>  <span class="c1"># Red-ish (blocked, urgent states)</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="s2">&quot;00ff&quot;</span> <span class="ow">in</span> <span class="n">color_lower</span> <span class="ow">or</span> <span class="s2">&quot;0f0&quot;</span> <span class="ow">in</span> <span class="n">color_lower</span>
+        <span class="p">):</span>  <span class="c1"># Green-ish (done, completed states)</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="s2">&quot;ff0&quot;</span> <span class="ow">in</span> <span class="n">color_lower</span> <span class="ow">or</span> <span class="s2">&quot;ffff00&quot;</span> <span class="ow">in</span> <span class="n">color_lower</span>
+        <span class="p">):</span>  <span class="c1"># Yellow-ish (in progress, warning states)</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;yellow&quot;</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="s2">&quot;00&quot;</span> <span class="ow">in</span> <span class="n">color_lower</span> <span class="ow">and</span> <span class="s2">&quot;ff&quot;</span> <span class="ow">in</span> <span class="n">color_lower</span>
+        <span class="p">):</span>  <span class="c1"># Blue-ish (todo, planning states)</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span>
+
+    <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="format_labels">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.format_labels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format labels list for display.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">labels</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nodes&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">label_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_names</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="truncate_text">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.truncate_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">truncate_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Truncate text to max length with ellipsis.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_length</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">return</span> <span class="n">text</span><span class="p">[:</span> <span class="n">max_length</span> <span class="o">-</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="OutputFormatter">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.OutputFormatter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutputFormatter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for output formatters.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OutputFormatter.__init__">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.OutputFormatter.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;table&quot;</span><span class="p">,</span> <span class="n">no_color</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize formatter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_format: Output format (&#39;table&#39;, &#39;json&#39;, &#39;yaml&#39;)</span>
+<span class="sd">            no_color: Whether to disable colored output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">=</span> <span class="n">output_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_color</span> <span class="o">=</span> <span class="n">no_color</span></div>
+
+
+<div class="viewcode-block" id="OutputFormatter.format_issues">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.OutputFormatter.format_issues">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issues_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format and display issues data.&quot;&quot;&quot;</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">issues_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nodes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_json</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_format_issues_table</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OutputFormatter.format_issue">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.OutputFormatter.format_issue">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format and display single issue data.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_json</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_format_issue_details</span><span class="p">(</span><span class="n">issue</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OutputFormatter.format_teams">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.OutputFormatter.format_teams">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_teams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">teams</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format and display teams data.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_json</span><span class="p">(</span><span class="n">teams</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_format_teams_table</span><span class="p">(</span><span class="n">teams</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OutputFormatter.format_labels">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.OutputFormatter.format_labels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format and display labels data.&quot;&quot;&quot;</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">labels_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nodes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_json</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_format_labels_table</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OutputFormatter.format_users">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.OutputFormatter.format_users">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_users</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">users</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format and display users data.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_json</span><span class="p">(</span><span class="n">users</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_format_users_table</span><span class="p">(</span><span class="n">users</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_print_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print data as JSON.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_color</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">JSON</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_issues_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format issues as a table.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">issues</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[yellow]No issues found.[/yellow]&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="s2">&quot;bold blue&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;State&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Priority&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Assignee&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Labels&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Updated&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+            <span class="c1"># Get assignee name</span>
+            <span class="n">assignee</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assignee&quot;</span><span class="p">)</span>
+            <span class="n">assignee_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">assignee</span><span class="p">:</span>
+                <span class="n">assignee_name</span> <span class="o">=</span> <span class="n">assignee</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;displayName&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">assignee</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Get team key</span>
+            <span class="n">team</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;team&quot;</span><span class="p">)</span>
+            <span class="n">team_key</span> <span class="o">=</span> <span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">team</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="c1"># Format labels</span>
+            <span class="n">labels_str</span> <span class="o">=</span> <span class="n">format_labels</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">))</span>
+
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;identifier&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">truncate_text</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">40</span><span class="p">),</span>
+                <span class="n">get_state_text</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)),</span>
+                <span class="n">get_priority_text</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)),</span>
+                <span class="n">truncate_text</span><span class="p">(</span><span class="n">assignee_name</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+                <span class="n">team_key</span><span class="p">,</span>
+                <span class="n">truncate_text</span><span class="p">(</span><span class="n">labels_str</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+                <span class="n">format_datetime</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;updatedAt&quot;</span><span class="p">)),</span>
+            <span class="p">)</span>
+
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[dim]Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span><span class="si">}</span><span class="s2"> issue(s)[/dim]&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_issue_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issue</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format detailed issue information.&quot;&quot;&quot;</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[bold cyan]</span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;identifier&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">[/bold cyan]: </span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+
+        <span class="c1"># Basic info</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[dim]URL:[/dim]&quot;</span><span class="p">,</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">state</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[dim]State:[/dim]&quot;</span><span class="p">,</span> <span class="n">get_state_text</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+
+        <span class="n">priority</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">priority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[dim]Priority:[/dim]&quot;</span><span class="p">,</span> <span class="n">get_priority_text</span><span class="p">(</span><span class="n">priority</span><span class="p">))</span>
+
+        <span class="c1"># People</span>
+        <span class="n">assignee</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assignee&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">assignee</span><span class="p">:</span>
+            <span class="n">assignee_name</span> <span class="o">=</span> <span class="n">assignee</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;displayName&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">assignee</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[dim]Assignee:[/dim] </span><span class="si">{</span><span class="n">assignee_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">creator</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;creator&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">creator</span><span class="p">:</span>
+            <span class="n">creator_name</span> <span class="o">=</span> <span class="n">creator</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;displayName&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">creator</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[dim]Creator:[/dim] </span><span class="si">{</span><span class="n">creator_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Team</span>
+        <span class="n">team</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;team&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">team</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[dim]Team:[/dim] </span><span class="si">{</span><span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Labels</span>
+        <span class="n">labels_str</span> <span class="o">=</span> <span class="n">format_labels</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">labels_str</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[dim]Labels:[/dim] </span><span class="si">{</span><span class="n">labels_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Dates</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[dim]Created:[/dim] </span><span class="si">{</span><span class="n">format_datetime</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;createdAt&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[dim]Updated:[/dim] </span><span class="si">{</span><span class="n">format_datetime</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;updatedAt&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completedAt&quot;</span><span class="p">):</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[dim]Completed:[/dim] </span><span class="si">{</span><span class="n">format_datetime</span><span class="p">(</span><span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;completedAt&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Description</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[dim]Description:[/dim]&quot;</span><span class="p">)</span>
+            <span class="c1"># Simple markdown-like formatting</span>
+            <span class="n">description_lines</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">description_lines</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;# &quot;</span><span class="p">):</span>
+                    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold]</span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:]</span><span class="si">}</span><span class="s2">[/bold]&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;## &quot;</span><span class="p">):</span>
+                    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[bold dim]</span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">3</span><span class="p">:]</span><span class="si">}</span><span class="s2">[/bold dim]&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="c1"># Comments</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="n">issue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nodes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">comments</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[dim]Comments (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">comments</span><span class="p">)</span><span class="si">}</span><span class="s2">):[/dim]&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="n">comments</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>  <span class="c1"># Show first 3 comments</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">comment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">user_name</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;displayName&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+                <span class="n">created</span> <span class="o">=</span> <span class="n">format_datetime</span><span class="p">(</span><span class="n">comment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;createdAt&quot;</span><span class="p">))</span>
+                <span class="n">body</span> <span class="o">=</span> <span class="n">truncate_text</span><span class="p">(</span><span class="n">comment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;  [cyan]</span><span class="si">{</span><span class="n">user_name</span><span class="si">}</span><span class="s2">[/cyan] [dim](</span><span class="si">{</span><span class="n">created</span><span class="si">}</span><span class="s2">):[/dim] </span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">comments</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  [dim]... and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">comments</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span><span class="si">}</span><span class="s2"> more comments[/dim]&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_teams_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">teams</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format teams as a table.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">teams</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[yellow]No teams found.[/yellow]&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="s2">&quot;bold blue&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Key&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Description&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Issues&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Members&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Type&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Sort teams by name</span>
+        <span class="n">teams_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">teams</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="n">teams_sorted</span><span class="p">:</span>
+            <span class="n">team_type</span> <span class="o">=</span> <span class="s2">&quot;Private&quot;</span> <span class="k">if</span> <span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;private&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Public&quot;</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">description</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="n">description</span><span class="p">[:</span><span class="mi">47</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                <span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">description</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issueCount&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memberCount&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                <span class="n">team_type</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[dim]Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">teams</span><span class="p">)</span><span class="si">}</span><span class="s2"> team(s)[/dim]&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_labels_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format labels as a table.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">labels</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[yellow]No labels found.[/yellow]&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="s2">&quot;bold blue&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Color&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Description&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Created&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+        <span class="c1"># Sort labels by name</span>
+        <span class="n">labels_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels_sorted</span><span class="p">:</span>
+            <span class="n">team</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;team&quot;</span><span class="p">)</span>
+            <span class="n">team_name</span> <span class="o">=</span> <span class="n">team</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">team</span> <span class="k">else</span> <span class="s2">&quot;Global&quot;</span>
+
+            <span class="c1"># Show color as colored text</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="s2">&quot;#808080&quot;</span><span class="p">)</span>
+            <span class="n">color_display</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s2">&quot;●&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;color(</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                <span class="n">label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">color_display</span><span class="p">,</span>
+                <span class="n">truncate_text</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">40</span><span class="p">),</span>
+                <span class="n">team_name</span><span class="p">,</span>
+                <span class="n">format_datetime</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;createdAt&quot;</span><span class="p">)),</span>
+            <span class="p">)</span>
+
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[dim]Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="si">}</span><span class="s2"> label(s)[/dim]&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_users_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">users</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format users as a table.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">users</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[yellow]No users found.[/yellow]&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="s2">&quot;bold blue&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Display Name&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Email&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dim&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Status&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Role&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Sort users by name</span>
+        <span class="n">users_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users_sorted</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;Active&quot;</span> <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;active&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Inactive&quot;</span>
+            <span class="n">status_style</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span> <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;active&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;red&quot;</span>
+
+            <span class="n">role</span> <span class="o">=</span> <span class="s2">&quot;Admin&quot;</span> <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Member&quot;</span>
+            <span class="n">role_style</span> <span class="o">=</span> <span class="s2">&quot;yellow&quot;</span> <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;dim&quot;</span>
+
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;displayName&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">Text</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">status_style</span><span class="p">),</span>
+                <span class="n">Text</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">role_style</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[dim]Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="p">)</span><span class="si">}</span><span class="s2"> user(s)[/dim]&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OutputFormatter.format_generic">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.OutputFormatter.format_generic">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_generic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format generic data structure.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_json</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For table format, just print as JSON since we don&#39;t know the structure</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[yellow]Generic data (use --format json for better output):[/yellow]&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_json</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="print_success">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.print_success">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_success</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print success message.&quot;&quot;&quot;</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[green]✓ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">[/green]&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="print_error">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.print_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_error</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print error message.&quot;&quot;&quot;</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="print_warning">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.print_warning">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_warning</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print warning message.&quot;&quot;&quot;</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[yellow]⚠ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">[/yellow]&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="print_info">
+<a class="viewcode-back" href="../../../api/cli.html#linearator.cli.formatters.print_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_info</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print info message.&quot;&quot;&quot;</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[blue]ℹ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">[/blue]&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Linearator Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

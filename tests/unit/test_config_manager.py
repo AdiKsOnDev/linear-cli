@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 import pytest
 
-from linearator.config.exceptions import ConfigurationError
-from linearator.config.manager import ConfigManager
+from linear_cli.config.exceptions import ConfigurationError
+from linear_cli.config.manager import ConfigManager
 
 
 class TestConfigManager:
@@ -42,11 +42,11 @@ class TestConfigManager:
     def test_get_default_config_dir(self):
         """Test getting default configuration directory."""
         with patch('platformdirs.user_config_dir') as mock_config_dir:
-            mock_config_dir.return_value = "/home/user/.config/linearator"
+            mock_config_dir.return_value = "/home/user/.config/linear-cli"
 
             default_dir = ConfigManager._get_default_config_dir()
-            assert default_dir == Path("/home/user/.config/linearator")
-            mock_config_dir.assert_called_once_with("linearator")
+            assert default_dir == Path("/home/user/.config/linear-cli")
+            mock_config_dir.assert_called_once_with("linear-cli")
 
     def test_config_file_path(self):
         """Test configuration file path property."""

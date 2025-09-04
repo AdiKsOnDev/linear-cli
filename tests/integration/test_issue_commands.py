@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from click.testing import CliRunner
 
-from src.linearator.cli.app import LinearCLIContext, main
+from src.linear-cli.cli.app import LinearCLIContext, main
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def mock_cli_context():
 
 
 class TestIssueListCommand:
-    """Test suite for 'linearator issue list' command."""
+    """Test suite for 'linear-cli issue list' command."""
 
     def test_issue_list_basic(self, mock_cli_context):
         """Test basic issue list command."""
@@ -60,11 +60,11 @@ class TestIssueListCommand:
 
         client.get_issues = AsyncMock(return_value=mock_issues)
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_issues
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(main, ["issue", "list"])
 
         assert result.exit_code == 0
@@ -79,11 +79,11 @@ class TestIssueListCommand:
         mock_issues = {"nodes": [], "pageInfo": {"hasNextPage": False}}
         client.get_issues = AsyncMock(return_value=mock_issues)
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_issues
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(
                     main,
                     [
@@ -120,11 +120,11 @@ class TestIssueListCommand:
 
         client.get_issues = AsyncMock(return_value=mock_issues)
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_issues
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(main, ["issue", "list"])
 
         assert result.exit_code == 0
@@ -135,11 +135,11 @@ class TestIssueListCommand:
         """Test issue list error handling."""
         ctx, client = mock_cli_context
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.side_effect = Exception("API Error")
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(main, ["issue", "list"])
 
         assert result.exit_code != 0
@@ -147,7 +147,7 @@ class TestIssueListCommand:
 
 
 class TestIssueCreateCommand:
-    """Test suite for 'linearator issue create' command."""
+    """Test suite for 'linear-cli issue create' command."""
 
     def test_issue_create_basic(self, mock_cli_context):
         """Test basic issue creation."""
@@ -163,11 +163,11 @@ class TestIssueCreateCommand:
             },
         }
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_response
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(
                     main,
                     [
@@ -216,11 +216,11 @@ class TestIssueCreateCommand:
         client.get_labels = AsyncMock(return_value=mock_labels)
         client.create_issue = AsyncMock(return_value=mock_create_response)
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_create_response
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(
                     main,
                     [
@@ -248,11 +248,11 @@ class TestIssueCreateCommand:
         ctx, client = mock_cli_context
         ctx.config.default_team_id = None
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.side_effect = ValueError("No team specified")
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(main, ["issue", "create", "Test Issue"])
 
         assert result.exit_code != 0
@@ -264,11 +264,11 @@ class TestIssueCreateCommand:
 
         mock_response = {"success": False}
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_response
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(main, ["issue", "create", "Failed Issue"])
 
         assert result.exit_code != 0
@@ -276,7 +276,7 @@ class TestIssueCreateCommand:
 
 
 class TestIssueShowCommand:
-    """Test suite for 'linearator issue show' command."""
+    """Test suite for 'linear-cli issue show' command."""
 
     def test_issue_show_by_id(self, mock_cli_context):
         """Test showing issue by ID."""
@@ -297,11 +297,11 @@ class TestIssueShowCommand:
             "comments": {"nodes": []},
         }
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_issue
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(main, ["issue", "show", "issue_123"])
 
         assert result.exit_code == 0
@@ -315,11 +315,11 @@ class TestIssueShowCommand:
 
         mock_issue = {"identifier": "ENG-123", "title": "Test Issue"}
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_issue
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(main, ["issue", "show", "ENG-123"])
 
         assert result.exit_code == 0
@@ -329,11 +329,11 @@ class TestIssueShowCommand:
         """Test showing non-existent issue."""
         ctx, client = mock_cli_context
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = None
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(main, ["issue", "show", "nonexistent"])
 
         assert result.exit_code != 0
@@ -341,7 +341,7 @@ class TestIssueShowCommand:
 
 
 class TestIssueUpdateCommand:
-    """Test suite for 'linearator issue update' command."""
+    """Test suite for 'linear-cli issue update' command."""
 
     def test_issue_update_basic(self, mock_cli_context):
         """Test basic issue update."""
@@ -352,11 +352,11 @@ class TestIssueUpdateCommand:
             "issue": {"identifier": "ENG-123", "title": "Updated Issue Title"},
         }
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_response
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(
                     main,
                     ["issue", "update", "ENG-123", "--title", "Updated Issue Title"],
@@ -370,7 +370,7 @@ class TestIssueUpdateCommand:
         ctx, client = mock_cli_context
 
         runner = CliRunner()
-        with patch("src.linearator.cli.app.cli_context", ctx):
+        with patch("src.linear-cli.cli.app.cli_context", ctx):
             result = runner.invoke(main, ["issue", "update", "ENG-123"])
 
         assert result.exit_code != 0
@@ -400,11 +400,11 @@ class TestIssueUpdateCommand:
         client.get_teams = AsyncMock(return_value=mock_teams)
         client.update_issue = AsyncMock(return_value=mock_response)
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = mock_response
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(
                     main, ["issue", "update", "ENG-123", "--state", "Done"]
                 )
@@ -414,7 +414,7 @@ class TestIssueUpdateCommand:
 
 
 class TestIssueDeleteCommand:
-    """Test suite for 'linearator issue delete' command."""
+    """Test suite for 'linear-cli issue delete' command."""
 
     def test_issue_delete_with_confirmation(self, mock_cli_context):
         """Test issue deletion with confirmation."""
@@ -426,11 +426,11 @@ class TestIssueDeleteCommand:
         client.get_issue = AsyncMock(return_value=mock_issue)
         client.delete_issue = AsyncMock(return_value=True)
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = True
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 # Use --confirm to skip interactive confirmation
                 result = runner.invoke(
                     main, ["issue", "delete", "ENG-123", "--confirm"]
@@ -443,11 +443,11 @@ class TestIssueDeleteCommand:
         """Test deleting non-existent issue."""
         ctx, client = mock_cli_context
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.side_effect = ValueError("Issue not found: nonexistent")
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(
                     main, ["issue", "delete", "nonexistent", "--confirm"]
                 )
@@ -459,11 +459,11 @@ class TestIssueDeleteCommand:
         """Test issue deletion failure."""
         ctx, client = mock_cli_context
 
-        with patch("src.linearator.cli.commands.issue.asyncio.run") as mock_run:
+        with patch("src.linear-cli.cli.commands.issue.asyncio.run") as mock_run:
             mock_run.return_value = False
 
             runner = CliRunner()
-            with patch("src.linearator.cli.app.cli_context", ctx):
+            with patch("src.linear-cli.cli.app.cli_context", ctx):
                 result = runner.invoke(
                     main, ["issue", "delete", "ENG-123", "--confirm"]
                 )

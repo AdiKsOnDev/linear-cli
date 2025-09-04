@@ -23,7 +23,7 @@ Installation
 
 .. code-block:: bash
 
-   pip install linearator
+   pip install linear-cli
 
 Authentication
 ~~~~~~~~~~~~~~
@@ -33,7 +33,7 @@ Before using Linearator, you need to authenticate with Linear:
 .. code-block:: bash
 
    # OAuth authentication (recommended)
-   linearator auth login
+   linear-cli auth login
 
    # Or use API key
    export LINEAR_API_KEY="your-api-key"
@@ -44,22 +44,22 @@ Basic Usage
 .. code-block:: bash
 
    # List issues
-   linearator issue list
+   linear-cli issue list
 
    # Create an issue
-   linearator issue create "Fix authentication bug" --team ENG --priority 3
+   linear-cli issue create "Fix authentication bug" --team ENG --priority 3
 
    # Search issues
-   linearator search "authentication" --team ENG --priority 3
+   linear-cli search "authentication" --team ENG --priority 3
 
    # Bulk operations
-   linearator bulk update-state -q "bug" --new-state "In Review"
+   linear-cli bulk update-state -q "bug" --new-state "In Review"
 
    # User workload analysis
-   linearator user workload --team ENG
+   linear-cli user workload --team ENG
 
    # Interactive mode for guided workflows
-   linearator interactive
+   linear-cli interactive
 
 User Guide
 ----------

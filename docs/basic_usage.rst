@@ -14,10 +14,10 @@ Creating Issues
 .. code-block:: bash
 
    # Basic issue creation
-   linearator issue create --title "Fix login bug"
+   linear-cli issue create --title "Fix login bug"
 
    # Issue with full details
-   linearator issue create \
+   linear-cli issue create \
      --title "Implement user dashboard" \
      --description "Create a dashboard showing user statistics and recent activity" \
      --team "Frontend" \
@@ -26,7 +26,7 @@ Creating Issues
      --label "feature,dashboard"
 
    # Interactive issue creation
-   linearator issue create --interactive
+   linear-cli issue create --interactive
 
 Listing Issues
 ~~~~~~~~~~~~~~
@@ -34,22 +34,22 @@ Listing Issues
 .. code-block:: bash
 
    # List all your issues
-   linearator issue list
+   linear-cli issue list
 
    # Filter by status
-   linearator issue list --status "In Progress,Todo"
+   linear-cli issue list --status "In Progress,Todo"
 
    # Filter by assignee
-   linearator issue list --assignee "john@company.com"
+   linear-cli issue list --assignee "john@company.com"
 
    # Filter by team
-   linearator issue list --team "Backend"
+   linear-cli issue list --team "Backend"
 
    # Combine multiple filters
-   linearator issue list --status "Todo" --team "Frontend" --priority "High"
+   linear-cli issue list --status "Todo" --team "Frontend" --priority "High"
 
    # List with specific output format
-   linearator issue list --format json
+   linear-cli issue list --format json
 
 Updating Issues
 ~~~~~~~~~~~~~~~
@@ -57,19 +57,19 @@ Updating Issues
 .. code-block:: bash
 
    # Update issue status
-   linearator issue update ISS-123 --status "In Progress"
+   linear-cli issue update ISS-123 --status "In Progress"
 
    # Assign issue to someone
-   linearator issue update ISS-123 --assignee "jane@company.com"
+   linear-cli issue update ISS-123 --assignee "jane@company.com"
 
    # Update multiple properties
-   linearator issue update ISS-123 \
+   linear-cli issue update ISS-123 \
      --status "In Review" \
      --priority "Medium" \
      --add-label "reviewed"
 
    # Remove labels
-   linearator issue update ISS-123 --remove-label "draft"
+   linear-cli issue update ISS-123 --remove-label "draft"
 
 Viewing Issue Details
 ~~~~~~~~~~~~~~~~~~~~~
@@ -77,13 +77,13 @@ Viewing Issue Details
 .. code-block:: bash
 
    # View full issue details
-   linearator issue show ISS-123
+   linear-cli issue show ISS-123
 
    # View with comments
-   linearator issue show ISS-123 --include-comments
+   linear-cli issue show ISS-123 --include-comments
 
    # JSON output for scripting
-   linearator issue show ISS-123 --format json
+   linear-cli issue show ISS-123 --format json
 
 Working with Teams
 ------------------
@@ -96,10 +96,10 @@ Listing Teams
 .. code-block:: bash
 
    # List all teams you have access to
-   linearator team list
+   linear-cli team list
 
    # Get detailed team information
-   linearator team info "Engineering"
+   linear-cli team info "Engineering"
 
 Switching Team Context
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -107,10 +107,10 @@ Switching Team Context
 .. code-block:: bash
 
    # Set default team for future commands
-   linearator team switch "Frontend"
+   linear-cli team switch "Frontend"
 
    # Verify current team setting
-   linearator config show | grep team
+   linear-cli config show | grep team
 
 Working with Labels
 -------------------
@@ -123,18 +123,18 @@ Managing Labels
 .. code-block:: bash
 
    # List all available labels
-   linearator label list
+   linear-cli label list
 
    # Create a new label
-   linearator label create "refactor" \
+   linear-cli label create "refactor" \
      --description "Code refactoring tasks" \
      --color "#FF5722"
 
    # Apply labels to issues
-   linearator label apply "bug" ISS-123 ISS-124
+   linear-cli label apply "bug" ISS-123 ISS-124
 
    # Remove labels from issues
-   linearator label remove "draft" ISS-123
+   linear-cli label remove "draft" ISS-123
 
 Basic Search
 ------------
@@ -147,13 +147,13 @@ Text Search
 .. code-block:: bash
 
    # Search by text content
-   linearator search "authentication bug"
+   linear-cli search "authentication bug"
 
    # Search in specific team
-   linearator search "dashboard" --team "Frontend"
+   linear-cli search "dashboard" --team "Frontend"
 
    # Search with status filter
-   linearator search "login" --status "Todo,In Progress"
+   linear-cli search "login" --status "Todo,In Progress"
 
 Filter-Based Search
 ~~~~~~~~~~~~~~~~~~~
@@ -161,13 +161,13 @@ Filter-Based Search
 .. code-block:: bash
 
    # Find issues assigned to you
-   linearator search --assignee "me"
+   linear-cli search --assignee "me"
 
    # Find high-priority issues
-   linearator search --priority "High,Urgent"
+   linear-cli search --priority "High,Urgent"
 
    # Find recent issues
-   linearator search --created-after "2024-01-01"
+   linear-cli search --created-after "2024-01-01"
 
 Output Formats
 --------------
@@ -179,7 +179,7 @@ Table Format (Default)
 
 .. code-block:: bash
 
-   linearator issue list
+   linear-cli issue list
 
 Output::
 
@@ -193,7 +193,7 @@ JSON Format
 
 .. code-block:: bash
 
-   linearator issue list --format json
+   linear-cli issue list --format json
 
 .. code-block:: json
 
@@ -217,7 +217,7 @@ Plain Format
 
 .. code-block:: bash
 
-   linearator issue list --format plain
+   linear-cli issue list --format plain
 
 Output::
 
@@ -235,10 +235,10 @@ View Current Configuration
 .. code-block:: bash
 
    # Show all configuration settings
-   linearator config show
+   linear-cli config show
 
    # Show specific setting
-   linearator config get default.team
+   linear-cli config get default.team
 
 Setting Configuration Values
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -246,14 +246,14 @@ Setting Configuration Values
 .. code-block:: bash
 
    # Set default team
-   linearator config set default.team "Engineering"
+   linear-cli config set default.team "Engineering"
 
    # Set default output format
-   linearator config set output.format "json"
+   linear-cli config set output.format "json"
 
    # Set display preferences
-   linearator config set display.colors true
-   linearator config set display.progress_bars true
+   linear-cli config set display.colors true
+   linear-cli config set display.progress_bars true
 
 Common Workflows
 ----------------
@@ -267,10 +267,10 @@ Daily Standup Preparation
 
    #!/bin/bash
    echo "=== Your active issues ==="
-   linearator issue list --assignee me --status "In Progress,Todo"
+   linear-cli issue list --assignee me --status "In Progress,Todo"
    
    echo -e "\n=== Team urgent issues ==="
-   linearator search --team "Engineering" --priority "Urgent"
+   linear-cli search --team "Engineering" --priority "Urgent"
 
 Issue Triage
 ~~~~~~~~~~~~
@@ -278,13 +278,13 @@ Issue Triage
 .. code-block:: bash
 
    # Find unassigned issues
-   linearator issue list --assignee unassigned --status Todo
+   linear-cli issue list --assignee unassigned --status Todo
 
    # Review issues without labels
-   linearator search --no-labels --status Todo
+   linear-cli search --no-labels --status Todo
 
    # Find old issues
-   linearator search --created-before "30 days ago" --status Todo
+   linear-cli search --created-before "30 days ago" --status Todo
 
 Sprint Planning
 ~~~~~~~~~~~~~~~
@@ -292,13 +292,13 @@ Sprint Planning
 .. code-block:: bash
 
    # List backlog for team
-   linearator issue list --team "Frontend" --status Backlog
+   linear-cli issue list --team "Frontend" --status Backlog
 
    # Find issues by priority
-   linearator search --priority "High" --status "Todo,Backlog"
+   linear-cli search --priority "High" --status "Todo,Backlog"
 
    # Check team workload
-   linearator user workload --team "Frontend"
+   linear-cli user workload --team "Frontend"
 
 Tips and Best Practices
 -----------------------
@@ -307,30 +307,30 @@ Tips and Best Practices
 
    .. code-block:: bash
 
-      linearator config alias "my-issues" "issue list --assignee me"
-      linearator config alias "urgent" "search --priority Urgent"
+      linear-cli config alias "my-issues" "issue list --assignee me"
+      linear-cli config alias "urgent" "search --priority Urgent"
 
 2. **Combine filters** to narrow down results:
 
    .. code-block:: bash
 
-      linearator issue list --team Backend --status "In Progress" --assignee me
+      linear-cli issue list --team Backend --status "In Progress" --assignee me
 
 3. **Use JSON output** for scripting:
 
    .. code-block:: bash
 
-      issues=$(linearator issue list --format json --status Todo)
+      issues=$(linear-cli issue list --format json --status Todo)
       echo "$issues" | jq '.[] | select(.priority > 2)'
 
 4. **Set up shell completion** for faster typing:
 
    .. code-block:: bash
 
-      eval "$(_LINEARATOR_COMPLETE=bash_source linearator)"
+      eval "$(_LINEARATOR_COMPLETE=bash_source linear-cli)"
 
 5. **Use interactive mode** for complex operations:
 
    .. code-block:: bash
 
-      linearator issue create --interactive
+      linear-cli issue create --interactive

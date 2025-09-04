@@ -1,10 +1,10 @@
-# Linearator
+# Linear CLI
 
 A comprehensive command-line interface for Linear issue management, enabling efficient project workflow automation and team collaboration through the Linear API.
 
 ## Overview
 
-Linearator is a powerful CLI tool that streamlines Linear project management workflows by providing command-line access to all core Linear functionality. Built with Python and designed for developers, project managers, and teams who prefer terminal-based workflows or need to automate Linear operations.
+Linear CLI is a powerful CLI tool that streamlines Linear project management workflows by providing command-line access to all core Linear functionality. Built with Python and designed for developers, project managers, and teams who prefer terminal-based workflows or need to automate Linear operations.
 
 ## Key Features
 
@@ -36,22 +36,22 @@ Linearator is a powerful CLI tool that streamlines Linear project management wor
 ### From PyPI (Recommended)
 
 ```bash
-pip install linearator
+pip install linear-cli
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/linearator/linearator.git
-cd linearator
+git clone https://github.com/linear-cli/linear-cli.git
+cd linear-cli
 pip install -e .
 ```
 
 ### Development Installation
 
 ```bash
-git clone https://github.com/linearator/linearator.git
-cd linearator
+git clone https://github.com/linear-cli/linear-cli.git
+cd linear-cli
 make install-dev
 ```
 
@@ -63,39 +63,39 @@ First, authenticate with Linear:
 
 ```bash
 # OAuth flow (recommended)
-linearator auth login
+linear-cli auth login
 
 # Or use API key
-linearator auth login --api-key YOUR_API_KEY
+linear-cli auth login --api-key YOUR_API_KEY
 ```
 
 ### 2. Basic Usage
 
 ```bash
 # List your issues
-linearator issue list
+linear-cli issue list
 
 # Create a new issue
-linearator issue create --title "Bug fix" --description "Fix login error" --team "ENG"
+linear-cli issue create --title "Bug fix" --description "Fix login error" --team "ENG"
 
 # Update issue status
-linearator issue update ISS-123 --status "In Progress"
+linear-cli issue update ISS-123 --status "In Progress"
 
 # Search issues
-linearator search "login bug" --status "Todo" --assignee "john@company.com"
+linear-cli search "login bug" --status "Todo" --assignee "john@company.com"
 ```
 
 ### 3. Team Operations
 
 ```bash
 # List available teams
-linearator team list
+linear-cli team list
 
 # Switch default team context
-linearator team switch "Engineering"
+linear-cli team switch "Engineering"
 
 # View team members
-linearator user list --team "Engineering"
+linear-cli user list --team "Engineering"
 ```
 
 ## Command Reference
@@ -104,96 +104,96 @@ linearator user list --team "Engineering"
 
 ```bash
 # Create issues
-linearator issue create --title "Title" --description "Description" --team "TEAM"
-linearator issue create --interactive  # Guided creation
+linear-cli issue create --title "Title" --description "Description" --team "TEAM"
+linear-cli issue create --interactive  # Guided creation
 
 # List and filter issues
-linearator issue list --status "In Progress" --assignee "user@email.com"
-linearator issue list --label "bug,urgent" --team "Backend"
+linear-cli issue list --status "In Progress" --assignee "user@email.com"
+linear-cli issue list --label "bug,urgent" --team "Backend"
 
 # Update issues
-linearator issue update ISS-123 --status "Done" --assignee "user@email.com"
-linearator issue update ISS-123 --add-label "critical" --priority "High"
+linear-cli issue update ISS-123 --status "Done" --assignee "user@email.com"
+linear-cli issue update ISS-123 --add-label "critical" --priority "High"
 
 # Delete issues
-linearator issue delete ISS-123
+linear-cli issue delete ISS-123
 ```
 
 ### Bulk Operations
 
 ```bash
 # Bulk status updates
-linearator bulk update-status --status "In Progress" --filter "assignee:user@email.com"
+linear-cli bulk update-status --status "In Progress" --filter "assignee:user@email.com"
 
 # Bulk label management
-linearator bulk add-label "refactor" --filter "team:Backend"
+linear-cli bulk add-label "refactor" --filter "team:Backend"
 
 # Bulk assignment
-linearator bulk assign "user@email.com" --filter "status:Todo,label:urgent"
+linear-cli bulk assign "user@email.com" --filter "status:Todo,label:urgent"
 ```
 
 ### Search Operations
 
 ```bash
 # Basic search
-linearator search "authentication bug"
+linear-cli search "authentication bug"
 
 # Advanced search with filters
-linearator search "login" --status "Todo,In Progress" --created-after "2024-01-01"
+linear-cli search "login" --status "Todo,In Progress" --created-after "2024-01-01"
 
 # Save and manage searches
-linearator search save "urgent-bugs" "priority:urgent AND status:Todo"
-linearator search run "urgent-bugs"
+linear-cli search save "urgent-bugs" "priority:urgent AND status:Todo"
+linear-cli search run "urgent-bugs"
 ```
 
 ### Team & User Management
 
 ```bash
 # Team operations
-linearator team list
-linearator team switch "Frontend"
-linearator team info "Backend"
+linear-cli team list
+linear-cli team switch "Frontend"
+linear-cli team info "Backend"
 
 # User operations
-linearator user list
-linearator user workload --team "Engineering"
-linearator user info "user@email.com"
+linear-cli user list
+linear-cli user workload --team "Engineering"
+linear-cli user info "user@email.com"
 ```
 
 ### Label Management
 
 ```bash
 # List labels
-linearator label list
+linear-cli label list
 
 # Create labels
-linearator label create "refactor" --description "Code refactoring tasks" --color "#FF5722"
+linear-cli label create "refactor" --description "Code refactoring tasks" --color "#FF5722"
 
 # Apply labels to issues
-linearator label apply "bug" ISS-123 ISS-124
+linear-cli label apply "bug" ISS-123 ISS-124
 ```
 
 ### Configuration
 
 ```bash
 # View configuration
-linearator config show
+linear-cli config show
 
 # Set default values
-linearator config set default.team "Engineering"
-linearator config set output.format "table"
+linear-cli config set default.team "Engineering"
+linear-cli config set output.format "table"
 
 # Reset configuration
-linearator config reset
+linear-cli config reset
 ```
 
 ## Configuration
 
-Linearator supports configuration through multiple methods:
+Linear CLI supports configuration through multiple methods:
 
 ### Configuration File
 
-Create `~/.linearator/config.toml`:
+Create `~/.linear-cli/config.toml`:
 
 ```toml
 [default]
@@ -220,7 +220,7 @@ export LINEARATOR_OUTPUT_FORMAT="json"
 ### Command Line Options
 
 ```bash
-linearator --team "Engineering" --format json issue list
+linear-cli --team "Engineering" --format json issue list
 ```
 
 ## Output Formats
@@ -234,7 +234,7 @@ ISS-124 Add user profiles  Todo          jane@co.com   feature
 
 ### JSON Format
 ```bash
-linearator issue list --format json
+linear-cli issue list --format json
 ```
 
 ```json
@@ -252,7 +252,7 @@ linearator issue list --format json
 
 ### Plain Text Format
 ```bash
-linearator issue list --format plain
+linear-cli issue list --format plain
 ```
 
 ## Advanced Usage
@@ -262,8 +262,8 @@ linearator issue list --format plain
 For complex operations, use interactive mode:
 
 ```bash
-linearator issue create --interactive
-linearator search --interactive
+linear-cli issue create --interactive
+linear-cli search --interactive
 ```
 
 ### Shell Completion
@@ -272,13 +272,13 @@ Enable shell completion for faster workflow:
 
 ```bash
 # Bash
-eval "$(_LINEARATOR_COMPLETE=bash_source linearator)"
+eval "$(_LINEARATOR_COMPLETE=bash_source linear-cli)"
 
 # Zsh
-eval "$(_LINEARATOR_COMPLETE=zsh_source linearator)"
+eval "$(_LINEARATOR_COMPLETE=zsh_source linear-cli)"
 
 # Fish
-_LINEARATOR_COMPLETE=fish_source linearator | source
+_LINEARATOR_COMPLETE=fish_source linear-cli | source
 ```
 
 ### Command Aliases
@@ -286,8 +286,8 @@ _LINEARATOR_COMPLETE=fish_source linearator | source
 Set up aliases for frequently used commands:
 
 ```bash
-linearator config alias "my-issues" "issue list --assignee me"
-linearator config alias "urgent" "search 'priority:urgent'"
+linear-cli config alias "my-issues" "issue list --assignee me"
+linear-cli config alias "urgent" "search 'priority:urgent'"
 ```
 
 ## Integration Examples
@@ -298,7 +298,7 @@ linearator config alias "urgent" "search 'priority:urgent'"
 # GitHub Actions example
 - name: Create Linear issue for failed build
   run: |
-    linearator issue create \
+    linear-cli issue create \
       --title "Build failed: ${{ github.ref }}" \
       --description "Build failure in ${{ github.repository }}" \
       --label "ci,bug" \
@@ -311,10 +311,10 @@ linearator config alias "urgent" "search 'priority:urgent'"
 #!/bin/bash
 # Daily standup preparation
 echo "Your issues for today:"
-linearator issue list --assignee me --status "In Progress,Todo"
+linear-cli issue list --assignee me --status "In Progress,Todo"
 
 echo "Urgent team issues:"
-linearator search "priority:urgent AND team:$TEAM"
+linear-cli search "priority:urgent AND team:$TEAM"
 ```
 
 ## Development
@@ -327,8 +327,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ```bash
 # Clone repository
-git clone https://github.com/linearator/linearator.git
-cd linearator
+git clone https://github.com/linear-cli/linear-cli.git
+cd linear-cli
 
 # Install development dependencies
 make install-dev
@@ -369,9 +369,9 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) file for 
 
 ## Support
 
-- **Documentation**: [linearator.readthedocs.io](https://linearator.readthedocs.io)
-- **Issues**: [GitHub Issues](https://github.com/linearator/linearator/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/linearator/linearator/discussions)
+- **Documentation**: [linear-cli.readthedocs.io](https://linear-cli.readthedocs.io)
+- **Issues**: [GitHub Issues](https://github.com/linear-cli/linear-cli/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/linear-cli/linear-cli/discussions)
 
 ## Changelog
 

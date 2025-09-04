@@ -3,8 +3,8 @@
 
 import pytest
 
-from linearator.api.client.client import LinearClient
-from linearator.config.manager import LinearConfig
+from linear_cli.api.client.client import LinearClient
+from linear_cli.config.manager import LinearConfig
 
 
 class TestPerformanceBenchmarks:

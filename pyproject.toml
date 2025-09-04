@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "linearator"
+name = "linear-cli"
 version = "1.0.0"
 authors = [
     {name = "Linearator Team", email = "contact@linearator.dev"},
@@ -89,17 +89,17 @@ test = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/linearator/linearator"
-"Documentation" = "https://linearator.readthedocs.io"
-"Repository" = "https://github.com/linearator/linearator.git"
-"Bug Reports" = "https://github.com/linearator/linearator/issues"
-"Feature Requests" = "https://github.com/linearator/linearator/issues/new?template=feature_request.md"
-"Discussions" = "https://github.com/linearator/linearator/discussions"
-"Changelog" = "https://github.com/linearator/linearator/blob/main/CHANGELOG.md"
-"Release Notes" = "https://github.com/linearator/linearator/releases"
+"Homepage" = "https://github.com/linear-cli/linear-cli"
+"Documentation" = "https://linear-cli.readthedocs.io"
+"Repository" = "https://github.com/linear-cli/linear-cli.git"
+"Bug Reports" = "https://github.com/linear-cli/linear-cli/issues"
+"Feature Requests" = "https://github.com/linear-cli/linear-cli/issues/new?template=feature_request.md"
+"Discussions" = "https://github.com/linear-cli/linear-cli/discussions"
+"Changelog" = "https://github.com/linear-cli/linear-cli/blob/main/CHANGELOG.md"
+"Release Notes" = "https://github.com/linear-cli/linear-cli/releases"
 
 [project.scripts]
-linearator = "linearator.cli.app:main"
+linear-cli = "linear_cli.cli.app:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -177,7 +177,7 @@ addopts = [
     "-ra",
     "--strict-markers",
     "--strict-config",
-    "--cov=src/linearator",
+    "--cov=src/linear_cli",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-fail-under=80",
@@ -201,7 +201,7 @@ branch = true
 omit = [
     "*/tests/*",
     "*/test_*",
-    "src/linearator/__main__.py",
+    "src/linear_cli/__main__.py",
 ]
 
 [tool.coverage.report]

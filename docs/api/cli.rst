@@ -6,7 +6,7 @@ This section documents the internal CLI module structure and components.
 Main Application
 ----------------
 
-.. automodule:: linearator.cli.app
+.. automodule:: linear-cli.cli.app
    :members:
    :undoc-members:
    :show-inheritance:
@@ -17,7 +17,7 @@ Command Modules
 Authentication Commands
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.auth
+.. automodule:: linear-cli.cli.commands.auth
    :members:
    :undoc-members:
    :show-inheritance:
@@ -25,7 +25,7 @@ Authentication Commands
 Issue Management Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.issue
+.. automodule:: linear-cli.cli.commands.issue
    :members:
    :undoc-members:
    :show-inheritance:
@@ -33,7 +33,7 @@ Issue Management Commands
 Search Commands
 ~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.search
+.. automodule:: linear-cli.cli.commands.search
    :members:
    :undoc-members:
    :show-inheritance:
@@ -41,7 +41,7 @@ Search Commands
 Bulk Operations Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.bulk
+.. automodule:: linear-cli.cli.commands.bulk
    :members:
    :undoc-members:
    :show-inheritance:
@@ -49,7 +49,7 @@ Bulk Operations Commands
 User Management Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.user
+.. automodule:: linear-cli.cli.commands.user
    :members:
    :undoc-members:
    :show-inheritance:
@@ -57,7 +57,7 @@ User Management Commands
 Team Management Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.team
+.. automodule:: linear-cli.cli.commands.team
    :members:
    :undoc-members:
    :show-inheritance:
@@ -65,7 +65,7 @@ Team Management Commands
 Label Management Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.label
+.. automodule:: linear-cli.cli.commands.label
    :members:
    :undoc-members:
    :show-inheritance:
@@ -73,7 +73,7 @@ Label Management Commands
 Interactive Mode Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.interactive
+.. automodule:: linear-cli.cli.commands.interactive
    :members:
    :undoc-members:
    :show-inheritance:
@@ -81,7 +81,7 @@ Interactive Mode Commands
 Shell Completion Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.completion
+.. automodule:: linear-cli.cli.commands.completion
    :members:
    :undoc-members:
    :show-inheritance:
@@ -89,7 +89,7 @@ Shell Completion Commands
 Configuration Commands
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: linearator.cli.commands.config
+.. automodule:: linear-cli.cli.commands.config
    :members:
    :undoc-members:
    :show-inheritance:
@@ -97,7 +97,7 @@ Configuration Commands
 Output Formatting
 -----------------
 
-.. automodule:: linearator.cli.formatters
+.. automodule:: linear-cli.cli.formatters
    :members:
    :undoc-members:
    :show-inheritance:

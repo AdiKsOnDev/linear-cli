@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from linearator.utils.performance import (
+from linear_cli.utils.performance import (
     BatchProcessor,
     PersistentCache,
     ProgressTracker,
@@ -310,7 +310,7 @@ class TestProgressTracker:
 
     def test_progress_tracker_basic(self):
         """Test basic progress tracking."""
-        with patch("linearator.utils.performance.Progress"):
+        with patch("linear-cli.utils.performance.Progress"):
             tracker = ProgressTracker(total=10, description="Test", show_progress=False)
 
             assert tracker.total == 10
@@ -330,7 +330,7 @@ class TestProgressTracker:
         mock_progress = Mock()
         mock_progress.add_task.return_value = "task_id"
 
-        with patch("linearator.utils.performance.Progress", return_value=mock_progress):
+        with patch("linear-cli.utils.performance.Progress", return_value=mock_progress):
             tracker = ProgressTracker(total=10, description="Test", show_progress=True)
             tracker.update(5)
 
@@ -357,7 +357,7 @@ class TestProgressTracker:
         """Test progress tracker as context manager."""
         mock_progress = Mock()
 
-        with patch("linearator.utils.performance.Progress", return_value=mock_progress):
+        with patch("linear-cli.utils.performance.Progress", return_value=mock_progress):
             with ProgressTracker(total=10, show_progress=True) as tracker:
                 mock_progress.start.assert_called_once()
                 tracker.update(5)
@@ -380,7 +380,7 @@ class TestRunWithConcurrencyLimit:
 
         tasks = [lambda i=i: task(i) for i in range(5)]
 
-        with patch("linearator.utils.performance.ProgressTracker"):
+        with patch("linear-cli.utils.performance.ProgressTracker"):
             task_results = await run_with_concurrency_limit(
                 tasks, max_concurrent=2, show_progress=False
             )
@@ -402,7 +402,7 @@ class TestRunWithConcurrencyLimit:
 
         tasks = [good_task, bad_task, good_task]
 
-        with patch("linearator.utils.performance.ProgressTracker"):
+        with patch("linear-cli.utils.performance.ProgressTracker"):
             results = await run_with_concurrency_limit(
                 tasks, max_concurrent=2, show_progress=False
             )
@@ -422,7 +422,7 @@ class TestRunWithConcurrencyLimit:
 
         tasks = [task for _ in range(3)]
 
-        with patch("linearator.utils.performance.ProgressTracker") as mock_tracker:
+        with patch("linear-cli.utils.performance.ProgressTracker") as mock_tracker:
             mock_instance = Mock()
             mock_tracker.return_value.__enter__.return_value = mock_instance
 

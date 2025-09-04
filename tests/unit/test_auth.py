@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 import httpx
 import pytest
 
-from src.linearator.api.auth import (
+from src.linear-cli.api.auth import (
     AuthenticationError,
     LinearAuthenticator,
     OAuthFlowError,
@@ -24,7 +24,7 @@ class TestCredentialStorage:
     def test_init(self, mock_credential_storage):
         """Test CredentialStorage initialization."""
         assert mock_credential_storage.user_id == "test_user"
-        assert mock_credential_storage.SERVICE_NAME == "linearator"
+        assert mock_credential_storage.SERVICE_NAME == "linear-cli"
 
     def test_store_and_retrieve_credentials(self, mock_credential_storage):
         """Test storing and retrieving credentials."""

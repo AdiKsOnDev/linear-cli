@@ -1,0 +1,464 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic Usage &mdash; Linearator 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=08840e99" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Features" href="advanced_features.html" />
+    <link rel="prev" title="Authentication" href="authentication.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Linearator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-issues">Working with Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-issues">Creating Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#listing-issues">Listing Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-issues">Updating Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#viewing-issue-details">Viewing Issue Details</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-teams">Working with Teams</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#listing-teams">Listing Teams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#switching-team-context">Switching Team Context</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-labels">Working with Labels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#managing-labels">Managing Labels</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-search">Basic Search</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#text-search">Text Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#filter-based-search">Filter-Based Search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#output-formats">Output Formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#table-format-default">Table Format (Default)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json-format">JSON Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plain-format">Plain Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#view-current-configuration">View Current Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-configuration-values">Setting Configuration Values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#common-workflows">Common Workflows</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#daily-standup-preparation">Daily Standup Preparation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#issue-triage">Issue Triage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sprint-planning">Sprint Planning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tips-and-best-practices">Tips and Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/cli.html">CLI Module API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Linearator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Basic Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/basic_usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="basic-usage">
+<h1>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h1>
+<p>This guide covers the fundamental operations you can perform with Linearator. After authentication, you’ll use these commands for day-to-day Linear workflow management.</p>
+<section id="working-with-issues">
+<h2>Working with Issues<a class="headerlink" href="#working-with-issues" title="Link to this heading"></a></h2>
+<p>Issues are the core entities in Linear. Linearator provides comprehensive issue management capabilities.</p>
+<section id="creating-issues">
+<h3>Creating Issues<a class="headerlink" href="#creating-issues" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic issue creation</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>create<span class="w"> </span>--title<span class="w"> </span><span class="s2">&quot;Fix login bug&quot;</span>
+
+<span class="c1"># Issue with full details</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--title<span class="w"> </span><span class="s2">&quot;Implement user dashboard&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--description<span class="w"> </span><span class="s2">&quot;Create a dashboard showing user statistics and recent activity&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--team<span class="w"> </span><span class="s2">&quot;Frontend&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--assignee<span class="w"> </span><span class="s2">&quot;john@company.com&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--priority<span class="w"> </span><span class="s2">&quot;High&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--label<span class="w"> </span><span class="s2">&quot;feature,dashboard&quot;</span>
+
+<span class="c1"># Interactive issue creation</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>create<span class="w"> </span>--interactive
+</pre></div>
+</div>
+</section>
+<section id="listing-issues">
+<h3>Listing Issues<a class="headerlink" href="#listing-issues" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List all your issues</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list
+
+<span class="c1"># Filter by status</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--status<span class="w"> </span><span class="s2">&quot;In Progress,Todo&quot;</span>
+
+<span class="c1"># Filter by assignee</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--assignee<span class="w"> </span><span class="s2">&quot;john@company.com&quot;</span>
+
+<span class="c1"># Filter by team</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--team<span class="w"> </span><span class="s2">&quot;Backend&quot;</span>
+
+<span class="c1"># Combine multiple filters</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--status<span class="w"> </span><span class="s2">&quot;Todo&quot;</span><span class="w"> </span>--team<span class="w"> </span><span class="s2">&quot;Frontend&quot;</span><span class="w"> </span>--priority<span class="w"> </span><span class="s2">&quot;High&quot;</span>
+
+<span class="c1"># List with specific output format</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--format<span class="w"> </span>json
+</pre></div>
+</div>
+</section>
+<section id="updating-issues">
+<h3>Updating Issues<a class="headerlink" href="#updating-issues" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update issue status</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>update<span class="w"> </span>ISS-123<span class="w"> </span>--status<span class="w"> </span><span class="s2">&quot;In Progress&quot;</span>
+
+<span class="c1"># Assign issue to someone</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>update<span class="w"> </span>ISS-123<span class="w"> </span>--assignee<span class="w"> </span><span class="s2">&quot;jane@company.com&quot;</span>
+
+<span class="c1"># Update multiple properties</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>update<span class="w"> </span>ISS-123<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--status<span class="w"> </span><span class="s2">&quot;In Review&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--priority<span class="w"> </span><span class="s2">&quot;Medium&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--add-label<span class="w"> </span><span class="s2">&quot;reviewed&quot;</span>
+
+<span class="c1"># Remove labels</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>update<span class="w"> </span>ISS-123<span class="w"> </span>--remove-label<span class="w"> </span><span class="s2">&quot;draft&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="viewing-issue-details">
+<h3>Viewing Issue Details<a class="headerlink" href="#viewing-issue-details" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View full issue details</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>show<span class="w"> </span>ISS-123
+
+<span class="c1"># View with comments</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>show<span class="w"> </span>ISS-123<span class="w"> </span>--include-comments
+
+<span class="c1"># JSON output for scripting</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>show<span class="w"> </span>ISS-123<span class="w"> </span>--format<span class="w"> </span>json
+</pre></div>
+</div>
+</section>
+</section>
+<section id="working-with-teams">
+<h2>Working with Teams<a class="headerlink" href="#working-with-teams" title="Link to this heading"></a></h2>
+<p>Team management is essential for organizing work across different groups.</p>
+<section id="listing-teams">
+<h3>Listing Teams<a class="headerlink" href="#listing-teams" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List all teams you have access to</span>
+linearator<span class="w"> </span>team<span class="w"> </span>list
+
+<span class="c1"># Get detailed team information</span>
+linearator<span class="w"> </span>team<span class="w"> </span>info<span class="w"> </span><span class="s2">&quot;Engineering&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="switching-team-context">
+<h3>Switching Team Context<a class="headerlink" href="#switching-team-context" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set default team for future commands</span>
+linearator<span class="w"> </span>team<span class="w"> </span>switch<span class="w"> </span><span class="s2">&quot;Frontend&quot;</span>
+
+<span class="c1"># Verify current team setting</span>
+linearator<span class="w"> </span>config<span class="w"> </span>show<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>team
+</pre></div>
+</div>
+</section>
+</section>
+<section id="working-with-labels">
+<h2>Working with Labels<a class="headerlink" href="#working-with-labels" title="Link to this heading"></a></h2>
+<p>Labels help categorize and organize issues.</p>
+<section id="managing-labels">
+<h3>Managing Labels<a class="headerlink" href="#managing-labels" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List all available labels</span>
+linearator<span class="w"> </span>label<span class="w"> </span>list
+
+<span class="c1"># Create a new label</span>
+linearator<span class="w"> </span>label<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;refactor&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--description<span class="w"> </span><span class="s2">&quot;Code refactoring tasks&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--color<span class="w"> </span><span class="s2">&quot;#FF5722&quot;</span>
+
+<span class="c1"># Apply labels to issues</span>
+linearator<span class="w"> </span>label<span class="w"> </span>apply<span class="w"> </span><span class="s2">&quot;bug&quot;</span><span class="w"> </span>ISS-123<span class="w"> </span>ISS-124
+
+<span class="c1"># Remove labels from issues</span>
+linearator<span class="w"> </span>label<span class="w"> </span>remove<span class="w"> </span><span class="s2">&quot;draft&quot;</span><span class="w"> </span>ISS-123
+</pre></div>
+</div>
+</section>
+</section>
+<section id="basic-search">
+<h2>Basic Search<a class="headerlink" href="#basic-search" title="Link to this heading"></a></h2>
+<p>Search helps you find issues quickly across your organization.</p>
+<section id="text-search">
+<h3>Text Search<a class="headerlink" href="#text-search" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Search by text content</span>
+linearator<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;authentication bug&quot;</span>
+
+<span class="c1"># Search in specific team</span>
+linearator<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;dashboard&quot;</span><span class="w"> </span>--team<span class="w"> </span><span class="s2">&quot;Frontend&quot;</span>
+
+<span class="c1"># Search with status filter</span>
+linearator<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;login&quot;</span><span class="w"> </span>--status<span class="w"> </span><span class="s2">&quot;Todo,In Progress&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="filter-based-search">
+<h3>Filter-Based Search<a class="headerlink" href="#filter-based-search" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find issues assigned to you</span>
+linearator<span class="w"> </span>search<span class="w"> </span>--assignee<span class="w"> </span><span class="s2">&quot;me&quot;</span>
+
+<span class="c1"># Find high-priority issues</span>
+linearator<span class="w"> </span>search<span class="w"> </span>--priority<span class="w"> </span><span class="s2">&quot;High,Urgent&quot;</span>
+
+<span class="c1"># Find recent issues</span>
+linearator<span class="w"> </span>search<span class="w"> </span>--created-after<span class="w"> </span><span class="s2">&quot;2024-01-01&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="output-formats">
+<h2>Output Formats<a class="headerlink" href="#output-formats" title="Link to this heading"></a></h2>
+<p>Linearator supports multiple output formats for different use cases.</p>
+<section id="table-format-default">
+<h3>Table Format (Default)<a class="headerlink" href="#table-format-default" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>linearator<span class="w"> </span>issue<span class="w"> </span>list
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ID</span>      <span class="n">Title</span>                 <span class="n">Status</span>       <span class="n">Assignee</span>         <span class="n">Labels</span>
+<span class="n">ISS</span><span class="o">-</span><span class="mi">123</span> <span class="n">Fix</span> <span class="n">authentication</span>    <span class="n">In</span> <span class="n">Progress</span>  <span class="n">john</span><span class="nd">@company</span><span class="o">.</span><span class="n">com</span> <span class="n">bug</span><span class="p">,</span> <span class="n">urgent</span>
+<span class="n">ISS</span><span class="o">-</span><span class="mi">124</span> <span class="n">User</span> <span class="n">dashboard</span>        <span class="n">Todo</span>         <span class="n">jane</span><span class="nd">@company</span><span class="o">.</span><span class="n">com</span> <span class="n">feature</span>
+<span class="n">ISS</span><span class="o">-</span><span class="mi">125</span> <span class="n">Performance</span> <span class="n">issue</span>     <span class="n">Backlog</span>      <span class="n">unassigned</span>       <span class="n">performance</span>
+</pre></div>
+</div>
+</section>
+<section id="json-format">
+<h3>JSON Format<a class="headerlink" href="#json-format" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--format<span class="w"> </span>json
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ISS-123&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Fix authentication&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;In Progress&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;assignee&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;john@company.com&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John Doe&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;bug&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;urgent&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;createdAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15T10:30:00Z&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="plain-format">
+<h3>Plain Format<a class="headerlink" href="#plain-format" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--format<span class="w"> </span>plain
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ISS</span><span class="o">-</span><span class="mi">123</span><span class="p">:</span> <span class="n">Fix</span> <span class="n">authentication</span> <span class="p">(</span><span class="n">In</span> <span class="n">Progress</span><span class="p">)</span> <span class="o">-</span> <span class="n">john</span><span class="nd">@company</span><span class="o">.</span><span class="n">com</span>
+<span class="n">ISS</span><span class="o">-</span><span class="mi">124</span><span class="p">:</span> <span class="n">User</span> <span class="n">dashboard</span> <span class="p">(</span><span class="n">Todo</span><span class="p">)</span> <span class="o">-</span> <span class="n">jane</span><span class="nd">@company</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>Configure Linearator for your workflow preferences.</p>
+<section id="view-current-configuration">
+<h3>View Current Configuration<a class="headerlink" href="#view-current-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show all configuration settings</span>
+linearator<span class="w"> </span>config<span class="w"> </span>show
+
+<span class="c1"># Show specific setting</span>
+linearator<span class="w"> </span>config<span class="w"> </span>get<span class="w"> </span>default.team
+</pre></div>
+</div>
+</section>
+<section id="setting-configuration-values">
+<h3>Setting Configuration Values<a class="headerlink" href="#setting-configuration-values" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set default team</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>default.team<span class="w"> </span><span class="s2">&quot;Engineering&quot;</span>
+
+<span class="c1"># Set default output format</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>output.format<span class="w"> </span><span class="s2">&quot;json&quot;</span>
+
+<span class="c1"># Set display preferences</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>display.colors<span class="w"> </span><span class="nb">true</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>display.progress_bars<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-workflows">
+<h2>Common Workflows<a class="headerlink" href="#common-workflows" title="Link to this heading"></a></h2>
+<p>Here are some typical workflows using Linearator.</p>
+<section id="daily-standup-preparation">
+<h3>Daily Standup Preparation<a class="headerlink" href="#daily-standup-preparation" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Your active issues ===&quot;</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--assignee<span class="w"> </span>me<span class="w"> </span>--status<span class="w"> </span><span class="s2">&quot;In Progress,Todo&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;\n=== Team urgent issues ===&quot;</span>
+linearator<span class="w"> </span>search<span class="w"> </span>--team<span class="w"> </span><span class="s2">&quot;Engineering&quot;</span><span class="w"> </span>--priority<span class="w"> </span><span class="s2">&quot;Urgent&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="issue-triage">
+<h3>Issue Triage<a class="headerlink" href="#issue-triage" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find unassigned issues</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--assignee<span class="w"> </span>unassigned<span class="w"> </span>--status<span class="w"> </span>Todo
+
+<span class="c1"># Review issues without labels</span>
+linearator<span class="w"> </span>search<span class="w"> </span>--no-labels<span class="w"> </span>--status<span class="w"> </span>Todo
+
+<span class="c1"># Find old issues</span>
+linearator<span class="w"> </span>search<span class="w"> </span>--created-before<span class="w"> </span><span class="s2">&quot;30 days ago&quot;</span><span class="w"> </span>--status<span class="w"> </span>Todo
+</pre></div>
+</div>
+</section>
+<section id="sprint-planning">
+<h3>Sprint Planning<a class="headerlink" href="#sprint-planning" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List backlog for team</span>
+linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--team<span class="w"> </span><span class="s2">&quot;Frontend&quot;</span><span class="w"> </span>--status<span class="w"> </span>Backlog
+
+<span class="c1"># Find issues by priority</span>
+linearator<span class="w"> </span>search<span class="w"> </span>--priority<span class="w"> </span><span class="s2">&quot;High&quot;</span><span class="w"> </span>--status<span class="w"> </span><span class="s2">&quot;Todo,Backlog&quot;</span>
+
+<span class="c1"># Check team workload</span>
+linearator<span class="w"> </span>user<span class="w"> </span>workload<span class="w"> </span>--team<span class="w"> </span><span class="s2">&quot;Frontend&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="tips-and-best-practices">
+<h2>Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p><strong>Use aliases</strong> for frequently used commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="s2">&quot;my-issues&quot;</span><span class="w"> </span><span class="s2">&quot;issue list --assignee me&quot;</span>
+linearator<span class="w"> </span>config<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="s2">&quot;urgent&quot;</span><span class="w"> </span><span class="s2">&quot;search --priority Urgent&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Combine filters</strong> to narrow down results:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--team<span class="w"> </span>Backend<span class="w"> </span>--status<span class="w"> </span><span class="s2">&quot;In Progress&quot;</span><span class="w"> </span>--assignee<span class="w"> </span>me
+</pre></div>
+</div>
+</li>
+<li><p><strong>Use JSON output</strong> for scripting:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">issues</span><span class="o">=</span><span class="k">$(</span>linearator<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>--status<span class="w"> </span>Todo<span class="k">)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$issues</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.[] | select(.priority &gt; 2)&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Set up shell completion</strong> for faster typing:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nv">_LINEARATOR_COMPLETE</span><span class="o">=</span>bash_source<span class="w"> </span>linearator<span class="k">)</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Use interactive mode</strong> for complex operations:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>linearator<span class="w"> </span>issue<span class="w"> </span>create<span class="w"> </span>--interactive
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="authentication.html" class="btn btn-neutral float-left" title="Authentication" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advanced_features.html" class="btn btn-neutral float-right" title="Advanced Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Linearator Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

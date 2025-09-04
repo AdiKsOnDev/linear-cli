@@ -14,7 +14,7 @@ Initial Setup
 .. code-block:: bash
 
    # Start OAuth flow
-   linearator auth login
+   linear-cli auth login
 
    # Follow the browser prompts to authorize Linearator
    # Tokens will be securely stored in your system keyring
@@ -25,10 +25,10 @@ Checking Authentication Status
 .. code-block:: bash
 
    # Check current authentication status
-   linearator auth status
+   linear-cli auth status
 
    # View stored credentials (without exposing secrets)
-   linearator auth info
+   linear-cli auth info
 
 API Key Authentication
 ----------------------
@@ -41,11 +41,11 @@ Using API Keys
 .. code-block:: bash
 
    # Set API key via command line
-   linearator auth login --api-key YOUR_API_KEY
+   linear-cli auth login --api-key YOUR_API_KEY
 
    # Or set via environment variable
    export LINEAR_API_KEY="your-api-key-here"
-   linearator auth login
+   linear-cli auth login
 
 Generating API Keys
 ~~~~~~~~~~~~~~~~~~~
@@ -87,13 +87,13 @@ Manual Credential Management
 .. code-block:: bash
 
    # Remove stored credentials
-   linearator auth logout
+   linear-cli auth logout
 
    # Force refresh of OAuth tokens
-   linearator auth refresh
+   linear-cli auth refresh
 
    # Clear all stored authentication data
-   linearator auth reset
+   linear-cli auth reset
 
 Configuration File Authentication
 ---------------------------------
@@ -102,7 +102,7 @@ You can also store authentication in your configuration file (less secure):
 
 .. code-block:: toml
 
-   # ~/.linearator/config.toml
+   # ~/.linear-cli/config.toml
    [auth]
    api_key = "your-api-key"
    # Note: OAuth tokens should not be stored in config files
@@ -115,13 +115,13 @@ For organizations with multiple Linear workspaces:
 .. code-block:: bash
 
    # Authenticate with specific workspace
-   linearator auth login --workspace "company-workspace"
+   linear-cli auth login --workspace "company-workspace"
 
    # Switch between authenticated workspaces
-   linearator auth switch-workspace "other-workspace"
+   linear-cli auth switch-workspace "other-workspace"
 
    # List available workspaces
-   linearator auth list-workspaces
+   linear-cli auth list-workspaces
 
 Troubleshooting Authentication
 ------------------------------
@@ -134,17 +134,17 @@ Common Issues
 .. code-block:: bash
 
    # Refresh OAuth tokens
-   linearator auth refresh
+   linear-cli auth refresh
 
    # Or re-authenticate
-   linearator auth login
+   linear-cli auth login
 
 **Invalid API Key**
 
 .. code-block:: bash
 
    # Verify your API key
-   linearator auth status --verbose
+   linear-cli auth status --verbose
 
    # Generate a new API key from Linear Settings
 
@@ -156,7 +156,7 @@ Common Issues
    export LINEAR_API_KEY="your-key"
 
    # Or store in config file
-   linearator config set auth.api_key "your-key"
+   linear-cli config set auth.api_key "your-key"
 
 Permission Scopes
 -----------------
@@ -207,11 +207,11 @@ Example: CI/CD Setup
            with:
              python-version: '3.12'
          - name: Install Linearator
-           run: pip install linearator
+           run: pip install linear-cli
          - name: Create issue on failure
            if: failure()
            run: |
-             linearator issue create \
+             linear-cli issue create \
                --title "Build failed: ${{ github.sha }}" \
                --description "Build failed on ${{ github.ref }}" \
                --team "Engineering"
