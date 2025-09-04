@@ -1,0 +1,590 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>linearator.cli.commands.auth &mdash; Linearator 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=08840e99" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Linearator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/cli.html">CLI Module API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Linearator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">linearator.cli.commands.auth</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for linearator.cli.commands.auth</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Authentication commands for Linearator CLI.</span>
+
+<span class="sd">Handles login, logout, and authentication status commands.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">webbrowser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">http.server</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseHTTPRequestHandler</span><span class="p">,</span> <span class="n">HTTPServer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_qs</span><span class="p">,</span> <span class="n">urlparse</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.prompt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prompt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">...api.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuthenticationError</span><span class="p">,</span> <span class="n">OAuthFlowError</span>
+
+<span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="OAuthCallbackHandler">
+<a class="viewcode-back" href="../../../../api/cli.html#linearator.cli.commands.auth.OAuthCallbackHandler">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OAuthCallbackHandler</span><span class="p">(</span><span class="n">BaseHTTPRequestHandler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;HTTP request handler for OAuth callback.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OAuthCallbackHandler.__init__">
+<a class="viewcode-back" href="../../../../api/cli.html#linearator.cli.commands.auth.OAuthCallbackHandler.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expected_state</span> <span class="o">=</span> <span class="n">expected_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auth_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auth_state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auth_error</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OAuthCallbackHandler.do_GET">
+<a class="viewcode-back" href="../../../../api/cli.html#linearator.cli.commands.auth.OAuthCallbackHandler.do_GET">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">do_GET</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle GET request for OAuth callback.&quot;&quot;&quot;</span>
+        <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed_url</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+
+        <span class="c1"># Check for authorization code</span>
+        <span class="k">if</span> <span class="s2">&quot;code&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="s2">&quot;state&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">auth_code</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">auth_state</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Send success response</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span> <span class="s2">&quot;text/html&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end_headers</span><span class="p">()</span>
+
+            <span class="n">success_html</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;html&gt;</span>
+<span class="s2">            &lt;head&gt;&lt;title&gt;Authentication Successful&lt;/title&gt;&lt;/head&gt;</span>
+<span class="s2">            &lt;body&gt;</span>
+<span class="s2">                &lt;h1&gt;Authentication Successful!&lt;/h1&gt;</span>
+<span class="s2">                &lt;p&gt;You can now close this window and return to the terminal.&lt;/p&gt;</span>
+<span class="s2">                &lt;script&gt;setTimeout(function(){window.close();}, 3000);&lt;/script&gt;</span>
+<span class="s2">            &lt;/body&gt;</span>
+<span class="s2">            &lt;/html&gt;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">success_html</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+
+        <span class="k">elif</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="c1"># Handle OAuth error</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">auth_error</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error_description&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]])[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span> <span class="s2">&quot;text/html&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end_headers</span><span class="p">()</span>
+
+            <span class="n">error_html</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;html&gt;</span>
+<span class="s2">            &lt;head&gt;&lt;title&gt;Authentication Failed&lt;/title&gt;&lt;/head&gt;</span>
+<span class="s2">            &lt;body&gt;</span>
+<span class="s2">                &lt;h1&gt;Authentication Failed&lt;/h1&gt;</span>
+<span class="s2">                &lt;p&gt;Error: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_error</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">                &lt;p&gt;Please close this window and try again.&lt;/p&gt;</span>
+<span class="s2">            &lt;/body&gt;</span>
+<span class="s2">            &lt;/html&gt;</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">error_html</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Invalid request</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end_headers</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;Invalid OAuth callback request&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OAuthCallbackHandler.log_message">
+<a class="viewcode-back" href="../../../../api/cli.html#linearator.cli.commands.auth.OAuthCallbackHandler.log_message">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Suppress log messages from HTTP server.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="start_oauth_callback_server">
+<a class="viewcode-back" href="../../../../api/cli.html#linearator.cli.commands.auth.start_oauth_callback_server">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">start_oauth_callback_server</span><span class="p">(</span>
+    <span class="n">expected_state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8080</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">HTTPServer</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Start HTTP server to handle OAuth callback.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of (server, handler_instance)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">class</span><span class="w"> </span><span class="nc">HandlerFactory</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="p">:</span> <span class="n">OAuthCallbackHandler</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OAuthCallbackHandler</span><span class="p">:</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="n">OAuthCallbackHandler</span><span class="p">(</span><span class="n">expected_state</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="n">handler</span>
+            <span class="k">return</span> <span class="n">handler</span>
+
+    <span class="n">handler_factory</span> <span class="o">=</span> <span class="n">HandlerFactory</span><span class="p">()</span>
+
+    <span class="n">server</span> <span class="o">=</span> <span class="n">HTTPServer</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span> <span class="n">handler_factory</span><span class="p">)</span>
+
+    <span class="c1"># Start server in a separate thread</span>
+    <span class="n">server_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">server_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">server</span><span class="p">,</span> <span class="n">handler_factory</span></div>
+
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">auth_group</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Authentication commands.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@auth_group</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--api-key&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Linear API key for direct authentication&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--client-id&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;OAuth client ID&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--client-secret&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;OAuth client secret&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--no-browser&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Don&#39;t automatically open browser&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">no_browser</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Authenticate with Linear.</span>
+
+<span class="sd">    You can authenticate using either:</span>
+<span class="sd">    1. OAuth flow (recommended for interactive use)</span>
+<span class="sd">    2. API key (for automation and scripts)</span>
+
+<span class="sd">    For OAuth, you&#39;ll need client credentials from Linear&#39;s developer settings.</span>
+<span class="sd">    For API key authentication, generate a personal access token in Linear.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        linearator auth login                          # OAuth flow</span>
+<span class="sd">        linearator auth login --api-key YOUR_KEY      # API key</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cli_ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;cli_context&quot;</span><span class="p">]</span>
+    <span class="n">authenticator</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">authenticator</span>
+
+    <span class="k">if</span> <span class="n">api_key</span><span class="p">:</span>
+        <span class="c1"># API key authentication</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Authenticating with API key...&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">authenticator</span><span class="o">.</span><span class="n">authenticate_with_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[green]✓ Successfully authenticated with API key![/green]&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Test connection</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Testing connection...&quot;</span><span class="p">)</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+
+            <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_auth</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+                <span class="n">viewer</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_viewer</span><span class="p">()</span>
+                <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
+
+            <span class="n">viewer</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">test_auth</span><span class="p">())</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[green]✓ Connected as </span><span class="si">{</span><span class="n">viewer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unknown User&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">[/green]&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">AuthenticationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ Authentication failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># OAuth flow</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Starting OAuth authentication flow...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Use provided credentials or ask for them</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">client_id</span><span class="p">:</span>
+            <span class="n">client_id</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">client_id</span> <span class="ow">or</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span>
+                <span class="s2">&quot;Enter your Linear OAuth client ID&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">client_secret</span><span class="p">:</span>
+            <span class="n">client_secret</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">client_secret</span> <span class="ow">or</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span>
+                <span class="s2">&quot;Enter your Linear OAuth client secret&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">client_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">client_secret</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[red]OAuth client ID and secret are required.[/red]&quot;</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Get them from: https://linear.app/settings/api/oauth-apps&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span>
+
+        <span class="c1"># Update authenticator with OAuth credentials</span>
+        <span class="n">authenticator</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span>
+        <span class="n">authenticator</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Start OAuth flow</span>
+            <span class="n">auth_url</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">authenticator</span><span class="o">.</span><span class="n">start_oauth_flow</span><span class="p">()</span>
+
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Opening Linear authorization page in your browser...&quot;</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;If the browser doesn&#39;t open automatically, visit: </span><span class="si">{</span><span class="n">auth_url</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+
+            <span class="c1"># Start callback server</span>
+            <span class="n">server</span><span class="p">,</span> <span class="n">handler_factory</span> <span class="o">=</span> <span class="n">start_oauth_callback_server</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Open browser unless disabled</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">no_browser</span><span class="p">:</span>
+                    <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">auth_url</span><span class="p">)</span>
+
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Waiting for authorization... (press Ctrl+C to cancel)&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Wait for callback</span>
+                <span class="n">timeout</span> <span class="o">=</span> <span class="mi">300</span>  <span class="c1"># 5 minutes</span>
+                <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+                <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&lt;</span> <span class="n">timeout</span><span class="p">:</span>
+                    <span class="n">handler</span> <span class="o">=</span> <span class="n">handler_factory</span><span class="o">.</span><span class="n">handler</span>
+                    <span class="k">if</span> <span class="n">handler</span> <span class="ow">and</span> <span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">auth_code</span> <span class="ow">or</span> <span class="n">handler</span><span class="o">.</span><span class="n">auth_error</span><span class="p">):</span>
+                        <span class="k">break</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[red]✗ Authentication timed out.[/red]&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span>
+
+                <span class="n">handler</span> <span class="o">=</span> <span class="n">handler_factory</span><span class="o">.</span><span class="n">handler</span>
+
+                <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">auth_error</span><span class="p">:</span>
+                    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ OAuth error: </span><span class="si">{</span><span class="n">handler</span><span class="o">.</span><span class="n">auth_error</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">handler</span><span class="o">.</span><span class="n">auth_code</span><span class="p">:</span>
+                    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[red]✗ No authorization code received.[/red]&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span>
+
+                <span class="c1"># Complete OAuth flow</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Completing authentication...&quot;</span><span class="p">)</span>
+                <span class="n">authenticator</span><span class="o">.</span><span class="n">complete_oauth_flow</span><span class="p">(</span>
+                    <span class="n">handler</span><span class="o">.</span><span class="n">auth_code</span><span class="p">,</span> <span class="n">handler</span><span class="o">.</span><span class="n">auth_state</span><span class="p">,</span> <span class="n">state</span>
+                <span class="p">)</span>
+
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[green]✓ Successfully authenticated with OAuth![/green]&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Test connection</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Testing connection...&quot;</span><span class="p">)</span>
+                <span class="n">client</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+
+                <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_auth</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+                    <span class="n">viewer</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_viewer</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
+
+                <span class="n">viewer</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">test_auth</span><span class="p">())</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[green]✓ Connected as </span><span class="si">{</span><span class="n">viewer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unknown User&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">[/green]&quot;</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Save OAuth credentials to config if they&#39;re not already there</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">client_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">client_secret</span><span class="p">:</span>
+                    <span class="n">save_creds</span> <span class="o">=</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span>
+                        <span class="s2">&quot;Save OAuth credentials to config for future use?&quot;</span><span class="p">,</span>
+                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">],</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">save_creds</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+                        <span class="n">cli_ctx</span><span class="o">.</span><span class="n">config_manager</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span>
+                            <span class="n">client_id</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="n">client_secret</span>
+                        <span class="p">)</span>
+                        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                            <span class="s2">&quot;[green]✓ OAuth credentials saved to config.[/green]&quot;</span>
+                        <span class="p">)</span>
+
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">server</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+                <span class="n">server</span><span class="o">.</span><span class="n">server_close</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="n">OAuthFlowError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ OAuth flow failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">except</span> <span class="n">AuthenticationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ Authentication failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[yellow]Authentication cancelled by user.[/yellow]&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print_exception</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+
+<span class="nd">@auth_group</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Log out and clear stored credentials.</span>
+
+<span class="sd">    This will remove all stored authentication tokens and credentials</span>
+<span class="sd">    from your system. You will need to authenticate again to use Linearator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cli_ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;cli_context&quot;</span><span class="p">]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cli_ctx</span><span class="o">.</span><span class="n">authenticator</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[green]✓ Successfully logged out.[/green]&quot;</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;All stored credentials have been cleared.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[yellow]Warning: Error during logout: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/yellow]&quot;</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[green]Logout completed (with warnings).[/green]&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@auth_group</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Show authentication status and token information.</span>
+
+<span class="sd">    Displays current authentication state, token type, expiration,</span>
+<span class="sd">    and tests the connection to Linear&#39;s API.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cli_ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;cli_context&quot;</span><span class="p">]</span>
+    <span class="n">authenticator</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">authenticator</span>
+
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold]Authentication Status[/bold]&quot;</span><span class="p">)</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+
+    <span class="n">is_authenticated</span> <span class="o">=</span> <span class="n">authenticator</span><span class="o">.</span><span class="n">is_authenticated</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;[dim]Status:[/dim] </span><span class="si">{</span><span class="s1">&#39;✓ Authenticated&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">is_authenticated</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;✗ Not authenticated&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="n">token_info</span> <span class="o">=</span> <span class="n">authenticator</span><span class="o">.</span><span class="n">get_token_info</span><span class="p">()</span>
+
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[dim]Token type:[/dim] </span><span class="si">{</span><span class="n">token_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;token_type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">token_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;expires_at&quot;</span><span class="p">):</span>
+            <span class="n">expires</span> <span class="o">=</span> <span class="n">token_info</span><span class="p">[</span><span class="s2">&quot;expires_at&quot;</span><span class="p">]</span>
+            <span class="n">is_expired</span> <span class="o">=</span> <span class="n">token_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_expired&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[dim]Expires:[/dim] </span><span class="si">{</span><span class="n">expires</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;(EXPIRED)&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">is_expired</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[dim]Expires:[/dim] Never (API key)&quot;</span><span class="p">)</span>
+
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[dim]Has refresh token:[/dim] </span><span class="si">{</span><span class="s1">&#39;Yes&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">token_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;has_refresh_token&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;No&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Test API connection</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Testing API connection...&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+
+            <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_connection</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">test_connection</span><span class="p">()</span>
+                <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">test_connection</span><span class="p">())</span>
+
+            <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">]:</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[green]✓ Connected to Linear as </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">[/green]&quot;</span>
+                <span class="p">)</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[dim]Organization:[/dim] </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;organization&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[dim]Response time:[/dim] </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;response_time&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ Connection failed: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ Connection test failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print_exception</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+            <span class="s2">&quot;[yellow]Not authenticated. Run &#39;linearator auth login&#39; to authenticate.[/yellow]&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@auth_group</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">refresh</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Refresh authentication token.</span>
+
+<span class="sd">    Attempts to refresh the current access token using the stored refresh token.</span>
+<span class="sd">    This is only applicable for OAuth authentication, not API keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cli_ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;cli_context&quot;</span><span class="p">]</span>
+    <span class="n">authenticator</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">authenticator</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">authenticator</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[red]✗ Not currently authenticated.[/red]&quot;</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Run &#39;linearator auth login&#39; to authenticate.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span>
+
+    <span class="n">token_info</span> <span class="o">=</span> <span class="n">authenticator</span><span class="o">.</span><span class="n">get_token_info</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">token_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;api_key&quot;</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+            <span class="s2">&quot;[yellow]API keys don&#39;t need refreshing - they don&#39;t expire.[/yellow]&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">token_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;has_refresh_token&quot;</span><span class="p">):</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[red]✗ No refresh token available.[/red]&quot;</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;You may need to re-authenticate with &#39;linearator auth login&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Refreshing authentication token...&quot;</span><span class="p">)</span>
+        <span class="n">authenticator</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">()</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[green]✓ Token refreshed successfully![/green]&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Test the new token</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Testing refreshed token...&quot;</span><span class="p">)</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_connection</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">test_connection</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">test_connection</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">]:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[green]✓ Token is working - connected as </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">[/green]&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[red]✗ Token refresh succeeded but connection failed: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">[/red]&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">AuthenticationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ Token refresh failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;You may need to re-authenticate with &#39;linearator auth login&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[red]✗ Unexpected error during token refresh: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">[/red]&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cli_ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print_exception</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">Abort</span><span class="p">()</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Linearator Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

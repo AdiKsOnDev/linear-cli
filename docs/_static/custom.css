@@ -1,0 +1,136 @@
+/* Custom CSS for Linearator documentation */
+
+/* Brand colors */
+:root {
+    --linearator-primary: #2980B9;
+    --linearator-secondary: #3498DB;
+    --linearator-accent: #E74C3C;
+}
+
+/* Code highlighting improvements */
+.highlight {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+/* Improve command examples */
+.highlight-bash .highlight {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    border: 1px solid #34495e;
+}
+
+.highlight-bash .highlight pre {
+    color: #ecf0f1;
+}
+
+/* API documentation improvements */
+.class, .function, .method {
+    margin-bottom: 20px;
+}
+
+.class > dt, .function > dt, .method > dt {
+    background-color: var(--linearator-secondary);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px 4px 0 0;
+    font-weight: bold;
+}
+
+.class > dd, .function > dd, .method > dd {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 12px;
+}
+
+/* Admonition styling */
+.admonition {
+    margin: 20px 0;
+    padding: 15px;
+    border-left: 4px solid var(--linearator-primary);
+    background-color: #f8f9fa;
+    border-radius: 0 4px 4px 0;
+}
+
+.admonition.note {
+    border-left-color: var(--linearator-secondary);
+}
+
+.admonition.warning {
+    border-left-color: #f39c12;
+    background-color: #fdf6e3;
+}
+
+.admonition.danger {
+    border-left-color: var(--linearator-accent);
+    background-color: #fdf2f2;
+}
+
+/* Navigation improvements */
+.wy-nav-content {
+    max-width: 1200px;
+}
+
+/* Table styling */
+table.docutils {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+}
+
+table.docutils th {
+    background-color: var(--linearator-primary);
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+table.docutils td {
+    padding: 8px 10px;
+    border: 1px solid #e9ecef;
+}
+
+table.docutils tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Code inline styling */
+code.literal {
+    background-color: #f1f2f3;
+    color: #e74c3c;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 90%;
+}
+
+/* Improve search results */
+.search .context {
+    color: #666;
+    font-size: 90%;
+    margin-top: 5px;
+}
+
+/* Footer improvements */
+footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+    color: #666;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .wy-nav-content {
+        padding: 1.618em 1em;
+    }
+    
+    .highlight {
+        padding: 5px;
+        font-size: 90%;
+    }
+}
