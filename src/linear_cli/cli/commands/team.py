@@ -82,7 +82,7 @@ def list(ctx: click.Context, private: bool, public: bool) -> None:
                 team.get("name", ""),
                 description,
                 str(team.get("issueCount", 0)),
-                str(team.get("memberCount", 0)),
+                str(len(team.get("members", {}).get("nodes", []))),
                 team_type,
             )
 
@@ -161,7 +161,7 @@ def info(ctx: click.Context, team_identifier: str) -> None:
 
         # Counts
         console.print(f"[dim]Issues:[/dim] {team.get('issueCount', 0)}")
-        console.print(f"[dim]Members:[/dim] {team.get('memberCount', 0)}")
+        console.print(f"[dim]Members:[/dim] {len(team.get('members', {}).get('nodes', []))}")
 
         # Workflow states
         states = team.get("states", {}).get("nodes", [])

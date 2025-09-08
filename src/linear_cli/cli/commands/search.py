@@ -180,7 +180,7 @@ def search_issues(
         console.print()
 
         # Format and display issues
-        formatter.format_issues(issues)
+        formatter.format_issues(results)
 
         # Show pagination info if available
         if page_info.get("hasNextPage"):

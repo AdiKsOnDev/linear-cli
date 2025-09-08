@@ -311,7 +311,7 @@ class OutputFormatter:
                 team.get("name", ""),
                 description,
                 str(team.get("issueCount", 0)),
-                str(team.get("memberCount", 0)),
+                str(len(team.get("members", {}).get("nodes", []))),
                 team_type,
             )
 

@@ -370,7 +370,7 @@ def interactive(ctx: click.Context) -> None:
             team_table.add_row(
                 team.get("name", "Unknown"),
                 team.get("key", "Unknown"),
-                str(team.get("memberCount", 0)),
+                str(len(team.get("members", {}).get("nodes", []))),
             )
 
         console.print(team_table)

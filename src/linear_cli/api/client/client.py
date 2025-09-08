@@ -281,7 +281,11 @@ class LinearClient:
                     description
                     private
                     issueCount
-                    memberCount
+                    members {
+                        nodes {
+                            id
+                        }
+                    }
                 }
             }
         }

@@ -74,7 +74,11 @@ fragment TeamFields on Team {
     description
     private
     issueCount
-    memberCount
+    members {
+        nodes {
+            id
+        }
+    }
     organization {
         id
         name
@@ -236,21 +240,85 @@ query GetIssue($id: String!) {{
 {ISSUE_FRAGMENT}
 """
 
-SEARCH_ISSUES_QUERY = f"""
-query SearchIssues($term: String!, $first: Int, $after: String, $filter: IssueFilter) {{
-    searchIssues(query: $term, first: $first, after: $after, filter: $filter) {{
-        pageInfo {{
+SEARCH_ISSUES_QUERY = """
+query SearchIssues($term: String!, $first: Int, $after: String, $filter: IssueFilter) {
+    searchIssues(term: $term, first: $first, after: $after, filter: $filter) {
+        pageInfo {
             hasNextPage
             hasPreviousPage
             startCursor
             endCursor
-        }}
-        nodes {{
-            ...IssueFields
-        }}
-    }}
-}}
-{ISSUE_FRAGMENT}
+        }
+        nodes {
+            id
+            identifier
+            title
+            description
+            priority
+            priorityLabel
+            url
+            branchName
+            customerTicketCount
+            createdAt
+            updatedAt
+            archivedAt
+            autoArchivedAt
+            autoClosedAt
+            canceledAt
+            completedAt
+            snoozedUntilAt
+            startedAt
+            triagedAt
+            dueDate
+            estimate
+            sortOrder
+            boardOrder
+            subIssueSortOrder
+            previousIdentifiers
+            creator {
+                id
+                name
+                email
+                displayName
+                active
+            }
+            assignee {
+                id
+                name
+                email
+                displayName
+                active
+            }
+            team {
+                id
+                name
+                key
+            }
+            state {
+                id
+                name
+                type
+                color
+            }
+            project {
+                id
+                name
+            }
+            cycle {
+                id
+                name
+                number
+            }
+            labels {
+                nodes {
+                    id
+                    name
+                    color
+                }
+            }
+        }
+    }
+}
 """
 
 GET_LABELS_QUERY = f"""
