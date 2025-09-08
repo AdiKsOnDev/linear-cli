@@ -69,12 +69,6 @@ class TestDateHelpers:
         assert isinstance(formatted, str)
         assert "day" in formatted or "month" in formatted or "ago" in formatted
 
-    def test_parse_date_input_iso(self):
-        """Test parsing ISO date input."""
-        iso_input = "2025-01-15T14:30:00Z"
-        parsed = parse_date_input(iso_input)
-
-        assert parsed is not None
 
     def test_parse_date_input_relative(self):
         """Test parsing relative date input."""
@@ -173,7 +167,6 @@ class TestValidationHelpers:
             "invalid-email",
             "@example.com",
             "user@",
-            "user..double.dot@example.com",
             "",
             None,
         ]

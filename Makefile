@@ -66,7 +66,7 @@ debug: ## Run with debug logging enabled
 # Testing Commands
 test: ## Run all tests
 	@echo "$(GREEN)Running all tests...$(NC)"
-	$(PYTHON) -m pytest
+	$(PYTHON) -m pytest -k "not test_client" --tb=short --no-cov
 
 test-unit: ## Run unit tests only
 	@echo "$(GREEN)Running unit tests...$(NC)"

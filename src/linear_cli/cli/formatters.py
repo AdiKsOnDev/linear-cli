@@ -30,7 +30,10 @@ def format_datetime(dt_str: str | None) -> str:
 
     try:
         dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
-        return dt.strftime("%Y-%m-%d %H:%M")
+        # Convert to UTC for consistent display
+        utc_dt = dt.utctimetuple()
+        utc_datetime = datetime(*utc_dt[:6])
+        return utc_datetime.strftime("%Y-%m-%d %H:%M")
     except (ValueError, AttributeError):
         return dt_str or ""
 
@@ -49,7 +52,7 @@ def get_state_text(state: dict[str, Any] | None) -> Text:
     if not state:
         return Text("Unknown", style="dim")
 
-    name = state.get("name", "Unknown")
+    name = state.get("name") or "Unknown"
     color = state.get("color", DEFAULT_STATE_COLOR)
 
     # WHY: Linear provides hex colors (like "#ff0000") but terminal Rich library uses named colors
@@ -77,12 +80,23 @@ def get_state_text(state: dict[str, Any] | None) -> Text:
     return Text(name, style=style)
 
 
-def format_labels(labels: dict[str, Any] | None) -> str:
+def format_labels(labels: dict[str, Any] | list | None) -> str:
     """Format labels list for display."""
-    if not labels or not labels.get("nodes"):
+    if not labels:
+        return ""
+    
+    # Handle GraphQL format {"nodes": [...]}
+    if isinstance(labels, dict):
+        if not labels.get("nodes"):
+            return ""
+        label_list = labels["nodes"]
+    # Handle plain list format
+    elif isinstance(labels, list):
+        label_list = labels
+    else:
         return ""
 
-    label_names = [label.get("name", "") for label in labels["nodes"]]
+    label_names = [label.get("name", "") for label in label_list if label]
     return ", ".join(label_names)
 
 

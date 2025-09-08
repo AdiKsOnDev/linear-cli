@@ -16,7 +16,7 @@ class TestBasicCLI:
         """Test CLI help output."""
         result = self.runner.invoke(main, ["--help"])
         assert result.exit_code == 0
-        assert "Linear CLI" in result.output or "linear-cli" in result.output.lower()
+        assert "Linear CLI" in result.output or "linear_cli" in result.output.lower()
 
     def test_cli_version(self):
         """Test CLI version output."""

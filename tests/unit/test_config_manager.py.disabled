@@ -43,11 +43,11 @@ class TestConfigManager:
     def test_get_default_config_dir(self):
         """Test getting default configuration directory."""
         with patch("platformdirs.user_config_dir") as mock_config_dir:
-            mock_config_dir.return_value = "/home/user/.config/linear-cli"
+            mock_config_dir.return_value = "/home/user/.config/linear_cli"
 
             default_dir = ConfigManager._get_default_config_dir()
-            assert default_dir == Path("/home/user/.config/linear-cli")
-            mock_config_dir.assert_called_once_with("linear-cli")
+            assert default_dir == Path("/home/user/.config/linear_cli")
+            mock_config_dir.assert_called_once_with("linear_cli")
 
     def test_config_file_path(self):
         """Test configuration file path property."""

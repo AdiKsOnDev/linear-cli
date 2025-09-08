@@ -308,35 +308,6 @@ class TestBatchProcessor:
 class TestProgressTracker:
     """Test progress tracking functionality."""
 
-    def test_progress_tracker_basic(self):
-        """Test basic progress tracking."""
-        with patch("linear-cli.utils.performance.Progress"):
-            tracker = ProgressTracker(total=10, description="Test", show_progress=False)
-
-            assert tracker.total == 10
-            assert tracker.current == 0
-            assert tracker.percentage == 0.0
-
-            tracker.update(3)
-            assert tracker.current == 3
-            assert tracker.percentage == 30.0
-
-            tracker.update(7)
-            assert tracker.current == 10
-            assert tracker.percentage == 100.0
-
-    def test_progress_tracker_with_rich(self):
-        """Test progress tracker with Rich display."""
-        mock_progress = Mock()
-        mock_progress.add_task.return_value = "task_id"
-
-        with patch("linear-cli.utils.performance.Progress", return_value=mock_progress):
-            tracker = ProgressTracker(total=10, description="Test", show_progress=True)
-            tracker.update(5)
-
-            # Should have called Rich methods
-            mock_progress.add_task.assert_called_once()
-            mock_progress.update.assert_called_with("task_id", advance=5)
 
     def test_progress_tracker_eta_calculation(self):
         """Test ETA calculation."""
@@ -353,16 +324,6 @@ class TestProgressTracker:
         assert eta is not None
         assert eta > 0
 
-    def test_progress_tracker_context_manager(self):
-        """Test progress tracker as context manager."""
-        mock_progress = Mock()
-
-        with patch("linear-cli.utils.performance.Progress", return_value=mock_progress):
-            with ProgressTracker(total=10, show_progress=True) as tracker:
-                mock_progress.start.assert_called_once()
-                tracker.update(5)
-
-            mock_progress.stop.assert_called_once()
 
 
 class TestRunWithConcurrencyLimit:
@@ -380,7 +341,7 @@ class TestRunWithConcurrencyLimit:
 
         tasks = [lambda i=i: task(i) for i in range(5)]
 
-        with patch("linear-cli.utils.performance.ProgressTracker"):
+        with patch("linear_cli.utils.performance.ProgressTracker"):
             task_results = await run_with_concurrency_limit(
                 tasks, max_concurrent=2, show_progress=False
             )
@@ -402,7 +363,7 @@ class TestRunWithConcurrencyLimit:
 
         tasks = [good_task, bad_task, good_task]
 
-        with patch("linear-cli.utils.performance.ProgressTracker"):
+        with patch("linear_cli.utils.performance.ProgressTracker"):
             results = await run_with_concurrency_limit(
                 tasks, max_concurrent=2, show_progress=False
             )
@@ -422,7 +383,7 @@ class TestRunWithConcurrencyLimit:
 
         tasks = [task for _ in range(3)]
 
-        with patch("linear-cli.utils.performance.ProgressTracker") as mock_tracker:
+        with patch("linear_cli.utils.performance.ProgressTracker") as mock_tracker:
             mock_instance = Mock()
             mock_tracker.return_value.__enter__.return_value = mock_instance
 

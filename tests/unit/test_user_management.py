@@ -128,7 +128,7 @@ class TestUserManagement:
 class TestUserList:
     """Test user list functionality."""
 
-    @patch("linear-cli.cli.commands.user.asyncio.run")
+    @patch("linear_cli.cli.commands.user.asyncio.run")
     async def test_user_list_basic(self, mock_asyncio_run, mock_context, sample_users):
         """Test basic user listing functionality."""
         ctx, cli_ctx, client, config = mock_context

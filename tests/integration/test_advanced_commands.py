@@ -42,7 +42,7 @@ class TestSearchCommandIntegration:
         ctx.obj = {"cli_context": cli_ctx}
         return ctx, cli_ctx, client, config
 
-    @patch("linear-cli.cli.commands.search.asyncio.run")
+    @patch("linear_cli.cli.commands.search.asyncio.run")
     def test_search_command_basic_execution(
         self, mock_asyncio_run, runner, mock_cli_context
     ):
@@ -57,7 +57,7 @@ class TestSearchCommandIntegration:
             # Command structure should be valid
             assert search.name is None or isinstance(search.name, str)
 
-    @patch("linear-cli.cli.commands.search.asyncio.run")
+    @patch("linear_cli.cli.commands.search.asyncio.run")
     def test_search_command_with_filters(
         self, mock_asyncio_run, runner, mock_cli_context
     ):
@@ -93,7 +93,7 @@ class TestSearchCommandIntegration:
         # Should fail with invalid format
         assert result.exit_code != 0
 
-    @patch("linear-cli.cli.commands.search.console.print")
+    @patch("linear_cli.cli.commands.search.console.print")
     def test_search_results_display(self, mock_print, runner, mock_cli_context):
         """Test search results display formatting."""
         ctx, cli_ctx, client, config = mock_cli_context
@@ -158,8 +158,8 @@ class TestBulkOperationsIntegration:
         for cmd in expected_commands:
             assert len(cmd) > 0
 
-    @patch("linear-cli.cli.commands.bulk.Confirm.ask")
-    @patch("linear-cli.cli.commands.bulk.asyncio.run")
+    @patch("linear_cli.cli.commands.bulk.Confirm.ask")
+    @patch("linear_cli.cli.commands.bulk.asyncio.run")
     def test_bulk_update_state_dry_run(
         self, mock_asyncio_run, mock_confirm, runner, mock_cli_context
     ):
@@ -177,8 +177,8 @@ class TestBulkOperationsIntegration:
         # Verify command structure accepts dry run
         assert "--dry-run" in args
 
-    @patch("linear-cli.cli.commands.bulk.Confirm.ask")
-    @patch("linear-cli.cli.commands.bulk.asyncio.run")
+    @patch("linear_cli.cli.commands.bulk.Confirm.ask")
+    @patch("linear_cli.cli.commands.bulk.asyncio.run")
     def test_bulk_assign_validation(
         self, mock_asyncio_run, mock_confirm, runner, mock_cli_context
     ):
@@ -224,7 +224,7 @@ class TestBulkOperationsIntegration:
             assert "--query" in operation
             assert "--add-labels" in operation or "--remove-labels" in operation
 
-    @patch("linear-cli.cli.commands.bulk.Progress")
+    @patch("linear_cli.cli.commands.bulk.Progress")
     def test_bulk_progress_tracking(self, mock_progress, runner, mock_cli_context):
         """Test bulk operations progress tracking."""
         ctx, cli_ctx, client, config = mock_cli_context
@@ -260,7 +260,7 @@ class TestUserManagementIntegration:
         for cmd in expected_commands:
             assert len(cmd) > 0
 
-    @patch("linear-cli.cli.commands.user.asyncio.run")
+    @patch("linear_cli.cli.commands.user.asyncio.run")
     def test_user_list_command(self, mock_asyncio_run, runner):
         """Test user list command."""
         mock_asyncio_run.return_value = None
@@ -288,7 +288,7 @@ class TestUserManagementIntegration:
             args = ["show", identifier]
             assert len(args) == 2
 
-    @patch("linear-cli.cli.commands.user.asyncio.run")
+    @patch("linear_cli.cli.commands.user.asyncio.run")
     def test_user_workload_command(self, mock_asyncio_run, runner):
         """Test user workload analysis command."""
         mock_asyncio_run.return_value = None
@@ -331,7 +331,7 @@ class TestInteractiveModeIntegration:
         """Create CLI test runner."""
         return CliRunner()
 
-    @patch("linear-cli.cli.commands.interactive.asyncio.run")
+    @patch("linear_cli.cli.commands.interactive.asyncio.run")
     def test_interactive_command_structure(self, mock_asyncio_run, runner):
         """Test interactive mode command structure."""
         mock_asyncio_run.return_value = None
@@ -354,8 +354,8 @@ class TestInteractiveModeIntegration:
             assert "workflow" in workflow
             assert len(workflow) > 0
 
-    @patch("linear-cli.cli.commands.interactive.Prompt.ask")
-    @patch("linear-cli.cli.commands.interactive.Confirm.ask")
+    @patch("linear_cli.cli.commands.interactive.Prompt.ask")
+    @patch("linear_cli.cli.commands.interactive.Confirm.ask")
     def test_interactive_user_input_handling(self, mock_confirm, mock_prompt):
         """Test interactive mode user input handling."""
         # Mock user inputs
@@ -457,9 +457,9 @@ class TestAdvancedCommandsIntegration:
             assert option.startswith("--")
             assert len(option) > 2
 
-    @patch("linear-cli.cli.commands.search.asyncio.run")
-    @patch("linear-cli.cli.commands.bulk.asyncio.run")
-    @patch("linear-cli.cli.commands.user.asyncio.run")
+    @patch("linear_cli.cli.commands.search.asyncio.run")
+    @patch("linear_cli.cli.commands.bulk.asyncio.run")
+    @patch("linear_cli.cli.commands.user.asyncio.run")
     def test_advanced_workflow_integration(
         self, mock_user_run, mock_bulk_run, mock_search_run, runner
     ):

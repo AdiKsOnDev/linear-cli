@@ -236,6 +236,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "integration: marks tests as integration tests")
     config.addinivalue_line("markers", "slow: marks tests as slow")
     config.addinivalue_line("markers", "auth: marks tests as authentication tests")
+    config.addinivalue_line("markers", "benchmark: marks tests as benchmark tests")
 
 
 def pytest_collection_modifyitems(config, items):
