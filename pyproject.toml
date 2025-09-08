@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "linear-cli"
-version = "1.0.0"
+version = "1.0.4"
 authors = [
     {name = "Linearator Team", email = "contact@linearator.dev"},
 ]
