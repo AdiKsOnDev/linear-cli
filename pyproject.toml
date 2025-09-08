@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "linear-cli"
 version = "1.0.4"
 authors = [
-    {name = "Linearator Team", email = "contact@linearator.dev"},
+    {name = "Adil Alizada", email = "adilalizade13@gmail.com"},
 ]
 description = "A comprehensive CLI tool for Linear issue management with advanced search, bulk operations, and team collaboration features"
 readme = "README.md"
@@ -94,14 +94,13 @@ test = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/linear-cli/linear-cli"
-"Documentation" = "https://linear-cli.readthedocs.io"
-"Repository" = "https://github.com/linear-cli/linear-cli.git"
-"Bug Reports" = "https://github.com/linear-cli/linear-cli/issues"
-"Feature Requests" = "https://github.com/linear-cli/linear-cli/issues/new?template=feature_request.md"
-"Discussions" = "https://github.com/linear-cli/linear-cli/discussions"
-"Changelog" = "https://github.com/linear-cli/linear-cli/blob/main/CHANGELOG.md"
-"Release Notes" = "https://github.com/linear-cli/linear-cli/releases"
+"Homepage" = "https://github.com/AdiKsOnDev/linearator"
+"Repository" = "https://github.com/AdiKsOnDev/linearator.git"
+"Bug Reports" = "https://github.com/AdiKsOnDev/linearator/issues"
+"Feature Requests" = "https://github.com/AdiKsOnDev/linearator/issues/"
+"Discussions" = "https://github.com/AdiKsOnDev/linearator/discussions"
+"Changelog" = "https://github.com/AdiKsOnDev/linearator/blob/main/CHANGELOG.md"
+"Release Notes" = "https://github.com/AdiKsOnDev/linearator/releases"
 
 [project.scripts]
 linear = "linear_cli.cli.app:main"
