@@ -5,6 +5,7 @@ Provides unified interface for OAuth and API key authentication with token manag
 """
 
 import logging
+import os
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -64,7 +65,7 @@ class LinearAuthenticator:
         self._load_stored_credentials()
 
     def _load_stored_credentials(self) -> None:
-        """Load credentials from secure storage."""
+        """Load credentials from secure storage or environment variable."""
         credentials = self.storage.retrieve_credentials()
         if credentials:
             self._access_token = credentials.get("access_token")
@@ -75,6 +76,18 @@ class LinearAuthenticator:
                 self._token_expires_at = datetime.fromisoformat(expires_at)
 
             logger.debug("Loaded stored credentials")
+        else:
+            # Check for API key in environment variable
+            api_key = os.getenv("LINEAR_API_KEY")
+            if api_key:
+                # Validate the API key before using it
+                if self._validate_api_key(api_key):
+                    self._access_token = api_key
+                    self._refresh_token = None
+                    self._token_expires_at = None  # API keys don't expire
+                    logger.info("Loaded API key from LINEAR_API_KEY environment variable")
+                else:
+                    logger.warning("Invalid API key found in LINEAR_API_KEY environment variable")
 
     def _save_credentials(self) -> None:
         """Save credentials to secure storage."""
@@ -161,7 +174,7 @@ class LinearAuthenticator:
             # Validate by calling viewer query - minimal API call that confirms both authentication and basic API access
             query = "query { viewer { id name } }"
             headers = {
-                "Authorization": f"Bearer {api_key}",
+                "Authorization": api_key,
                 "Content-Type": "application/json",
             }
             data = {"query": query}

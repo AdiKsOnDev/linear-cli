@@ -77,7 +77,7 @@ class LinearClient:
             raise AuthenticationError("No valid access token available")
 
         return {
-            "Authorization": f"Bearer {token}",
+            "Authorization": token,
             "Content-Type": "application/json",
         }
 
@@ -351,7 +351,7 @@ class LinearClient:
             "first": limit,
             "after": after,
             "filter": issue_filter,
-            "orderBy": {"field": order_by, "direction": "DESC"},
+            "orderBy": order_by,
         }
 
         result = await self.execute_query(GET_ISSUES_QUERY, variables)
