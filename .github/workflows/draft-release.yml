@@ -1,0 +1,164 @@
+name: Draft Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper changelog generation
+
+      - name: Get tag info
+        id: tag_info
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          
+          # Check if this is a pre-release (contains alpha, beta, rc)
+          if [[ "$TAG" =~ (alpha|beta|rc) ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Get the previous tag for changelog generation
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | head -2 | tail -1)
+          if [ -z "$PREV_TAG" ]; then
+            echo "prev_tag=" >> $GITHUB_OUTPUT
+          else
+            echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          TAG="${{ steps.tag_info.outputs.tag }}"
+          PREV_TAG="${{ steps.tag_info.outputs.prev_tag }}"
+          
+          echo "Generating changelog from $PREV_TAG to $TAG"
+          
+          # Get commit range
+          if [ -z "$PREV_TAG" ]; then
+            COMMIT_RANGE=""
+            echo "No previous tag found, using all commits"
+          else
+            COMMIT_RANGE="$PREV_TAG..$TAG"
+            echo "Using commit range: $COMMIT_RANGE"
+          fi
+          
+          # Generate categorized changelog
+          {
+            echo "## What's Changed"
+            echo ""
+            
+            # Features
+            FEAT_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^feat" --grep="^feature" --extended-regexp --no-merges 2>/dev/null || true)
+            if [ -n "$FEAT_COMMITS" ]; then
+              echo "### New Features"
+              echo "$FEAT_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Fixes
+            FIX_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^fix" --grep="^bugfix" --extended-regexp --no-merges 2>/dev/null || true)
+            if [ -n "$FIX_COMMITS" ]; then
+              echo "### BuFixes"
+              echo "$FIX_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Improvements/Enhancements
+            IMPROVE_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^improve" --grep="^enhance" --grep="^perf" --extended-regexp --no-merges 2>/dev/null || true)
+            if [ -n "$IMPROVE_COMMITS" ]; then
+              echo "### Improvements"
+              echo "$IMPROVE_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Refactoring
+            REFACTOR_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^refactor" --no-merges 2>/dev/null || true)
+            if [ -n "$REFACTOR_COMMITS" ]; then
+              echo "### Refactoring"
+              echo "$REFACTOR_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Documentation
+            DOCS_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^docs" --no-merges 2>/dev/null || true)
+            if [ -n "$DOCS_COMMITS" ]; then
+              echo "### Documentation"
+              echo "$DOCS_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Testing
+            TEST_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^test" --no-merges 2>/dev/null || true)
+            if [ -n "$TEST_COMMITS" ]; then
+              echo "### Testing"
+              echo "$TEST_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Chores (build, deps, etc.)
+            CHORE_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^chore" --grep="^build" --grep="^ci" --grep="^deps" --extended-regexp --no-merges 2>/dev/null || true)
+            if [ -n "$CHORE_COMMITS" ]; then
+              echo "### Maintenance"
+              echo "$CHORE_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Git-related changes
+            GIT_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^git" --no-merges 2>/dev/null || true)
+            if [ -n "$GIT_COMMITS" ]; then
+              echo "### Git Changes"
+              echo "$GIT_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Style changes
+            STYLE_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^style" --no-merges 2>/dev/null || true)
+            if [ -n "$STYLE_COMMITS" ]; then
+              echo "### Style Changes"
+              echo "$STYLE_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Other commits that don't match the patterns above
+            OTHER_COMMITS=$(git log $COMMIT_RANGE --oneline --no-merges 2>/dev/null | grep -v -E "^[a-f0-9]* (feat|feature|fix|bugfix|improve|enhance|perf|refactor|docs|test|chore|build|ci|deps|git|style)" || true)
+            if [ -n "$OTHER_COMMITS" ]; then
+              echo "### Other Changes"
+              echo "$OTHER_COMMITS" | sed 's/^[a-f0-9]* /- /'
+              echo ""
+            fi
+            
+            # Add contributor info
+            echo "---"
+            echo ""
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$PREV_TAG...$TAG"
+          } > changelog.md
+          
+          # Output the changelog for the release body
+          {
+            echo 'changelog<<EOF'
+            cat changelog.md
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag_info.outputs.tag }}
+          name: "Linear CLI ${{ steps.tag_info.outputs.tag }}"
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: true
+          prerelease: ${{ steps.tag_info.outputs.is_prerelease }}
+          generate_release_notes: false
