@@ -84,7 +84,7 @@ def format_labels(labels: dict[str, Any] | list | None) -> str:
     """Format labels list for display."""
     if not labels:
         return ""
-    
+
     # Handle GraphQL format {"nodes": [...]}
     if isinstance(labels, dict):
         if not labels.get("nodes"):
