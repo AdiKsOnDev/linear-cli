@@ -50,11 +50,10 @@ jobs:
           
       - name: Run MyPy type checking
         run: |
-          mypy src/linear-cli
+          mypy src/linear_cli
           
       - name: Check imports with isort
         run: |
-          pip install isort
           isort --check-only --diff src/ tests/
 
   test:
@@ -89,7 +88,7 @@ jobs:
           
       - name: Run unit tests
         run: |
-          pytest tests/unit/ -v --tb=short --cov=src/linear-cli --cov-report=xml --cov-report=term-missing
+          pytest tests/unit/ -v --tb=short --cov=src/linear_cli --cov-report=xml --cov-report=term-missing
           
       - name: Run integration tests
         run: |
@@ -118,12 +117,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[dev]
-          pip install bandit safety
           
       - name: Run Bandit security scan
         run: |
-          bandit -r src/linear-cli/ -f json -o bandit-report.json || true
-          bandit -r src/linear-cli/
+          bandit -r src/linear_cli/ -f json -o bandit-report.json || true
+          bandit -r src/linear_cli/
           
       - name: Run Safety vulnerability scan
         run: |
@@ -251,15 +249,15 @@ jobs:
       - name: Test wheel installation
         run: |
           pip install dist/*.whl
-          linear-cli --version
-          linear-cli --help
+          linear --version
+          linear --help
           
       - name: Test source installation
         run: |
           pip uninstall -y linear-cli
           pip install dist/*.tar.gz
-          linear-cli --version
-          linear-cli --help
+          linear --version
+          linear --help
 
   performance:
     name: Performance Benchmarks
@@ -277,7 +275,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[test]
-          pip install pytest-benchmark
           
       - name: Run performance tests
         run: |
