@@ -207,6 +207,9 @@ def login(
         # Update authenticator with OAuth credentials
         authenticator.client_id = client_id
         authenticator.client_secret = client_secret
+        # Also update the OAuth manager
+        authenticator._oauth_manager.client_id = client_id
+        authenticator._oauth_manager.client_secret = client_secret
 
         try:
             # Start OAuth flow
