@@ -14,7 +14,7 @@ Initial Setup
 .. code-block:: bash
 
    # Start OAuth flow
-   linear-cli auth login
+   linear auth login
 
    # Follow the browser prompts to authorize Linearator
    # Tokens will be securely stored in your system keyring
@@ -25,15 +25,20 @@ Checking Authentication Status
 .. code-block:: bash
 
    # Check current authentication status
-   linear-cli auth status
+   linear auth status
 
    # View stored credentials (without exposing secrets)
-   linear-cli auth info
+   linear auth info
 
 API Key Authentication
 ----------------------
 
 For automation or environments where OAuth isn't suitable, you can use API keys.
+
+.. note::
+   **New in v1.0.4**: Linear CLI now automatically detects and uses the ``LINEAR_API_KEY`` 
+   environment variable without requiring the login command. Simply set the variable 
+   and start using any Linear CLI command!
 
 Using API Keys
 ~~~~~~~~~~~~~~
@@ -41,11 +46,15 @@ Using API Keys
 .. code-block:: bash
 
    # Set API key via command line
-   linear-cli auth login --api-key YOUR_API_KEY
+   linear auth login --api-key YOUR_API_KEY
 
-   # Or set via environment variable
+   # Or use environment variable (automatic detection)
    export LINEAR_API_KEY="your-api-key-here"
-   linear-cli auth login
+   # No need to run login command - API key is detected automatically!
+   linear issue list
+
+   # Verify authentication status
+   linear auth status
 
 Generating API Keys
 ~~~~~~~~~~~~~~~~~~~
@@ -87,13 +96,13 @@ Manual Credential Management
 .. code-block:: bash
 
    # Remove stored credentials
-   linear-cli auth logout
+   linear auth logout
 
    # Force refresh of OAuth tokens
-   linear-cli auth refresh
+   linear auth refresh
 
    # Clear all stored authentication data
-   linear-cli auth reset
+   linear auth reset
 
 Configuration File Authentication
 ---------------------------------
@@ -102,7 +111,7 @@ You can also store authentication in your configuration file (less secure):
 
 .. code-block:: toml
 
-   # ~/.linear-cli/config.toml
+   # ~/.linear/config.toml
    [auth]
    api_key = "your-api-key"
    # Note: OAuth tokens should not be stored in config files
@@ -115,13 +124,13 @@ For organizations with multiple Linear workspaces:
 .. code-block:: bash
 
    # Authenticate with specific workspace
-   linear-cli auth login --workspace "company-workspace"
+   linear auth login --workspace "company-workspace"
 
    # Switch between authenticated workspaces
-   linear-cli auth switch-workspace "other-workspace"
+   linear auth switch-workspace "other-workspace"
 
    # List available workspaces
-   linear-cli auth list-workspaces
+   linear auth list-workspaces
 
 Troubleshooting Authentication
 ------------------------------
@@ -134,17 +143,17 @@ Common Issues
 .. code-block:: bash
 
    # Refresh OAuth tokens
-   linear-cli auth refresh
+   linear auth refresh
 
    # Or re-authenticate
-   linear-cli auth login
+   linear auth login
 
 **Invalid API Key**
 
 .. code-block:: bash
 
    # Verify your API key
-   linear-cli auth status --verbose
+   linear auth status --verbose
 
    # Generate a new API key from Linear Settings
 
@@ -156,7 +165,7 @@ Common Issues
    export LINEAR_API_KEY="your-key"
 
    # Or store in config file
-   linear-cli config set auth.api_key "your-key"
+   linear config set auth.api_key "your-key"
 
 Permission Scopes
 -----------------
@@ -207,11 +216,11 @@ Example: CI/CD Setup
            with:
              python-version: '3.12'
          - name: Install Linearator
-           run: pip install linear-cli
+           run: pip install linear
          - name: Create issue on failure
            if: failure()
            run: |
-             linear-cli issue create \
+             linear issue create \
                --title "Build failed: ${{ github.sha }}" \
                --description "Build failed on ${{ github.ref }}" \
                --team "Engineering"

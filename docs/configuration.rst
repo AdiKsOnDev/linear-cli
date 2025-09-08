@@ -23,7 +23,7 @@ Default Configuration File
 
 The main configuration file is located at:
 
-- **Linux/macOS**: ``~/.linear-cli/config.toml``
+- **Linux/macOS**: ``~/.linear/config.toml``
 - **Windows**: ``%APPDATA%\Linearator\config.toml``
 
 Example configuration file:
@@ -67,9 +67,9 @@ You can also create project-specific configuration files:
 .. code-block:: bash
 
    # Create project config in current directory
-   linear-cli config init --local
+   linear config init --local
 
-This creates ``.linear-cli.toml`` in the current directory with project-specific settings.
+This creates ``.linear.toml`` in the current directory with project-specific settings.
 
 Configuration Sections
 -----------------------
@@ -176,7 +176,7 @@ Caching Settings
    max_size = "100MB"
    
    # Cache directory
-   directory = "~/.linear-cli/cache"
+   directory = "~/.linear/cache"
    
    # Cache compression
    compress = true
@@ -279,7 +279,7 @@ Display Settings
 Command-Line Configuration
 --------------------------
 
-Use ``linear-cli config`` command to manage configuration:
+Use ``linear config`` command to manage configuration:
 
 Viewing Configuration
 ~~~~~~~~~~~~~~~~~~~~~
@@ -287,13 +287,13 @@ Viewing Configuration
 .. code-block:: bash
 
    # Show all configuration
-   linear-cli config show
+   linear config show
 
    # Show specific section
-   linear-cli config show auth
+   linear config show auth
 
    # Get specific value
-   linear-cli config get default.team
+   linear config get default.team
 
 Setting Configuration
 ~~~~~~~~~~~~~~~~~~~~~
@@ -301,12 +301,12 @@ Setting Configuration
 .. code-block:: bash
 
    # Set configuration values
-   linear-cli config set default.team "Frontend"
-   linear-cli config set api.timeout 60
-   linear-cli config set display.colors false
+   linear config set default.team "Frontend"
+   linear config set api.timeout 60
+   linear config set display.colors false
 
    # Set nested values
-   linear-cli config set auth.auto_refresh true
+   linear config set auth.auto_refresh true
 
 Removing Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -314,13 +314,13 @@ Removing Configuration
 .. code-block:: bash
 
    # Remove specific setting
-   linear-cli config unset default.team
+   linear config unset default.team
 
    # Reset section to defaults
-   linear-cli config reset auth
+   linear config reset auth
 
    # Reset entire configuration
-   linear-cli config reset --all
+   linear config reset --all
 
 Configuration Validation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -328,10 +328,10 @@ Configuration Validation
 .. code-block:: bash
 
    # Validate current configuration
-   linear-cli config validate
+   linear config validate
 
    # Check for configuration issues
-   linear-cli config doctor
+   linear config doctor
 
 Aliases
 -------
@@ -344,11 +344,11 @@ Creating Aliases
 .. code-block:: bash
 
    # Create simple aliases
-   linear-cli config alias "bugs" "issue list --label bug"
-   linear-cli config alias "my-todo" "issue list --assignee me --status Todo"
+   linear config alias "bugs" "issue list --label bug"
+   linear config alias "my-todo" "issue list --assignee me --status Todo"
 
    # Complex aliases with multiple commands
-   linear-cli config alias "standup" "issue list --assignee me --status 'In Progress,Todo'"
+   linear config alias "standup" "issue list --assignee me --status 'In Progress,Todo'"
 
 Using Aliases
 ~~~~~~~~~~~~~
@@ -356,9 +356,9 @@ Using Aliases
 .. code-block:: bash
 
    # Use aliases like regular commands
-   linear-cli bugs
-   linear-cli my-todo
-   linear-cli standup
+   linear bugs
+   linear my-todo
+   linear standup
 
 Managing Aliases
 ~~~~~~~~~~~~~~~~
@@ -366,13 +366,13 @@ Managing Aliases
 .. code-block:: bash
 
    # List all aliases
-   linear-cli config alias list
+   linear config alias list
 
    # Show alias definition
-   linear-cli config alias show "bugs"
+   linear config alias show "bugs"
 
    # Remove alias
-   linear-cli config alias remove "bugs"
+   linear config alias remove "bugs"
 
 Profiles
 --------
@@ -385,13 +385,13 @@ Creating Profiles
 .. code-block:: bash
 
    # Create work profile
-   linear-cli config profile create "work" \
+   linear config profile create "work" \
      --team "Engineering" \
      --format "table" \
      --colors true
 
    # Create personal profile
-   linear-cli config profile create "personal" \
+   linear config profile create "personal" \
      --team "Personal Projects" \
      --format "json" \
      --colors false
@@ -402,13 +402,13 @@ Using Profiles
 .. code-block:: bash
 
    # Switch to a profile
-   linear-cli config profile use "work"
+   linear config profile use "work"
 
    # Run command with specific profile
-   linear-cli --profile "personal" issue list
+   linear --profile "personal" issue list
 
    # Show current profile
-   linear-cli config profile current
+   linear config profile current
 
 Managing Profiles
 ~~~~~~~~~~~~~~~~~
@@ -416,13 +416,13 @@ Managing Profiles
 .. code-block:: bash
 
    # List all profiles
-   linear-cli config profile list
+   linear config profile list
 
    # Show profile settings
-   linear-cli config profile show "work"
+   linear config profile show "work"
 
    # Delete profile
-   linear-cli config profile delete "personal"
+   linear config profile delete "personal"
 
 Advanced Configuration
 ----------------------
@@ -447,7 +447,7 @@ Define custom output formats:
 .. code-block:: bash
 
    # Use custom template
-   linear-cli issue list --template brief
+   linear issue list --template brief
 
 Plugin Configuration
 ~~~~~~~~~~~~~~~~~~~~
@@ -478,33 +478,33 @@ Common Issues
 .. code-block:: bash
 
    # Check configuration file location
-   linear-cli config file-path
+   linear config file-path
 
    # Validate configuration syntax
-   linear-cli config validate
+   linear config validate
 
    # Show effective configuration (after merging all sources)
-   linear-cli config show --effective
+   linear config show --effective
 
 **Environment Variable Issues**
 
 .. code-block:: bash
 
    # List environment variables affecting Linearator
-   linear-cli config env-vars
+   linear config env-vars
 
    # Show configuration sources and precedence
-   linear-cli config debug
+   linear config debug
 
 **Permission Issues**
 
 .. code-block:: bash
 
    # Check configuration directory permissions
-   ls -la ~/.linear-cli/
+   ls -la ~/.linear/
 
    # Reset configuration directory
-   linear-cli config init --reset
+   linear config init --reset
 
 Migration and Backup
 --------------------
@@ -515,10 +515,10 @@ Backup Configuration
 .. code-block:: bash
 
    # Export current configuration
-   linear-cli config export > my-linear-cli-config.toml
+   linear config export > my-linear-config.toml
 
    # Export specific profile
-   linear-cli config export --profile work > work-config.toml
+   linear config export --profile work > work-config.toml
 
 Restore Configuration
 ~~~~~~~~~~~~~~~~~~~~~
@@ -526,10 +526,10 @@ Restore Configuration
 .. code-block:: bash
 
    # Import configuration
-   linear-cli config import my-linear-cli-config.toml
+   linear config import my-linear-config.toml
 
    # Import as new profile
-   linear-cli config import work-config.toml --profile work
+   linear config import work-config.toml --profile work
 
 Migration Between Versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -537,7 +537,7 @@ Migration Between Versions
 .. code-block:: bash
 
    # Migrate configuration to new format
-   linear-cli config migrate
+   linear config migrate
 
    # Show migration status
-   linear-cli config migration-status
+   linear config migration-status

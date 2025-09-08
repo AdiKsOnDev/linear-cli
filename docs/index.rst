@@ -1,7 +1,11 @@
 Linearator Documentation
 ========================
 
-**Linearator** is a comprehensive command-line interface for Linear issue management. It provides powerful tools for creating, managing, searching, and organizing issues with advanced filtering, bulk operations, and team collaboration features.
+**Linear CLI** (formerly Linearator) is a comprehensive command-line interface for Linear issue management. It provides powerful tools for creating, managing, searching, and organizing issues with advanced filtering, bulk operations, and team collaboration features.
+
+.. note::
+   **What's New in v1.0.4**: Automatic API key detection, improved search functionality, 
+   enhanced authentication, and a completely overhauled test suite for better reliability.
 
 Features
 --------
@@ -33,7 +37,7 @@ Before using Linearator, you need to authenticate with Linear:
 .. code-block:: bash
 
    # OAuth authentication (recommended)
-   linear-cli auth login
+   linear auth login
 
    # Or use API key
    export LINEAR_API_KEY="your-api-key"
@@ -44,22 +48,22 @@ Basic Usage
 .. code-block:: bash
 
    # List issues
-   linear-cli issue list
+   linear issue list
 
    # Create an issue
-   linear-cli issue create "Fix authentication bug" --team ENG --priority 3
+   linear issue create "Fix authentication bug" --team ENG --priority 3
 
    # Search issues
-   linear-cli search "authentication" --team ENG --priority 3
+   linear search "authentication" --team ENG --priority 3
 
    # Bulk operations
-   linear-cli bulk update-state -q "bug" --new-state "In Review"
+   linear bulk update-state -q "bug" --new-state "In Review"
 
    # User workload analysis
-   linear-cli user workload --team ENG
+   linear user workload --team ENG
 
    # Interactive mode for guided workflows
-   linear-cli interactive
+   linear interactive
 
 User Guide
 ----------

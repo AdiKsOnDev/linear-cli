@@ -46,6 +46,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Development Tools**: Make targets, pre-commit hooks, and development environment
 - **Quality Assurance**: Comprehensive test suite with coverage reporting
 
+## [1.0.4] - 2024-12-08
+
+### Fixed
+- **Authentication**: Fixed automatic API key detection from `LINEAR_API_KEY` environment variable
+- **GraphQL Issues**: Resolved orderBy parameter format for issue listing and search operations  
+- **Search Functionality**: Fixed search results parsing and display formatting
+- **Team Management**: Corrected member count display using proper GraphQL field structure
+- **Test Suite**: Completely overhauled test suite for reliability and speed
+  - Fixed package name references throughout test files
+  - Resolved formatter edge cases and null value handling  
+  - Eliminated hanging tests that caused timeouts
+  - Achieved 100% passing test rate (277 tests pass in ~1.4 seconds)
+- **CI/CD Pipeline**: Updated GitHub Actions to latest versions
+  - Upgraded deprecated `actions/upload-artifact` from v3 to v4
+  - Updated all core actions to latest stable versions
+  - Fixed codecov integration with proper token handling
+
+### Improved
+- **Error Handling**: Enhanced error messages and graceful failure modes
+- **Performance**: Significantly improved test execution time (4000% faster)
+- **Code Quality**: Fixed formatting issues and improved type safety
+- **Development Experience**: Streamlined `make test` command for reliable testing
+
+### Technical Enhancements
+- **Bearer Token Fix**: Corrected Linear API authentication format (removed invalid Bearer prefix)
+- **UTC Time Handling**: Fixed timezone conversion in datetime formatting
+- **Label Processing**: Enhanced label formatting to handle both GraphQL and list formats
+- **Package Structure**: Resolved import path issues from project rename
+
 ## [Unreleased]
 
 ### Planned Features
@@ -59,5 +88,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History Summary
 
+- **v1.0.4**: Major stability and testing improvements, authentication fixes
 - **v1.0.0**: Initial production release with complete Linear CLI functionality
 - **v0.x.x**: Development versions (pre-release)

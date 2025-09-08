@@ -27,19 +27,19 @@ For development or to get the latest features:
 
 .. code-block:: bash
 
-   git clone https://github.com/linear-cli/linear-cli.git
-   cd linear-cli
+   git clone https://github.com/AdiKsOnDev/linearator.git
+   cd linearator
    pip install -e .
 
 Verify Installation
 ~~~~~~~~~~~~~~~~~~~
 
-Check that Linearator is installed correctly:
+Check that Linear CLI is installed correctly:
 
 .. code-block:: bash
 
-   linear-cli --version
-   linear-cli status
+   linear --version
+   linear status
 
 Dependencies
 ------------
@@ -66,13 +66,13 @@ Enable shell completion for a better command-line experience:
 .. code-block:: bash
 
    # For bash
-   linear-cli completion install bash
+   linear completion install bash
 
    # For zsh  
-   linear-cli completion install zsh
+   linear completion install zsh
 
    # For fish
-   linear-cli completion install fish
+   linear completion install fish
 
 See the completion installation instructions displayed after running the command.
 
@@ -87,7 +87,7 @@ If you encounter permission errors during installation:
 .. code-block:: bash
 
    # Use user installation
-   pip install --user linear-cli
+   pip install --user linear
 
    # Or use virtual environment (recommended)
    python -m venv venv
@@ -102,10 +102,10 @@ If installation fails due to network issues:
 .. code-block:: bash
 
    # Use a different index
-   pip install --index-url https://pypi.org/simple/ linear-cli
+   pip install --index-url https://pypi.org/simple/ linear
 
    # Or increase timeout
-   pip install --timeout=60 linear-cli
+   pip install --timeout=60 linear
 
 Python Version Issues
 ~~~~~~~~~~~~~~~~~~~~~
@@ -120,7 +120,7 @@ If you have multiple Python versions, you may need to use:
 
 .. code-block:: bash
 
-   python3.12 -m pip install linear-cli
+   python3.12 -m pip install linear
 
 Updating
 --------
@@ -129,7 +129,7 @@ To update to the latest version:
 
 .. code-block:: bash
 
-   pip install --upgrade linear-cli
+   pip install --upgrade linear
 
 To update to a specific version:
 
@@ -144,6 +144,6 @@ To remove Linearator:
 
 .. code-block:: bash
 
-   pip uninstall linear-cli
+   pip uninstall linear
 
-This will remove the package but preserve your configuration files in ``~/.config/linear-cli/``.
+This will remove the package but preserve your configuration files in ``~/.config/linear/``.
