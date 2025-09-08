@@ -308,7 +308,6 @@ class TestBatchProcessor:
 class TestProgressTracker:
     """Test progress tracking functionality."""
 
-
     def test_progress_tracker_eta_calculation(self):
         """Test ETA calculation."""
         tracker = ProgressTracker(total=10, description="Test", show_progress=False)
@@ -323,7 +322,6 @@ class TestProgressTracker:
         eta = tracker.eta
         assert eta is not None
         assert eta > 0
-
 
 
 class TestRunWithConcurrencyLimit:

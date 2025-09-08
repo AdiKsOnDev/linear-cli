@@ -85,9 +85,13 @@ class LinearAuthenticator:
                     self._access_token = api_key
                     self._refresh_token = None
                     self._token_expires_at = None  # API keys don't expire
-                    logger.info("Loaded API key from LINEAR_API_KEY environment variable")
+                    logger.info(
+                        "Loaded API key from LINEAR_API_KEY environment variable"
+                    )
                 else:
-                    logger.warning("Invalid API key found in LINEAR_API_KEY environment variable")
+                    logger.warning(
+                        "Invalid API key found in LINEAR_API_KEY environment variable"
+                    )
 
     def _save_credentials(self) -> None:
         """Save credentials to secure storage."""

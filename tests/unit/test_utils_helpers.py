@@ -69,7 +69,6 @@ class TestDateHelpers:
         assert isinstance(formatted, str)
         assert "day" in formatted or "month" in formatted or "ago" in formatted
 
-
     def test_parse_date_input_relative(self):
         """Test parsing relative date input."""
         relative_inputs = ["today", "yesterday", "1 week ago", "2 days ago"]
