@@ -71,7 +71,7 @@ jobs:
             # Fixes
             FIX_COMMITS=$(git log $COMMIT_RANGE --oneline --grep="^fix" --grep="^bugfix" --extended-regexp --no-merges 2>/dev/null || true)
             if [ -n "$FIX_COMMITS" ]; then
-              echo "### BuFixes"
+              echo "### Bug Fixes"
               echo "$FIX_COMMITS" | sed 's/^[a-f0-9]* /- /'
               echo ""
             fi
