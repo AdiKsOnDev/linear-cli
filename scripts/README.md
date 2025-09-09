@@ -46,8 +46,8 @@ make prepare-release-post-pypi VERSION=1.2.3
    - `tests/unit/test_cli_basic.py` - Test version assertion
 3. **Creates changelog entry** - Adds new release section to `CHANGELOG.md`
 4. **Updates AUR package** (unless `--no-aur`):
-   - `aur-package/PKGBUILD` - Updates version, resets pkgrel, fetches SHA256 checksum
-   - `aur-package/.SRCINFO` - Regenerated from PKGBUILD using makepkg
+   - `PKGBUILD` - Updates version, resets pkgrel, fetches SHA256 checksum
+   - `.SRCINFO` - Regenerated from PKGBUILD using makepkg
 5. **Provides next steps** - Shows what to do after running the script
 
 #### Files Updated
@@ -58,8 +58,8 @@ make prepare-release-post-pypi VERSION=1.2.3
 | `src/linear_cli/__init__.py` | `__version__ = "X.Y.Z"` |
 | `tests/unit/test_cli_basic.py` | Version assertion in tests |
 | `CHANGELOG.md` | New release section with template |
-| `aur-package/PKGBUILD` | `pkgver`, `pkgrel=1`, `sha256sums` |
-| `aur-package/.SRCINFO` | Regenerated from PKGBUILD |
+| `PKGBUILD` | `pkgver`, `pkgrel=1`, `sha256sums` |
+| `.SRCINFO` | Regenerated from PKGBUILD |
 
 #### Example Output
 

@@ -162,7 +162,7 @@ def update_pkgbuild(root_dir: Path, new_version: str, checksum: str | None = Non
     Returns:
         True if successful, False otherwise
     """
-    pkgbuild_file = root_dir / "aur-package" / "PKGBUILD"
+    pkgbuild_file = root_dir / "PKGBUILD"
     
     if not pkgbuild_file.exists():
         print(f"⚠️  {pkgbuild_file} not found - skipping PKGBUILD update")
@@ -223,9 +223,8 @@ def generate_srcinfo(root_dir: Path) -> bool:
     """
     import subprocess
     
-    aur_dir = root_dir / "aur-package"
-    pkgbuild_file = aur_dir / "PKGBUILD"
-    srcinfo_file = aur_dir / ".SRCINFO"
+    pkgbuild_file = root_dir / "PKGBUILD"
+    srcinfo_file = root_dir / ".SRCINFO"
     
     if not pkgbuild_file.exists():
         print("⚠️  PKGBUILD not found - skipping .SRCINFO generation")
@@ -235,7 +234,7 @@ def generate_srcinfo(root_dir: Path) -> bool:
         # Generate .SRCINFO using makepkg
         result = subprocess.run(
             ["makepkg", "--printsrcinfo"],
-            cwd=aur_dir,
+            cwd=root_dir,
             capture_output=True,
             text=True,
             check=True
@@ -357,8 +356,8 @@ def main():
         if not args.no_changelog:
             print(f"  - {root_dir / 'CHANGELOG.md'}")
         if not args.no_aur:
-            print(f"  - {root_dir / 'aur-package' / 'PKGBUILD'}")
-            print(f"  - {root_dir / 'aur-package' / '.SRCINFO'}")
+            print(f"  - {root_dir / 'PKGBUILD'}")
+            print(f"  - {root_dir / '.SRCINFO'}")
         return
     
     # Update version in all files
@@ -391,8 +390,10 @@ def main():
         
         if not args.no_aur and not args.wait_for_pypi:
             print("\nAUR Release Steps:")
-            print("6. After PyPI release, update AUR:")
-            print("   cd aur-package")
+            print("6. After PyPI release, update AUR repository:")
+            print("   git clone ssh://aur@aur.archlinux.org/linear-cli.git (if not done)")
+            print("   cp PKGBUILD .SRCINFO linear-cli/")
+            print("   cd linear-cli")
             print("   git add PKGBUILD .SRCINFO")
             print(f"   git commit -m 'Update to version {args.version}'")
             print("   git push origin master")
