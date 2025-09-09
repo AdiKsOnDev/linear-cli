@@ -113,6 +113,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Code Quality**: Enhanced error handling with proper logging instead of silent failures
 - **Editor Validation**: Added whitelist validation for safe text editors in config command
 
+## [1.0.7] - 2025-09-09
+
+### Fixed
+- **Keyring Warnings**: Eliminated annoying keyring backend warnings that appeared on every CLI command
+- **Credential Storage**: Improved error handling for systems without keyring backends
+- **User Experience**: Clean CLI startup without unnecessary warning messages
+
+### Changed
+- **Logging Levels**: Reduced keyring-related messages from ERROR/WARNING to DEBUG level
+- **Fallback Behavior**: More graceful fallback to PBKDF2 encryption when keyring unavailable
+
+### Technical
+- **Proactive Detection**: Added keyring availability check before attempting operations
+- **Silent Fallback**: Automatic fallback to secure PBKDF2 without user-visible warnings
+- **Improved Error Handling**: Better separation of expected vs unexpected credential storage errors
+
 ## [Unreleased]
 
 ### Planned Features
@@ -121,6 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Advanced Analytics**: Issue metrics and team performance insights
 - **Template System**: Custom templates for recurring issue types
 - **Workflow Automation**: Custom workflow rules and triggers
+- **AUR**: Possibility to install this package through AUR
 
 ---
 
