@@ -7,8 +7,8 @@ Provides caching, batching, and async utilities for improved performance.
 import asyncio
 import functools
 import hashlib
+import json
 import logging
-import pickle
 import time
 from collections.abc import Callable
 from datetime import datetime, timedelta
@@ -64,8 +64,8 @@ class PersistentCache:
             return None
 
         try:
-            with open(cache_file, "rb") as f:
-                cache_data = pickle.load(f)
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cache_data = json.load(f)
 
             if self._is_expired(cache_data):
                 cache_file.unlink(missing_ok=True)
@@ -74,7 +74,7 @@ class PersistentCache:
             logger.debug(f"Cache hit for key: {key}")
             return cache_data["value"]
 
-        except (pickle.PickleError, OSError, KeyError) as e:
+        except (json.JSONDecodeError, OSError, KeyError) as e:
             logger.warning(f"Error reading cache file {cache_file}: {e}")
             cache_file.unlink(missing_ok=True)
             return None
@@ -94,10 +94,10 @@ class PersistentCache:
         cache_file = self._get_cache_file(key)
 
         try:
-            with open(cache_file, "wb") as f:
-                pickle.dump(cache_data, f)
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(cache_data, f, ensure_ascii=False, indent=2)
             logger.debug(f"Cached value for key: {key} (TTL: {ttl}s)")
-        except (pickle.PickleError, OSError) as e:
+        except (json.JSONEncodeError, OSError) as e:
             logger.warning(f"Error writing cache file {cache_file}: {e}")
 
     def delete(self, key: str) -> None:
@@ -123,14 +123,14 @@ class PersistentCache:
         count = 0
         for cache_file in self.cache_dir.glob("*.cache"):
             try:
-                with open(cache_file, "rb") as f:
-                    cache_data = pickle.load(f)
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    cache_data = json.load(f)
 
                 if self._is_expired(cache_data):
                     cache_file.unlink()
                     count += 1
 
-            except (pickle.PickleError, OSError, KeyError):
+            except (json.JSONDecodeError, OSError, KeyError):
                 # If we can't read it, delete it
                 cache_file.unlink(missing_ok=True)
                 count += 1

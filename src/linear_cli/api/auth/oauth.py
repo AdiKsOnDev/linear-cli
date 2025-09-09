@@ -31,7 +31,7 @@ class OAuthFlowManager:
     """
 
     OAUTH_BASE_URL = "https://linear.app/oauth"
-    TOKEN_URL = "https://api.linear.app/oauth/token"
+    TOKEN_URL = "https://api.linear.app/oauth/token"  # nosec B105 - API URL not a password
 
     def __init__(
         self,

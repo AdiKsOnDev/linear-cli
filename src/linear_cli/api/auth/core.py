@@ -275,7 +275,7 @@ class LinearAuthenticator:
             if (
                 self._access_token.count(".") == 2
             ):  # JWT format has 3 parts separated by dots
-                info["token_type"] = "jwt"
+                info["token_type"] = "jwt"  # nosec B105 - Not a hardcoded password, just a type identifier
                 # Try to decode JWT for additional info
                 try:
                     import jwt
@@ -291,8 +291,11 @@ class LinearAuthenticator:
                     if "exp" in decoded:
                         info["expires_at_jwt"] = decoded["exp"]
                 except Exception:
-                    pass  # If JWT decode fails, just continue without payload
+                    # Log the error but continue - JWT decode failure is not critical
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.debug("JWT decode failed, continuing without payload")
             else:
-                info["token_type"] = "api_key"
+                info["token_type"] = "api_key"  # nosec B105 - Not a hardcoded password, just a type identifier
 
         return info

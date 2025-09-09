@@ -5,6 +5,7 @@ Handles configuration viewing, editing, and management.
 """
 
 import click
+from pathlib import Path
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
@@ -184,10 +185,20 @@ def edit(ctx: click.Context) -> None:
     cli_ctx = ctx.obj["cli_context"]
     config_file = cli_ctx.config_manager.config_file
 
-    # Get editor from environment
+    # Get editor from environment - validated against safe editors
     editor = os.environ.get("EDITOR", "nano")
+    
+    # Validate editor is a safe, known editor
+    safe_editors = {"nano", "vim", "vi", "emacs", "code", "subl", "atom", "gedit"}
+    editor_name = Path(editor).name
+    
+    if editor_name not in safe_editors:
+        console.print(f"[red]✗ Editor '{editor}' not in safe editors list[/red]")
+        console.print("Set EDITOR to one of: " + ", ".join(sorted(safe_editors)))
+        return
 
     try:
+        # nosec B603 - editor validated against safe list above
         subprocess.run([editor, str(config_file)], check=True)
         console.print(f"[green]✓ Configuration file edited with {editor}[/green]")
         console.print("Note: Changes will take effect on next command.")

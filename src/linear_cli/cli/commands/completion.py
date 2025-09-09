@@ -373,4 +373,4 @@ def completion(ctx: click.Context, shell: str) -> None:
 
     This is a convenient alias for 'completion show'.
     """
-    ctx.invoke(show, shell=shell)
+    ctx.invoke(show, shell=shell)  # nosec B604 - shell parameter is validated by Click
