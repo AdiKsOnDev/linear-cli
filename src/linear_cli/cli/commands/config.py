@@ -4,8 +4,9 @@ Configuration commands for Linearator CLI.
 Handles configuration viewing, editing, and management.
 """
 
-import click
 from pathlib import Path
+
+import click
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
@@ -187,11 +188,11 @@ def edit(ctx: click.Context) -> None:
 
     # Get editor from environment - validated against safe editors
     editor = os.environ.get("EDITOR", "nano")
-    
+
     # Validate editor is a safe, known editor
     safe_editors = {"nano", "vim", "vi", "emacs", "code", "subl", "atom", "gedit"}
     editor_name = Path(editor).name
-    
+
     if editor_name not in safe_editors:
         console.print(f"[red]✗ Editor '{editor}' not in safe editors list[/red]")
         console.print("Set EDITOR to one of: " + ", ".join(sorted(safe_editors)))

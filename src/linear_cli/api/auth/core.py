@@ -293,6 +293,7 @@ class LinearAuthenticator:
                 except Exception:
                     # Log the error but continue - JWT decode failure is not critical
                     import logging
+
                     logger = logging.getLogger(__name__)
                     logger.debug("JWT decode failed, continuing without payload")
             else:

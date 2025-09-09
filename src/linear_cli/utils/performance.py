@@ -64,7 +64,7 @@ class PersistentCache:
             return None
 
         try:
-            with open(cache_file, "r", encoding="utf-8") as f:
+            with open(cache_file, encoding="utf-8") as f:
                 cache_data = json.load(f)
 
             if self._is_expired(cache_data):
@@ -123,7 +123,7 @@ class PersistentCache:
         count = 0
         for cache_file in self.cache_dir.glob("*.cache"):
             try:
-                with open(cache_file, "r", encoding="utf-8") as f:
+                with open(cache_file, encoding="utf-8") as f:
                     cache_data = json.load(f)
 
                 if self._is_expired(cache_data):
