@@ -90,13 +90,15 @@ class CredentialStorage:
                     # Generate new key and store it
                     key = Fernet.generate_key()
                     key_b64 = base64.urlsafe_b64encode(key).decode()
-                    keyring.set_password(self.SERVICE_NAME, f"{self.user_id}_key", key_b64)
+                    keyring.set_password(
+                        self.SERVICE_NAME, f"{self.user_id}_key", key_b64
+                    )
 
                 return Fernet(key)
             except Exception:
                 # Keyring failed after being available, fall through to PBKDF2
                 self._keyring_available = False
-        
+
         # Use PBKDF2 fallback (either keyring not available or failed)
         logger.debug("Using PBKDF2 key derivation for credential encryption")
         kdf = PBKDF2HMAC(
@@ -127,9 +129,13 @@ class CredentialStorage:
             else:
                 # When keyring is not available, we can't store credentials persistently
                 # This is expected behavior - credentials will need to be re-entered
-                logger.debug("Keyring not available - credentials cannot be stored persistently")
-                raise AuthenticationError("Credential storage not available - keyring backend missing")
-                
+                logger.debug(
+                    "Keyring not available - credentials cannot be stored persistently"
+                )
+                raise AuthenticationError(
+                    "Credential storage not available - keyring backend missing"
+                )
+
         except AuthenticationError:
             # Re-raise authentication errors as-is
             raise
@@ -147,7 +153,7 @@ class CredentialStorage:
         if not self._keyring_available:
             logger.debug("Keyring not available - no stored credentials")
             return None
-            
+
         try:
             # Get from keyring
             encoded_data = keyring.get_password(self.SERVICE_NAME, self.user_id)
@@ -179,7 +185,7 @@ class CredentialStorage:
         if not self._keyring_available:
             logger.debug("Keyring not available - no credentials to delete")
             return
-            
+
         try:
             keyring.delete_password(self.SERVICE_NAME, self.user_id)
             keyring.delete_password(self.SERVICE_NAME, f"{self.user_id}_key")
