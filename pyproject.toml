@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "linear-cli"
+name = "linearator"
 version = "1.0.4"
 authors = [
     {name = "Adil Alizada", email = "adilalizade13@gmail.com"},
