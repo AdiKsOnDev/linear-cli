@@ -92,7 +92,7 @@ lint: ## Run linting checks
 
 format: ## Format code with black and ruff
 	@echo "$(GREEN)Formatting code...$(NC)"
-	$(PYTHON) -m black $(SRC_DIR) $(TEST_DIR)
+	# $(PYTHON) -m black $(SRC_DIR) $(TEST_DIR)
 	$(PYTHON) -m ruff check --fix $(SRC_DIR) $(TEST_DIR)
 
 format-check: ## Check code formatting without making changes

@@ -129,6 +129,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Silent Fallback**: Automatic fallback to secure PBKDF2 without user-visible warnings
 - **Improved Error Handling**: Better separation of expected vs unexpected credential storage errors
 
+## [1.0.8] - 2025-09-09
+
+### Fixed
+- **AUR Package Dependencies**: Fixed PKGBUILD to properly install Python dependencies from PyPI
+- **Dependency Resolution**: Updated package installation to use `pip install` for complete dependency management
+- **Import Errors**: Resolved "No module named 'gql'" and similar import errors in AUR package
+
+### Changed
+- **Release Script**: Updated to handle PKGBUILD and .SRCINFO files in project root
+- **AUR Workflow**: Simplified file structure for easier AUR package maintenance
+- **Package Installation**: Changed from `python-installer` to `pip install` for better dependency handling
+
+### Technical
+- **PKGBUILD**: Now installs directly from PyPI with full dependency resolution
+- **File Paths**: Moved AUR packaging files to project root for easier access
+- **Release Automation**: Enhanced release script to automatically update AUR package metadata
+
 ## [Unreleased]
 
 ### Planned Features

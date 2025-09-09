@@ -5,7 +5,7 @@ This package provides a command-line interface for interacting with Linear's API
 including issue management, team operations, and advanced search capabilities.
 """
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 __author__ = "Linearator Team"
 __email__ = "contact@linear-cli.dev"
 
