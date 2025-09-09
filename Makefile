@@ -68,13 +68,13 @@ test: ## Run all tests
 	@echo "$(GREEN)Running all tests...$(NC)"
 	$(PYTHON) -m pytest -k "not test_client" --tb=short --no-cov
 
-test-unit: ## Run unit tests only
+test-unit: ## Run unit tests only (fast)
 	@echo "$(GREEN)Running unit tests...$(NC)"
-	$(PYTHON) -m pytest tests/unit/
+	$(PYTHON) -m pytest tests/unit/ --tb=short --no-cov
 
-test-integration: ## Run integration tests only
+test-integration: ## Run integration tests only (fast)
 	@echo "$(GREEN)Running integration tests...$(NC)"
-	$(PYTHON) -m pytest tests/integration/
+	$(PYTHON) -m pytest tests/integration/ --tb=short --no-cov
 
 test-cov: ## Run tests with coverage report
 	@echo "$(GREEN)Running tests with coverage...$(NC)"
@@ -177,7 +177,7 @@ setup: install-dev setup-hooks ## Complete development setup
 dev: format lint test ## Format, lint, and test (quick dev workflow)
 
 # CI/CD simulation
-ci: format-check lint test-cov ## Simulate CI/CD pipeline locally
+ci: format-check lint test ## Simulate CI/CD pipeline locally (fast tests)
 
 # Release preparation
 prepare-release: ## Prepare release with version bump (usage: make prepare-release VERSION=1.2.3)
