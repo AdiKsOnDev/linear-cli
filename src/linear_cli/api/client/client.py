@@ -380,7 +380,7 @@ class LinearClient:
             variables = {"term": issue_id, "first": 1}
             result = await self.execute_query(SEARCH_ISSUES_QUERY, variables)
             search_results = result.get("searchIssues", {}).get("nodes", [])
-            
+
             # Look for exact identifier match
             for issue in search_results:
                 if issue.get("identifier") == issue_id:
@@ -733,6 +733,112 @@ class LinearClient:
                 "error": str(e),
                 "message": "Connection failed",
             }
+
+    async def get_projects(self, limit: int = 50) -> dict[str, Any]:
+        """
+        Get list of projects.
+
+        Args:
+            limit: Maximum number of projects to return
+
+        Returns:
+            Dictionary containing projects data
+        """
+        from ..queries import GET_PROJECTS_QUERY
+
+        variables = {"first": limit}
+        result = await self.execute_query(GET_PROJECTS_QUERY, variables)
+        return result.get("projects", {})
+
+    async def get_project(self, project_id: str) -> dict[str, Any] | None:
+        """
+        Get a single project by ID or name.
+
+        Args:
+            project_id: Project ID or name
+
+        Returns:
+            Project data or None if not found
+        """
+        from ..queries import GET_PROJECT_QUERY
+
+        # Try direct ID lookup first
+        variables = {"id": project_id}
+        result = await self.execute_query(GET_PROJECT_QUERY, variables)
+        project_data = result.get("project")
+
+        if project_data:
+            return dict(project_data) if isinstance(project_data, dict) else None
+
+        # If not found, try searching by name
+        projects_data = await self.get_projects(limit=100)
+        for project in projects_data.get("nodes", []):
+            if project.get("name", "").lower() == project_id.lower():
+                return dict(project) if isinstance(project, dict) else None
+
+        return None
+
+    async def create_project_update(
+        self,
+        project_id: str,
+        content: str,
+        health: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Create a project update.
+
+        Args:
+            project_id: Project ID or name
+            content: Update content/message
+            health: Project health status
+
+        Returns:
+            Created project update data
+        """
+        from ..queries import CREATE_PROJECT_UPDATE_MUTATION
+
+        # First get the project to ensure we have the ID
+        project = await self.get_project(project_id)
+        if not project:
+            raise ValueError(f"Project not found: {project_id}")
+
+        input_data = {
+            "projectId": project["id"],
+            "body": content,
+        }
+
+        if health:
+            input_data["health"] = health.upper()
+
+        variables = {"input": input_data}
+        result = await self.execute_query(CREATE_PROJECT_UPDATE_MUTATION, variables)
+
+        project_update_data = result.get("projectUpdateCreate", {}).get("projectUpdate")
+        return dict(project_update_data) if isinstance(project_update_data, dict) else {}
+
+    async def get_project_updates(
+        self, project_id: str, limit: int = 20
+    ) -> dict[str, Any]:
+        """
+        Get project updates for a project.
+
+        Args:
+            project_id: Project ID or name
+            limit: Maximum number of updates to return
+
+        Returns:
+            Dictionary containing project updates data
+        """
+        from ..queries import GET_PROJECT_UPDATES_QUERY
+
+        # First get the project to ensure we have the ID
+        project = await self.get_project(project_id)
+        if not project:
+            raise ValueError(f"Project not found: {project_id}")
+
+        variables = {"projectId": project["id"], "first": limit}
+        result = await self.execute_query(GET_PROJECT_UPDATES_QUERY, variables)
+        return result.get("projectUpdates", {})
 
     def close(self) -> None:
         """Close the client and cleanup resources."""

@@ -26,6 +26,7 @@ from .commands import (
     interactive,
     issue,
     label,
+    project,
     search,
     team,
     user,
@@ -271,6 +272,7 @@ main.add_command(issue.issue_group, name="issue")
 main.add_command(label.label_group, name="label")
 main.add_command(bulk.bulk_group, name="bulk")
 main.add_command(user.user_group, name="user")
+main.add_command(project.project, name="project")
 
 # Add interactive mode
 main.add_command(interactive.interactive, name="interactive")

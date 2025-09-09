@@ -252,6 +252,11 @@ class OutputFormatter:
                 f"[dim]Team:[/dim] {team.get('name', '')} ({team.get('key', '')})"
             )
 
+        # Project
+        project = issue.get("project")
+        if project:
+            console.print(f"[dim]Project:[/dim] {project.get('name', '')}")
+
         # Labels
         labels_str = format_labels(issue.get("labels"))
         if labels_str:
@@ -430,3 +435,193 @@ def print_warning(message: str) -> None:
 def print_info(message: str) -> None:
     """Print info message."""
     console.print(f"[blue]ℹ {message}[/blue]")
+
+
+# Add project formatting methods to OutputFormatter class
+def _add_project_methods():
+    """Add project formatting methods to OutputFormatter class."""
+
+    def format_projects(self, projects_data: dict[str, Any]) -> None:
+        """Format projects data for output."""
+        if self.output_format == "json":
+            console.print(JSON(json.dumps(projects_data, default=str, indent=2)))
+        else:
+            projects = projects_data.get("nodes", [])
+            self._format_projects_table(projects)
+
+    def format_project(self, project: dict[str, Any]) -> None:
+        """Format project details for output."""
+        if self.output_format == "json":
+            console.print(JSON(json.dumps(project, default=str, indent=2)))
+        else:
+            self._format_project_details(project)
+
+    def format_project_updates(self, updates_data: dict[str, Any]) -> None:
+        """Format project updates data for output."""
+        if self.output_format == "json":
+            console.print(JSON(json.dumps(updates_data, default=str, indent=2)))
+        else:
+            updates = updates_data.get("nodes", [])
+            self._format_project_updates_table(updates)
+
+    def _format_projects_table(self, projects: list[dict[str, Any]]) -> None:
+        """Format projects as a table."""
+        if not projects:
+            console.print("[dim]No projects found.[/dim]")
+            return
+
+        table = Table(title="Projects", show_header=True, header_style="bold magenta")
+
+        table.add_column("Name", style="cyan", min_width=20)
+        table.add_column("State", style="yellow", min_width=10)
+        table.add_column("Health", style="green", min_width=10)
+        table.add_column("Progress", style="blue", min_width=8)
+        table.add_column("Lead", min_width=15)
+        table.add_column("Target", min_width=12)
+        table.add_column("Description", min_width=30)
+
+        for project in projects:
+            name = project.get("name", "")
+            state = project.get("state", "")
+            health = project.get("health", "")
+            progress = f"{project.get('progress', 0):.0f}%" if project.get("progress") else ""
+
+            lead = project.get("lead")
+            lead_name = ""
+            if lead:
+                lead_name = lead.get("displayName") or lead.get("name", "")
+
+            target_date = format_datetime(project.get("targetDate"), date_only=True)
+            description = truncate_text(project.get("description", ""), 50)
+
+            table.add_row(
+                name,
+                state,
+                health,
+                progress,
+                lead_name,
+                target_date,
+                description,
+            )
+
+        console.print(table)
+
+    def _format_project_details(self, project: dict[str, Any]) -> None:
+        """Format detailed project information."""
+        console.print(f"[bold cyan]{project.get('name', '')}[/bold cyan]")
+        console.print()
+
+        # Basic info
+        console.print("[dim]URL:[/dim]", project.get("url", ""))
+
+        state = project.get("state")
+        if state:
+            console.print(f"[dim]State:[/dim] {state}")
+
+        health = project.get("health")
+        if health:
+            console.print(f"[dim]Health:[/dim] {health}")
+
+        progress = project.get("progress")
+        if progress is not None:
+            console.print(f"[dim]Progress:[/dim] {progress:.0f}%")
+
+        # People
+        lead = project.get("lead")
+        if lead:
+            lead_name = lead.get("displayName") or lead.get("name", "")
+            console.print(f"[dim]Lead:[/dim] {lead_name}")
+
+        creator = project.get("creator")
+        if creator:
+            creator_name = creator.get("displayName") or creator.get("name", "")
+            console.print(f"[dim]Creator:[/dim] {creator_name}")
+
+        # Teams
+        teams = project.get("teams", {}).get("nodes", [])
+        if teams:
+            team_names = [f"{team.get('name', '')} ({team.get('key', '')})" for team in teams]
+            console.print(f"[dim]Teams:[/dim] {', '.join(team_names)}")
+
+        # Dates
+        start_date = format_datetime(project.get("startDate"), date_only=True)
+        if start_date:
+            console.print(f"[dim]Start Date:[/dim] {start_date}")
+
+        target_date = format_datetime(project.get("targetDate"), date_only=True)
+        if target_date:
+            console.print(f"[dim]Target Date:[/dim] {target_date}")
+
+        console.print(f"[dim]Created:[/dim] {format_datetime(project.get('createdAt'))}")
+        console.print(f"[dim]Updated:[/dim] {format_datetime(project.get('updatedAt'))}")
+
+        # Description
+        description = project.get("description")
+        if description:
+            console.print()
+            console.print("[dim]Description:[/dim]")
+            try:
+                markdown = Markdown(description)
+                console.print(markdown)
+            except Exception:
+                console.print(description)
+
+        # Recent updates
+        updates = project.get("updates", {}).get("nodes", [])
+        if updates:
+            console.print()
+            console.print("[dim]Recent Updates:[/dim]")
+            for update in updates[:3]:  # Show only latest 3 updates
+                user = update.get("user", {})
+                user_name = user.get("displayName") or user.get("name", "")
+                created_at = format_datetime(update.get("createdAt"))
+                health = update.get("health", "")
+                health_str = f" ({health})" if health else ""
+
+                console.print(f"  [dim]{created_at} - {user_name}{health_str}:[/dim]")
+                body = update.get("body", "")
+                if body:
+                    console.print(f"  {body}")
+                console.print()
+
+    def _format_project_updates_table(self, updates: list[dict[str, Any]]) -> None:
+        """Format project updates as a table."""
+        if not updates:
+            console.print("[dim]No project updates found.[/dim]")
+            return
+
+        table = Table(title="Project Updates", show_header=True, header_style="bold magenta")
+
+        table.add_column("Date", style="cyan", min_width=12)
+        table.add_column("User", style="yellow", min_width=15)
+        table.add_column("Health", style="green", min_width=10)
+        table.add_column("Update", min_width=50)
+
+        for update in updates:
+            created_at = format_datetime(update.get("createdAt"))
+
+            user = update.get("user", {})
+            user_name = user.get("displayName") or user.get("name", "")
+
+            health = update.get("health", "")
+            body = truncate_text(update.get("body", ""), 80)
+
+            table.add_row(
+                created_at,
+                user_name,
+                health,
+                body,
+            )
+
+        console.print(table)
+
+    # Add methods to OutputFormatter class
+    OutputFormatter.format_projects = format_projects
+    OutputFormatter.format_project = format_project
+    OutputFormatter.format_project_updates = format_project_updates
+    OutputFormatter._format_projects_table = _format_projects_table
+    OutputFormatter._format_project_details = _format_project_details
+    OutputFormatter._format_project_updates_table = _format_project_updates_table
+
+# Add the methods when module is imported
+_add_project_methods()

@@ -513,3 +513,172 @@ def build_user_filter(**kwargs: Any) -> dict[str, Any]:
         filter_obj["admin"] = {"eq": kwargs["admin"]}
 
     return filter_obj
+
+
+# Project queries
+GET_PROJECTS_QUERY = """
+query GetProjects($first: Int, $after: String) {
+    projects(first: $first, after: $after) {
+        pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+        }
+        nodes {
+            id
+            name
+            description
+            url
+            state
+            health
+            progress
+            startDate
+            targetDate
+            createdAt
+            updatedAt
+            creator {
+                id
+                name
+                displayName
+                email
+            }
+            lead {
+                id
+                name
+                displayName
+                email
+            }
+            teams {
+                nodes {
+                    id
+                    name
+                    key
+                }
+            }
+            members {
+                nodes {
+                    id
+                    name
+                    displayName
+                    email
+                }
+            }
+        }
+    }
+}
+"""
+
+GET_PROJECT_QUERY = """
+query GetProject($id: String!) {
+    project(id: $id) {
+        id
+        name
+        description
+        url
+        state
+        health
+        progress
+        startDate
+        targetDate
+        createdAt
+        updatedAt
+        creator {
+            id
+            name
+            displayName
+            email
+        }
+        lead {
+            id
+            name
+            displayName
+            email
+        }
+        teams {
+            nodes {
+                id
+                name
+                key
+            }
+        }
+        members {
+            nodes {
+                id
+                name
+                displayName
+                email
+            }
+        }
+        updates {
+            nodes {
+                id
+                body
+                health
+                createdAt
+                user {
+                    id
+                    name
+                    displayName
+                }
+            }
+        }
+    }
+}
+"""
+
+CREATE_PROJECT_UPDATE_MUTATION = """
+mutation CreateProjectUpdate($input: ProjectUpdateCreateInput!) {
+    projectUpdateCreate(input: $input) {
+        success
+        projectUpdate {
+            id
+            body
+            health
+            createdAt
+            user {
+                id
+                name
+                displayName
+            }
+            project {
+                id
+                name
+            }
+        }
+    }
+}
+"""
+
+GET_PROJECT_UPDATES_QUERY = """
+query GetProjectUpdates($projectId: String!, $first: Int, $after: String) {
+    projectUpdates(
+        filter: { project: { id: { eq: $projectId } } }
+        first: $first
+        after: $after
+        orderBy: createdAt
+    ) {
+        pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+        }
+        nodes {
+            id
+            body
+            health
+            createdAt
+            user {
+                id
+                name
+                displayName
+            }
+            project {
+                id
+                name
+            }
+        }
+    }
+}
+"""
