@@ -20,6 +20,7 @@ from ..constants import (
     DEFAULT_STATE_COLOR,
     PRIORITY_LEVELS,
 )
+from ..utils.helpers import format_datetime as format_datetime_util
 
 console = Console()
 
@@ -491,7 +492,7 @@ def _add_project_methods():
             if lead:
                 lead_name = lead.get("displayName") or lead.get("name", "")
 
-            target_date = format_datetime(project.get("targetDate"), date_only=True)
+            target_date = format_datetime_util(project.get("targetDate"), "short") if project.get("targetDate") else "No target"
             description = truncate_text(project.get("description", ""), 50)
 
             table.add_row(
@@ -544,11 +545,11 @@ def _add_project_methods():
             console.print(f"[dim]Teams:[/dim] {', '.join(team_names)}")
 
         # Dates
-        start_date = format_datetime(project.get("startDate"), date_only=True)
+        start_date = format_datetime_util(project.get("startDate"), "short") if project.get("startDate") else None
         if start_date:
             console.print(f"[dim]Start Date:[/dim] {start_date}")
 
-        target_date = format_datetime(project.get("targetDate"), date_only=True)
+        target_date = format_datetime_util(project.get("targetDate"), "short") if project.get("targetDate") else None
         if target_date:
             console.print(f"[dim]Target Date:[/dim] {target_date}")
 

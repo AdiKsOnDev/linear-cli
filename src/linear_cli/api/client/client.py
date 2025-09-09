@@ -763,18 +763,33 @@ class LinearClient:
         from ..queries import GET_PROJECT_QUERY
 
         # Try direct ID lookup first
-        variables = {"id": project_id}
-        result = await self.execute_query(GET_PROJECT_QUERY, variables)
-        project_data = result.get("project")
+        try:
+            variables = {"id": project_id}
+            result = await self.execute_query(GET_PROJECT_QUERY, variables)
+            project_data = result.get("project")
 
-        if project_data:
-            return dict(project_data) if isinstance(project_data, dict) else None
+            if project_data:
+                return dict(project_data) if isinstance(project_data, dict) else None
+        except Exception:
+            # If direct ID lookup fails, continue to name search
+            pass
 
-        # If not found, try searching by name
-        projects_data = await self.get_projects(limit=100)
+        # If not found, try searching by name with simple query
+        from ..queries import FIND_PROJECT_BY_NAME_QUERY, GET_PROJECT_QUERY
+        
+        variables = {"first": 100}
+        result = await self.execute_query(FIND_PROJECT_BY_NAME_QUERY, variables)
+        projects_data = result.get("projects", {})
+        
         for project in projects_data.get("nodes", []):
             if project.get("name", "").lower() == project_id.lower():
-                return dict(project) if isinstance(project, dict) else None
+                # Found project by name, now get full details using direct ID lookup
+                variables = {"id": project["id"]}
+                result = await self.execute_query(GET_PROJECT_QUERY, variables)
+                project_data = result.get("project")
+                if project_data:
+                    return dict(project_data) if isinstance(project_data, dict) else None
+        
 
         return None
 
@@ -808,7 +823,7 @@ class LinearClient:
         }
 
         if health:
-            input_data["health"] = health.upper()
+            input_data["health"] = health
 
         variables = {"input": input_data}
         result = await self.execute_query(CREATE_PROJECT_UPDATE_MUTATION, variables)

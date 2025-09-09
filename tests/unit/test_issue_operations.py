@@ -163,7 +163,7 @@ class TestIssueOperations:
                 "nodes": [
                     {
                         "id": "issue_123",
-                        "identifier": "ENG-123", 
+                        "identifier": "ENG-123",
                         "title": "Test Issue",
                     }
                 ]

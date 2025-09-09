@@ -610,19 +610,6 @@ query GetProject($id: String!) {
                 email
             }
         }
-        updates {
-            nodes {
-                id
-                body
-                health
-                createdAt
-                user {
-                    id
-                    name
-                    displayName
-                }
-            }
-        }
     }
 }
 """
@@ -651,7 +638,7 @@ mutation CreateProjectUpdate($input: ProjectUpdateCreateInput!) {
 """
 
 GET_PROJECT_UPDATES_QUERY = """
-query GetProjectUpdates($projectId: String!, $first: Int, $after: String) {
+query GetProjectUpdates($projectId: ID!, $first: Int, $after: String) {
     projectUpdates(
         filter: { project: { id: { eq: $projectId } } }
         first: $first
@@ -678,6 +665,18 @@ query GetProjectUpdates($projectId: String!, $first: Int, $after: String) {
                 id
                 name
             }
+        }
+    }
+}
+"""
+
+
+FIND_PROJECT_BY_NAME_QUERY = """
+query FindProjectByName($first: Int) {
+    projects(first: $first) {
+        nodes {
+            id
+            name
         }
     }
 }
