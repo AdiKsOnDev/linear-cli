@@ -2,6 +2,7 @@
 
 from click.testing import CliRunner
 
+from linear_cli import __version__
 from linear_cli.cli.app import main
 
 
@@ -22,7 +23,7 @@ class TestBasicCLI:
         """Test CLI version output."""
         result = self.runner.invoke(main, ["--version"])
         assert result.exit_code == 0
-        assert "1.1.0" in result.output
+        assert __version__ in result.output
 
     def test_issue_group_help(self):
         """Test issue group help."""

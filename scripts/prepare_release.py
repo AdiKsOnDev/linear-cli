@@ -110,6 +110,72 @@ def update_init_py(root_dir: Path, new_version: str) -> bool:
     return True
 
 
+def make_version_test_dynamic(root_dir: Path) -> bool:
+    """Make the version test dynamic by importing __version__ instead of hardcoding."""
+    test_file = root_dir / "tests" / "unit" / "test_cli_basic.py"
+    
+    if not test_file.exists():
+        print(f"❌ {test_file} not found")
+        return False
+    
+    content = test_file.read_text()
+    
+    # Check if already dynamic
+    if 'from linear_cli import __version__' in content:
+        print(f"ℹ️  Version test already dynamic in {test_file}")
+        return True
+    
+    # Add import at the top if not present
+    if 'from linear_cli import __version__' not in content:
+        lines = content.split('\n')
+        # Find the right place to add import (after existing imports)
+        import_index = 0
+        for i, line in enumerate(lines):
+            if line.startswith('import ') or line.startswith('from '):
+                import_index = i + 1
+            elif line.strip() == '' and import_index > 0:
+                break
+        
+        lines.insert(import_index, 'from linear_cli import __version__')
+        content = '\n'.join(lines)
+    
+    # Replace hardcoded version with dynamic import
+    pattern = r'(def test_cli_version\(self\):.*?assert\s+)"[0-9]+\.[0-9]+\.[0-9]+"(\s+in\s+result\.output)'
+    updated_content = re.sub(
+        pattern,
+        r'\1__version__\2',
+        content,
+        flags=re.DOTALL
+    )
+    
+    # Also handle simpler patterns
+    pattern2 = r'(assert\s+)"[0-9]+\.[0-9]+\.[0-9]+"(\s+in\s+result\.output)'
+    lines = updated_content.split('\n')
+    updated_lines = []
+    inside_version_test = False
+    
+    for line in lines:
+        if 'def test_cli_version(' in line:
+            inside_version_test = True
+        elif inside_version_test and line.strip().startswith('def '):
+            inside_version_test = False
+        
+        if inside_version_test and re.search(pattern2, line):
+            line = re.sub(pattern2, r'\1__version__\2', line)
+        
+        updated_lines.append(line)
+    
+    updated_content = '\n'.join(updated_lines)
+    
+    if updated_content != content:
+        test_file.write_text(updated_content)
+        print(f"✅ Made version test dynamic in {test_file}")
+        return True
+    else:
+        print(f"ℹ️  No changes needed in {test_file}")
+        return True
+
+
 def update_test_version(root_dir: Path, new_version: str) -> bool:
     """Update version assertion in test files."""
     test_file = root_dir / "tests" / "unit" / "test_cli_basic.py"
@@ -120,21 +186,47 @@ def update_test_version(root_dir: Path, new_version: str) -> bool:
     
     content = test_file.read_text()
     
-    # Find and update version assertion
-    pattern = r'assert "[^"]*" in result\.output'
+    # Only update the specific version test that checks --version output
+    # Look for the test_cli_version method and update only the version assertion
+    pattern = r'(def test_cli_version\(self\):.*?assert\s+)"[0-9]+\.[0-9]+\.[0-9]+"(\s+in\s+result\.output)'
     updated_content = re.sub(
         pattern,
-        f'assert "{new_version}" in result.output',
-        content
+        f'\\1"{new_version}"\\2',
+        content,
+        flags=re.DOTALL
     )
     
     if updated_content == content:
-        print(f"⚠️  No version assertion found in {test_file}")
-        return False
-    
-    test_file.write_text(updated_content)
-    print(f"✅ Updated version assertion in {test_file}")
-    return True
+        # Try alternative pattern for different test format
+        pattern = r'(assert\s+)"[0-9]+\.[0-9]+\.[0-9]+"(\s+in\s+result\.output)'
+        lines = content.split('\n')
+        updated_lines = []
+        found_version_test = False
+        inside_version_test = False
+        
+        for line in lines:
+            if 'def test_cli_version(' in line:
+                inside_version_test = True
+            elif inside_version_test and line.strip().startswith('def '):
+                inside_version_test = False
+            
+            if inside_version_test and re.search(pattern, line):
+                line = re.sub(pattern, f'\\1"{new_version}"\\2', line)
+                found_version_test = True
+            
+            updated_lines.append(line)
+        
+        if found_version_test:
+            test_file.write_text('\n'.join(updated_lines))
+            print(f"✅ Updated CLI version test assertion in {test_file}")
+            return True
+        else:
+            print(f"ℹ️  No hardcoded version found in {test_file} - tests are version-agnostic")
+            return True
+    else:
+        test_file.write_text(updated_content)
+        print(f"✅ Updated CLI version test assertion in {test_file}")
+        return True
 
 
 def get_current_version(root_dir: Path) -> str | None:
@@ -336,6 +428,11 @@ def main():
         action="store_true",
         help="Show what would be changed without making changes"
     )
+    parser.add_argument(
+        "--dynamic-version-test",
+        action="store_true",
+        help="Make version test dynamic by importing __version__ (recommended)"
+    )
     
     args = parser.parse_args()
     
@@ -373,7 +470,12 @@ def main():
     if not args.aur_only:
         success &= update_pyproject_toml(root_dir, args.version)
         success &= update_init_py(root_dir, args.version)
-        success &= update_test_version(root_dir, args.version)
+        
+        # Handle test version updates based on flag
+        if args.dynamic_version_test:
+            success &= make_version_test_dynamic(root_dir)
+        else:
+            success &= update_test_version(root_dir, args.version)
         
         if not args.no_changelog:
             success &= add_changelog_entry(root_dir, args.version)
