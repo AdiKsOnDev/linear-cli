@@ -146,6 +146,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **File Paths**: Moved AUR packaging files to project root for easier access
 - **Release Automation**: Enhanced release script to automatically update AUR package metadata
 
+## [1.1.0] - 2025-09-09
+
+### Added
+- **🎯 Project Management**: Complete project management functionality
+  - `linear project list` - List all projects with state, health, progress, and lead information
+  - `linear project show <name-or-id>` - Show detailed project information (supports both names and IDs)
+  - `linear project update <name-or-id> <message> [--health <status>]` - Create project status updates
+  - `linear project updates <name-or-id>` - List project update history with user attribution
+- **📊 Enhanced Issue Display**: Issues now show associated project names in detailed views
+- **🔍 Smart Project Lookup**: Projects can be referenced by both ID and name for better usability
+- **📈 Project Health Tracking**: Support for onTrack, atRisk, offTrack, and complete health statuses
+- **📝 Project Updates**: Full project status update system with health indicators and timeline
+- **🎨 Rich Formatting**: Project information displayed with tables, colors, and markdown support
+
+### Enhanced
+- **GraphQL API Coverage**: Added comprehensive project queries and mutations
+- **Client Methods**: New project-related API client methods with error handling
+- **Output Formatters**: Dynamic project formatting methods with multiple output formats (table, JSON, YAML)
+- **Command Structure**: Integrated project commands into main CLI application
+
+### Fixed  
+- **Code Formatting**: Fixed all ruff and black formatting issues for consistent code style
+- **Exception Handling**: Improved exception handling with proper `raise ... from err` patterns
+- **Import Optimization**: Removed unused imports and variables identified by linting tools
+- **Try/Except Pattern**: Enhanced exception handling with proper logging instead of silent pass
+
+### Security
+- **🛡️ Security Compliance**: Complete bandit security scan compliance
+  - Fixed try/except/pass patterns with proper logging
+  - Added `.bandit` configuration file to manage security exceptions  
+  - Updated subprocess usage with documented security justifications
+  - Enhanced exception handling throughout codebase
+- **🔧 CI/CD Security**: Updated GitHub workflows and Makefile to use bandit configuration
+- **✅ Pipeline Ready**: All security checks now pass in CI/CD pipeline
+
+### Technical
+- **Project API Integration**: Full GraphQL schema coverage for Linear project operations
+- **Smart Name Resolution**: Project lookup works with both UUIDs and human-readable names
+- **Error Recovery**: Graceful fallback from ID lookup to name-based search
+- **Test Markers**: Added `@pytest.mark.keyring` for CI test filtering
+- **CI Reliability**: Excluded keyring-dependent tests from GitHub Actions (7 tests) while maintaining local development testing
+- **Configuration Management**: Centralized bandit security configuration with documented exceptions
+
 ## [Unreleased]
 
 ### Planned Features

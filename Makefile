@@ -90,15 +90,14 @@ lint: ## Run linting checks
 	$(PYTHON) -m ruff check $(SRC_DIR) $(TEST_DIR)
 	$(PYTHON) -m mypy $(SRC_DIR)
 
-format: ## Format code with black and ruff
+format: ## Format code with ruff
 	@echo "$(GREEN)Formatting code...$(NC)"
-	# $(PYTHON) -m black $(SRC_DIR) $(TEST_DIR)
 	$(PYTHON) -m ruff check --fix $(SRC_DIR) $(TEST_DIR)
+	$(PYTHON) -m ruff format $(SRC_DIR) $(TEST_DIR)
 
 format-check: ## Check code formatting without making changes
 	@echo "$(GREEN)Checking code formatting...$(NC)"
-	$(PYTHON) -m black --check $(SRC_DIR) $(TEST_DIR)
-	$(PYTHON) -m ruff format $(SRC_DIR) $(TEST_DIR)
+	$(PYTHON) -m ruff format --check $(SRC_DIR) $(TEST_DIR)
 
 check: format-check lint ## Run all code quality checks
 

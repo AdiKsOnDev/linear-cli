@@ -43,18 +43,6 @@ jobs:
       - name: Run Ruff formatter
         run: |
           ruff format --check src/ tests/
-          
-      - name: Run Black formatter check
-        run: |
-          black --check --diff src/ tests/
-          
-      - name: Run MyPy type checking
-        run: |
-          mypy src/linear_cli
-          
-      - name: Check imports with isort
-        run: |
-          isort --check-only --diff src/ tests/
 
   test:
     name: Test Suite

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "linearator"
-version = "1.0.8"
+version = "1.1.0"
 authors = [
     {name = "Adil Alizada", email = "adilalizade13@gmail.com"},
 ]
@@ -64,14 +64,12 @@ dev = [
     "pytest-cov>=4.1.0",
     "pytest-asyncio>=0.21.0",
     "pytest-mock>=3.11.0",
-    "black>=23.0.0",
     "ruff>=0.0.280",
     "mypy>=1.5.0",
     "types-requests>=2.31.0",
     "pre-commit>=3.3.0",
     "responses>=0.23.0",
     "aioresponses>=0.7.4",
-    "isort>=5.12.0",
     "bandit>=1.7.5",
     "safety>=2.0.0",
 ]
@@ -111,23 +109,6 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.black]
-line-length = 88
-target-version = ["py312"]
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-)/
-'''
 
 [tool.ruff]
 target-version = "py312"
@@ -144,10 +125,16 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long, handled by black
+    "E501",  # line too long, handled by ruff formatter
     "B008",  # do not perform function calls in argument defaults
     "C901",  # too complex
 ]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
