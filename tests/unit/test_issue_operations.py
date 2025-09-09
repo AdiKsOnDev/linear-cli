@@ -147,15 +147,6 @@ class TestIssueOperations:
     async def test_get_issue_by_identifier(self, client):
         """Test getting a single issue by identifier (e.g., ENG-123)."""
         # Mock the get_issues call that searches for the identifier
-        mock_issues_response = {
-            "nodes": [
-                {
-                    "id": "issue_123",
-                    "identifier": "ENG-123",
-                    "title": "Test Issue",
-                }
-            ]
-        }
 
         # Mock the search response for identifier lookup
         mock_search_response = {

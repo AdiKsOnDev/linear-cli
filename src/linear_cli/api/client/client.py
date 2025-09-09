@@ -776,11 +776,11 @@ class LinearClient:
 
         # If not found, try searching by name with simple query
         from ..queries import FIND_PROJECT_BY_NAME_QUERY, GET_PROJECT_QUERY
-        
+
         variables = {"first": 100}
         result = await self.execute_query(FIND_PROJECT_BY_NAME_QUERY, variables)
         projects_data = result.get("projects", {})
-        
+
         for project in projects_data.get("nodes", []):
             if project.get("name", "").lower() == project_id.lower():
                 # Found project by name, now get full details using direct ID lookup
@@ -789,7 +789,7 @@ class LinearClient:
                 project_data = result.get("project")
                 if project_data:
                     return dict(project_data) if isinstance(project_data, dict) else None
-        
+
 
         return None
 

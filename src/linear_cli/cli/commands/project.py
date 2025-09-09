@@ -34,7 +34,7 @@ def project() -> None:
 def list(ctx: click.Context, limit: int) -> None:
     """
     List all projects.
-    
+
     Examples:
         linear project list
         linear project list --limit 10
@@ -55,7 +55,7 @@ def list(ctx: click.Context, limit: int) -> None:
         formatter.format_projects(projects_data)
     except Exception as e:
         print_error(f"Failed to list projects: {e}")
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 @project.command()
@@ -92,7 +92,7 @@ def show(ctx: click.Context, project_id: str) -> None:
         formatter.format_project(project_data)
     except Exception as e:
         print_error(f"Failed to get project: {e}")
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 @project.command()
@@ -134,7 +134,7 @@ def update(ctx: click.Context, project_id: str, content: str, health: str | None
 
     except Exception as e:
         print_error(f"Failed to create project update: {e}")
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 @project.command()
@@ -173,4 +173,4 @@ def updates(ctx: click.Context, project_id: str, limit: int) -> None:
         formatter.format_project_updates(updates_data)
     except Exception as e:
         print_error(f"Failed to get project updates: {e}")
-        raise click.Abort()
+        raise click.Abort() from e
