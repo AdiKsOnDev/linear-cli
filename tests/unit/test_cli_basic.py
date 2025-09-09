@@ -22,7 +22,7 @@ class TestBasicCLI:
         """Test CLI version output."""
         result = self.runner.invoke(main, ["--version"])
         assert result.exit_code == 0
-        assert "1.0.5" in result.output
+        assert "1.0.6" in result.output
 
     def test_issue_group_help(self):
         """Test issue group help."""

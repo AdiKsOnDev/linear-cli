@@ -87,12 +87,14 @@ def authenticator(
     mock_config: LinearConfig, mock_credential_storage: CredentialStorage
 ) -> LinearAuthenticator:
     """Create a LinearAuthenticator instance for testing."""
-    return LinearAuthenticator(
-        client_id=mock_config.client_id,
-        client_secret=mock_config.client_secret,
-        redirect_uri=mock_config.redirect_uri,
-        storage=mock_credential_storage,
-    )
+    # Mock environment variable to ensure clean test state
+    with patch.dict(os.environ, {"LINEAR_API_KEY": ""}, clear=False):
+        return LinearAuthenticator(
+            client_id=mock_config.client_id,
+            client_secret=mock_config.client_secret,
+            redirect_uri=mock_config.redirect_uri,
+            storage=mock_credential_storage,
+        )
 
 
 @pytest.fixture

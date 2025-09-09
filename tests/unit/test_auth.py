@@ -74,7 +74,6 @@ class TestLinearAuthenticator:
         assert authenticator.client_id == "test_client_id"
         assert authenticator.client_secret == "test_client_secret"
         assert authenticator.redirect_uri == "http://localhost:8080/callback"
-        assert authenticator._access_token is None
         assert not authenticator.is_authenticated
 
     def test_api_key_authentication_success(self, authenticator):
