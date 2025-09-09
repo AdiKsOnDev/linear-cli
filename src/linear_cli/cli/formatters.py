@@ -485,14 +485,20 @@ def _add_project_methods():
             name = project.get("name", "")
             state = project.get("state", "")
             health = project.get("health", "")
-            progress = f"{project.get('progress', 0):.0f}%" if project.get("progress") else ""
+            progress = (
+                f"{project.get('progress', 0):.0f}%" if project.get("progress") else ""
+            )
 
             lead = project.get("lead")
             lead_name = ""
             if lead:
                 lead_name = lead.get("displayName") or lead.get("name", "")
 
-            target_date = format_datetime_util(project.get("targetDate"), "short") if project.get("targetDate") else "No target"
+            target_date = (
+                format_datetime_util(project.get("targetDate"), "short")
+                if project.get("targetDate")
+                else "No target"
+            )
             description = truncate_text(project.get("description", ""), 50)
 
             table.add_row(
@@ -541,20 +547,34 @@ def _add_project_methods():
         # Teams
         teams = project.get("teams", {}).get("nodes", [])
         if teams:
-            team_names = [f"{team.get('name', '')} ({team.get('key', '')})" for team in teams]
+            team_names = [
+                f"{team.get('name', '')} ({team.get('key', '')})" for team in teams
+            ]
             console.print(f"[dim]Teams:[/dim] {', '.join(team_names)}")
 
         # Dates
-        start_date = format_datetime_util(project.get("startDate"), "short") if project.get("startDate") else None
+        start_date = (
+            format_datetime_util(project.get("startDate"), "short")
+            if project.get("startDate")
+            else None
+        )
         if start_date:
             console.print(f"[dim]Start Date:[/dim] {start_date}")
 
-        target_date = format_datetime_util(project.get("targetDate"), "short") if project.get("targetDate") else None
+        target_date = (
+            format_datetime_util(project.get("targetDate"), "short")
+            if project.get("targetDate")
+            else None
+        )
         if target_date:
             console.print(f"[dim]Target Date:[/dim] {target_date}")
 
-        console.print(f"[dim]Created:[/dim] {format_datetime(project.get('createdAt'))}")
-        console.print(f"[dim]Updated:[/dim] {format_datetime(project.get('updatedAt'))}")
+        console.print(
+            f"[dim]Created:[/dim] {format_datetime(project.get('createdAt'))}"
+        )
+        console.print(
+            f"[dim]Updated:[/dim] {format_datetime(project.get('updatedAt'))}"
+        )
 
         # Description
         description = project.get("description")
@@ -591,7 +611,9 @@ def _add_project_methods():
             console.print("[dim]No project updates found.[/dim]")
             return
 
-        table = Table(title="Project Updates", show_header=True, header_style="bold magenta")
+        table = Table(
+            title="Project Updates", show_header=True, header_style="bold magenta"
+        )
 
         table.add_column("Date", style="cyan", min_width=12)
         table.add_column("User", style="yellow", min_width=15)
@@ -623,6 +645,7 @@ def _add_project_methods():
     OutputFormatter._format_projects_table = _format_projects_table
     OutputFormatter._format_project_details = _format_project_details
     OutputFormatter._format_project_updates_table = _format_project_updates_table
+
 
 # Add the methods when module is imported
 _add_project_methods()

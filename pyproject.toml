@@ -197,6 +197,7 @@ markers = [
     "unit: marks tests as unit tests",
     "integration: marks tests as integration tests",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "keyring: marks tests that require keyring backend (skip in CI)",
 ]
 
 [tool.coverage.run]

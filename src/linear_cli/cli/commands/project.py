@@ -104,7 +104,9 @@ def show(ctx: click.Context, project_id: str) -> None:
     help="Project health status",
 )
 @click.pass_context
-def update(ctx: click.Context, project_id: str, content: str, health: str | None) -> None:
+def update(
+    ctx: click.Context, project_id: str, content: str, health: str | None
+) -> None:
     """
     Create a project update.
 
@@ -120,9 +122,7 @@ def update(ctx: click.Context, project_id: str, content: str, health: str | None
 
     async def create_update() -> dict[str, Any]:
         return await client.create_project_update(
-            project_id=project_id,
-            content=content,
-            health=health
+            project_id=project_id, content=content, health=health
         )
 
     try:

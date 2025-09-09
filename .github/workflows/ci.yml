@@ -88,7 +88,7 @@ jobs:
           
       - name: Run tests (fast mode)
         run: |
-          pytest -k "not test_client" --tb=short --no-cov
+          pytest -k "not test_client" -m "not keyring" --tb=short --no-cov
 
   security:
     name: Security Scan

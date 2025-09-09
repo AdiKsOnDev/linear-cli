@@ -774,6 +774,7 @@ class LinearClient:
             # If direct ID lookup fails (e.g., invalid UUID format or entity not found),
             # continue to name search. Log the exception for debugging.
             import logging
+
             logging.debug(f"Direct project ID lookup failed: {e}")
             # Continue to name-based search
 
@@ -791,8 +792,9 @@ class LinearClient:
                 result = await self.execute_query(GET_PROJECT_QUERY, variables)
                 project_data = result.get("project")
                 if project_data:
-                    return dict(project_data) if isinstance(project_data, dict) else None
-
+                    return (
+                        dict(project_data) if isinstance(project_data, dict) else None
+                    )
 
         return None
 
@@ -832,7 +834,9 @@ class LinearClient:
         result = await self.execute_query(CREATE_PROJECT_UPDATE_MUTATION, variables)
 
         project_update_data = result.get("projectUpdateCreate", {}).get("projectUpdate")
-        return dict(project_update_data) if isinstance(project_update_data, dict) else {}
+        return (
+            dict(project_update_data) if isinstance(project_update_data, dict) else {}
+        )
 
     async def get_project_updates(
         self, project_id: str, limit: int = 20

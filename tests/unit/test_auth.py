@@ -26,6 +26,7 @@ class TestCredentialStorage:
         assert mock_credential_storage.user_id == "test_user"
         assert mock_credential_storage.SERVICE_NAME == "linear-cli"
 
+    @pytest.mark.keyring
     def test_store_and_retrieve_credentials(self, mock_credential_storage):
         """Test storing and retrieving credentials."""
         test_credentials = {
@@ -50,6 +51,7 @@ class TestCredentialStorage:
         result = mock_credential_storage.retrieve_credentials()
         assert result is None
 
+    @pytest.mark.keyring
     def test_delete_credentials(self, mock_credential_storage):
         """Test deleting stored credentials."""
         # Store credentials first
@@ -76,6 +78,7 @@ class TestLinearAuthenticator:
         assert authenticator.redirect_uri == "http://localhost:8080/callback"
         assert not authenticator.is_authenticated
 
+    @pytest.mark.keyring
     def test_api_key_authentication_success(self, authenticator):
         """Test successful API key authentication."""
         with patch.object(authenticator, "_validate_api_key", return_value=True):
@@ -140,6 +143,7 @@ class TestLinearAuthenticator:
         with pytest.raises(OAuthFlowError, match="OAuth client_id is required"):
             authenticator.start_oauth_flow()
 
+    @pytest.mark.keyring
     def test_complete_oauth_flow_success(self, authenticator, mock_http_responses):
         """Test completing OAuth flow successfully."""
         mock_response = Mock()
@@ -198,6 +202,7 @@ class TestLinearAuthenticator:
         token = authenticator.get_access_token()
         assert token == "test_token"
 
+    @pytest.mark.keyring
     def test_get_access_token_expired_with_refresh(
         self, authenticator, mock_http_responses
     ):
@@ -238,6 +243,7 @@ class TestLinearAuthenticator:
             token = authenticator.get_access_token()
             assert token is None
 
+    @pytest.mark.keyring
     def test_refresh_token_success(self, authenticator, mock_http_responses):
         """Test successful token refresh."""
         authenticator._refresh_token = "refresh_token"
@@ -344,6 +350,7 @@ class TestLinearAuthenticator:
         info = authenticator.get_token_info()
         assert info["token_type"] == "api_key"
 
+    @pytest.mark.keyring
     def test_credential_persistence(self, authenticator):
         """Test that credentials are saved and loaded."""
         # Authenticate with API key
