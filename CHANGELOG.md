@@ -93,6 +93,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Environment**: Optional PyPI environment configuration for additional security
 - **Testing**: Pre-publish testing ensures package integrity before distribution
 
+## [1.0.6] - 2024-12-09
+
+### Security
+- **Vulnerability Fixes**: Resolved all security issues identified by Bandit security scanner
+- **Safe Serialization**: Replaced pickle with JSON for cache files to prevent deserialization attacks
+- **Input Validation**: Added validation for subprocess calls in config editor functionality
+- **Authentication**: Fixed test authentication state to prevent environment variable interference
+
+### Fixed
+- **Test Suite**: All tests now pass reliably (277/277 passing)
+- **Version Display**: Fixed CLI version command to show correct version number
+- **Environment Variables**: Improved handling of LINEAR_API_KEY environment variable in tests
+- **Cache Security**: Enhanced performance cache with safer JSON-based persistence
+
+### Technical
+- **Bandit Compliance**: Addressed all medium and high severity security warnings
+- **Test Isolation**: Improved test fixtures to prevent environment variable conflicts
+- **Code Quality**: Enhanced error handling with proper logging instead of silent failures
+- **Editor Validation**: Added whitelist validation for safe text editors in config command
+
 ## [Unreleased]
 
 ### Planned Features

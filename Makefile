@@ -180,6 +180,14 @@ dev: format lint test ## Format, lint, and test (quick dev workflow)
 ci: format-check lint test-cov ## Simulate CI/CD pipeline locally
 
 # Release preparation
+prepare-release: ## Prepare release with version bump (usage: make prepare-release VERSION=1.2.3)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "$(RED)Error: VERSION is required. Usage: make prepare-release VERSION=1.2.3$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)Preparing release $(VERSION)...$(NC)"
+	python scripts/prepare_release.py $(VERSION)
+
 release-check: clean ci build docs ## Full release preparation check
 	@echo "$(GREEN)Release check complete!$(NC)"
 	@echo "Ready to upload with 'make upload-test' or 'make upload'"
