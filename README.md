@@ -45,6 +45,15 @@ Linearator is a powerful CLI tool that streamlines Linear project management wor
 pip install linearator
 ```
 
+### From AUR
+
+```bash
+paru -S linear-cli
+
+# Or:
+yay -S linear-cli
+```
+
 ### From Source
 
 ```bash
