@@ -11,7 +11,7 @@ Automates the process of preparing a new release by updating version numbers acr
 #### Usage
 
 ```bash
-# Basic usage
+# Basic usage (updates everything including AUR)
 python scripts/prepare_release.py 1.2.3
 
 # Via Makefile (recommended)
@@ -22,6 +22,19 @@ python scripts/prepare_release.py 1.2.3 --dry-run
 
 # Skip changelog entry
 python scripts/prepare_release.py 1.2.3 --no-changelog
+
+# Skip AUR updates entirely
+python scripts/prepare_release.py 1.2.3 --no-aur
+
+# Prepare release before PyPI publish (no checksum fetch)
+python scripts/prepare_release.py 1.2.3 --wait-for-pypi
+# or
+make prepare-release-pre-pypi VERSION=1.2.3
+
+# Update AUR after PyPI publish (fetch checksum)
+python scripts/prepare_release.py 1.2.3 --no-changelog
+# or  
+make prepare-release-post-pypi VERSION=1.2.3
 ```
 
 #### What it does
@@ -32,7 +45,10 @@ python scripts/prepare_release.py 1.2.3 --no-changelog
    - `src/linear_cli/__init__.py` - Python module version
    - `tests/unit/test_cli_basic.py` - Test version assertion
 3. **Creates changelog entry** - Adds new release section to `CHANGELOG.md`
-4. **Provides next steps** - Shows what to do after running the script
+4. **Updates AUR package** (unless `--no-aur`):
+   - `aur-package/PKGBUILD` - Updates version, resets pkgrel, fetches SHA256 checksum
+   - `aur-package/.SRCINFO` - Regenerated from PKGBUILD using makepkg
+5. **Provides next steps** - Shows what to do after running the script
 
 #### Files Updated
 
@@ -42,6 +58,8 @@ python scripts/prepare_release.py 1.2.3 --no-changelog
 | `src/linear_cli/__init__.py` | `__version__ = "X.Y.Z"` |
 | `tests/unit/test_cli_basic.py` | Version assertion in tests |
 | `CHANGELOG.md` | New release section with template |
+| `aur-package/PKGBUILD` | `pkgver`, `pkgrel=1`, `sha256sums` |
+| `aur-package/.SRCINFO` | Regenerated from PKGBUILD |
 
 #### Example Output
 

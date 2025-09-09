@@ -188,6 +188,22 @@ prepare-release: ## Prepare release with version bump (usage: make prepare-relea
 	@echo "$(GREEN)Preparing release $(VERSION)...$(NC)"
 	python scripts/prepare_release.py $(VERSION)
 
+prepare-release-pre-pypi: ## Prepare release before PyPI publish (updates PKGBUILD without checksum)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "$(RED)Error: VERSION is required. Usage: make prepare-release-pre-pypi VERSION=1.2.3$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)Preparing pre-PyPI release $(VERSION)...$(NC)"
+	python scripts/prepare_release.py $(VERSION) --wait-for-pypi
+
+prepare-release-post-pypi: ## Update AUR after PyPI publish (fetches checksum from PyPI)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "$(RED)Error: VERSION is required. Usage: make prepare-release-post-pypi VERSION=1.2.3$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)Updating AUR for $(VERSION) (post-PyPI)...$(NC)"
+	python scripts/prepare_release.py $(VERSION) --no-changelog
+
 release-check: clean ci build docs ## Full release preparation check
 	@echo "$(GREEN)Release check complete!$(NC)"
 	@echo "Ready to upload with 'make upload-test' or 'make upload'"

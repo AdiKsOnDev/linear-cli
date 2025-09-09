@@ -7,8 +7,10 @@ a new release entry in the changelog.
 """
 
 import argparse
+import json
 import re
 import sys
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 
@@ -23,6 +25,35 @@ def validate_version(version: str) -> bool:
     """Validate semantic version format (e.g., 1.2.3)."""
     pattern = r'^\d+\.\d+\.\d+$'
     return bool(re.match(pattern, version))
+
+
+def get_pypi_checksum(package_name: str, version: str) -> str | None:
+    """
+    Get SHA256 checksum for a PyPI package version.
+    
+    Args:
+        package_name: Name of the package on PyPI
+        version: Version to get checksum for
+        
+    Returns:
+        SHA256 checksum string or None if not found
+    """
+    try:
+        url = f"https://pypi.org/pypi/{package_name}/{version}/json"
+        with urllib.request.urlopen(url) as response:
+            data = json.loads(response.read().decode())
+        
+        # Find the source distribution
+        for file_info in data['urls']:
+            if file_info['packagetype'] == 'sdist':
+                return file_info['digests']['sha256']
+        
+        print(f"⚠️  No source distribution found for {package_name} {version}")
+        return None
+        
+    except Exception as e:
+        print(f"⚠️  Failed to get checksum from PyPI: {e}")
+        return None
 
 
 def update_pyproject_toml(root_dir: Path, new_version: str) -> bool:
@@ -119,6 +150,109 @@ def get_current_version(root_dir: Path) -> str | None:
     return match.group(1) if match else None
 
 
+def update_pkgbuild(root_dir: Path, new_version: str, checksum: str | None = None) -> bool:
+    """
+    Update PKGBUILD file for AUR.
+    
+    Args:
+        root_dir: Project root directory
+        new_version: New version string
+        checksum: SHA256 checksum (will fetch from PyPI if None)
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    pkgbuild_file = root_dir / "aur-package" / "PKGBUILD"
+    
+    if not pkgbuild_file.exists():
+        print(f"⚠️  {pkgbuild_file} not found - skipping PKGBUILD update")
+        return True  # Don't fail if PKGBUILD doesn't exist
+    
+    # Get checksum if not provided
+    if checksum is None:
+        print("🔍 Fetching SHA256 checksum from PyPI...")
+        checksum = get_pypi_checksum("linearator", new_version)
+        if checksum is None:
+            print("❌ Cannot update PKGBUILD without checksum")
+            return False
+    
+    content = pkgbuild_file.read_text()
+    
+    # Update version
+    updated_content = re.sub(
+        r'^pkgver=.*',
+        f'pkgver={new_version}',
+        content,
+        flags=re.MULTILINE
+    )
+    
+    # Reset pkgrel to 1 for new version
+    updated_content = re.sub(
+        r'^pkgrel=.*',
+        'pkgrel=1',
+        updated_content,
+        flags=re.MULTILINE
+    )
+    
+    # Update checksum
+    updated_content = re.sub(
+        r'^sha256sums=\([\'"][^\'\"]*[\'\"]\)',
+        f"sha256sums=('{checksum}')",
+        updated_content,
+        flags=re.MULTILINE
+    )
+    
+    if updated_content == content:
+        print(f"⚠️  No changes made to {pkgbuild_file}")
+        return False
+    
+    pkgbuild_file.write_text(updated_content)
+    print(f"✅ Updated PKGBUILD version and checksum")
+    return True
+
+
+def generate_srcinfo(root_dir: Path) -> bool:
+    """
+    Generate .SRCINFO file from PKGBUILD using makepkg.
+    
+    Args:
+        root_dir: Project root directory
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    import subprocess
+    
+    aur_dir = root_dir / "aur-package"
+    pkgbuild_file = aur_dir / "PKGBUILD"
+    srcinfo_file = aur_dir / ".SRCINFO"
+    
+    if not pkgbuild_file.exists():
+        print("⚠️  PKGBUILD not found - skipping .SRCINFO generation")
+        return True
+    
+    try:
+        # Generate .SRCINFO using makepkg
+        result = subprocess.run(
+            ["makepkg", "--printsrcinfo"],
+            cwd=aur_dir,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        srcinfo_file.write_text(result.stdout)
+        print(f"✅ Generated .SRCINFO from PKGBUILD")
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to generate .SRCINFO: {e}")
+        return False
+    except FileNotFoundError:
+        print("⚠️  makepkg not found - .SRCINFO not generated (install on Arch Linux)")
+        return True  # Don't fail if makepkg is not available
+
+
 def add_changelog_entry(root_dir: Path, new_version: str) -> bool:
     """Add new release entry to CHANGELOG.md."""
     changelog_file = root_dir / "CHANGELOG.md"
@@ -184,6 +318,16 @@ def main():
         help="Skip adding changelog entry"
     )
     parser.add_argument(
+        "--no-aur",
+        action="store_true",
+        help="Skip AUR PKGBUILD and .SRCINFO updates"
+    )
+    parser.add_argument(
+        "--wait-for-pypi",
+        action="store_true",
+        help="Update PKGBUILD but don't fetch checksum (for pre-PyPI release prep)"
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Show what would be changed without making changes"
@@ -212,6 +356,9 @@ def main():
         print(f"  - {root_dir / 'tests' / 'unit' / 'test_cli_basic.py'}")
         if not args.no_changelog:
             print(f"  - {root_dir / 'CHANGELOG.md'}")
+        if not args.no_aur:
+            print(f"  - {root_dir / 'aur-package' / 'PKGBUILD'}")
+            print(f"  - {root_dir / 'aur-package' / '.SRCINFO'}")
         return
     
     # Update version in all files
@@ -224,14 +371,36 @@ def main():
     if not args.no_changelog:
         success &= add_changelog_entry(root_dir, args.version)
     
+    # Handle AUR updates
+    if not args.no_aur:
+        if args.wait_for_pypi:
+            print("⏳ Skipping PyPI checksum fetch (--wait-for-pypi flag)")
+            print("📝 You'll need to update PKGBUILD checksum manually after PyPI release")
+        else:
+            success &= update_pkgbuild(root_dir, args.version)
+            success &= generate_srcinfo(root_dir)
+    
     if success:
         print(f"\n🎉 Successfully prepared release {args.version}!")
         print("\nNext steps:")
         print("1. Edit CHANGELOG.md to add release notes")
         print("2. Run tests: make test")
-        print("3. Commit changes: git add . && git commit -m 'chore: prepare release v{args.version}'")
-        print("4. Create release: git tag v{args.version} && git push origin v{args.version}")
+        print(f"3. Commit changes: git add . && git commit -m 'chore: prepare release v{args.version}'")
+        print(f"4. Create release: git tag v{args.version} && git push origin v{args.version}")
         print("5. Publish GitHub release to trigger PyPI upload")
+        
+        if not args.no_aur and not args.wait_for_pypi:
+            print("\nAUR Release Steps:")
+            print("6. After PyPI release, update AUR:")
+            print("   cd aur-package")
+            print("   git add PKGBUILD .SRCINFO")
+            print(f"   git commit -m 'Update to version {args.version}'")
+            print("   git push origin master")
+        elif not args.no_aur and args.wait_for_pypi:
+            print("\nAUR Release Steps (after PyPI publishing):")
+            print("6. Update PKGBUILD checksum:")
+            print(f"   python scripts/prepare_release.py {args.version} --no-changelog")
+            print("7. Then commit and push AUR changes")
     else:
         print("\n❌ Some updates failed. Please check the errors above.")
         sys.exit(1)
