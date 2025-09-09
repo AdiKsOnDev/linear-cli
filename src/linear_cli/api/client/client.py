@@ -372,13 +372,17 @@ class LinearClient:
         Returns:
             Issue data or None if not found
         """
-        from ..queries import GET_ISSUE_QUERY
+        from ..queries import GET_ISSUE_QUERY, SEARCH_ISSUES_QUERY
 
-        # If it looks like an identifier (has a dash), we need to search for it
+        # If it looks like an identifier (has a dash), search for it
         if "-" in issue_id and not issue_id.startswith("issue_"):
-            # Search by identifier
-            issues = await self.get_issues(limit=1)
-            for issue in issues.get("nodes", []):
+            # Use search to find by identifier - more efficient than listing all issues
+            variables = {"term": issue_id, "first": 1}
+            result = await self.execute_query(SEARCH_ISSUES_QUERY, variables)
+            search_results = result.get("searchIssues", {}).get("nodes", [])
+            
+            # Look for exact identifier match
+            for issue in search_results:
                 if issue.get("identifier") == issue_id:
                     return dict(issue) if isinstance(issue, dict) else None
             return None
