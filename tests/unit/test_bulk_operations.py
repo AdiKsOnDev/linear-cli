@@ -387,9 +387,9 @@ class TestBulkLabel:
                 new_set = new_set - set(remove_labels)
 
             has_change = original_set != new_set
-            assert (
-                has_change == should_change
-            ), f"Failed for add={add_labels}, remove={remove_labels}"
+            assert has_change == should_change, (
+                f"Failed for add={add_labels}, remove={remove_labels}"
+            )
 
 
 class TestBulkOperationsCommon:
