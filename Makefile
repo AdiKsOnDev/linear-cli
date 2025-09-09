@@ -202,7 +202,7 @@ prepare-release-post-pypi: ## Update AUR after PyPI publish (fetches checksum fr
 		exit 1; \
 	fi
 	@echo "$(GREEN)Updating AUR for $(VERSION) (post-PyPI)...$(NC)"
-	python scripts/prepare_release.py $(VERSION) --no-changelog
+	python scripts/prepare_release.py $(VERSION) --aur-only
 
 release-check: clean ci build docs ## Full release preparation check
 	@echo "$(GREEN)Release check complete!$(NC)"

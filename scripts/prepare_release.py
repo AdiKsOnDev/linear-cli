@@ -327,6 +327,11 @@ def main():
         help="Update PKGBUILD but don't fetch checksum (for pre-PyPI release prep)"
     )
     parser.add_argument(
+        "--aur-only",
+        action="store_true",
+        help="Only update AUR files (PKGBUILD and .SRCINFO)"
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Show what would be changed without making changes"
@@ -350,11 +355,12 @@ def main():
     if args.dry_run:
         print("🔍 DRY RUN - No changes will be made")
         print("\nFiles that would be updated:")
-        print(f"  - {root_dir / 'pyproject.toml'}")
-        print(f"  - {root_dir / 'src' / 'linear_cli' / '__init__.py'}")
-        print(f"  - {root_dir / 'tests' / 'unit' / 'test_cli_basic.py'}")
-        if not args.no_changelog:
-            print(f"  - {root_dir / 'CHANGELOG.md'}")
+        if not args.aur_only:
+            print(f"  - {root_dir / 'pyproject.toml'}")
+            print(f"  - {root_dir / 'src' / 'linear_cli' / '__init__.py'}")
+            print(f"  - {root_dir / 'tests' / 'unit' / 'test_cli_basic.py'}")
+            if not args.no_changelog:
+                print(f"  - {root_dir / 'CHANGELOG.md'}")
         if not args.no_aur:
             print(f"  - {root_dir / 'PKGBUILD'}")
             print(f"  - {root_dir / '.SRCINFO'}")
@@ -363,12 +369,14 @@ def main():
     # Update version in all files
     success = True
     
-    success &= update_pyproject_toml(root_dir, args.version)
-    success &= update_init_py(root_dir, args.version)
-    success &= update_test_version(root_dir, args.version)
-    
-    if not args.no_changelog:
-        success &= add_changelog_entry(root_dir, args.version)
+    # Update Python files unless --aur-only is specified
+    if not args.aur_only:
+        success &= update_pyproject_toml(root_dir, args.version)
+        success &= update_init_py(root_dir, args.version)
+        success &= update_test_version(root_dir, args.version)
+        
+        if not args.no_changelog:
+            success &= add_changelog_entry(root_dir, args.version)
     
     # Handle AUR updates
     if not args.no_aur:

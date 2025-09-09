@@ -32,9 +32,12 @@ python scripts/prepare_release.py 1.2.3 --wait-for-pypi
 make prepare-release-pre-pypi VERSION=1.2.3
 
 # Update AUR after PyPI publish (fetch checksum)
-python scripts/prepare_release.py 1.2.3 --no-changelog
+python scripts/prepare_release.py 1.2.3 --aur-only
 # or  
 make prepare-release-post-pypi VERSION=1.2.3
+
+# Only update AUR files (skip Python files)
+python scripts/prepare_release.py 1.2.3 --aur-only
 ```
 
 #### What it does
