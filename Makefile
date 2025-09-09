@@ -278,7 +278,7 @@ security-check: ## Run security checks
 	@echo "$(GREEN)Running security checks...$(NC)"
 	$(PYTHON) -m pip install safety bandit
 	$(PYTHON) -m safety check
-	$(PYTHON) -m bandit -r $(SRC_DIR)/
+	$(PYTHON) -m bandit -c .bandit -r $(SRC_DIR)/
 
 profile: ## Profile the application
 	@echo "$(GREEN)Profiling application...$(NC)"

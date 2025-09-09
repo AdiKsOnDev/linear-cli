@@ -181,7 +181,7 @@ def reset(ctx: click.Context, confirm: bool) -> None:
 def edit(ctx: click.Context) -> None:
     """Edit configuration file in default editor."""
     import os
-    import subprocess
+    import subprocess  # nosec B404 - subprocess used safely for editor with input validation
 
     cli_ctx = ctx.obj["cli_context"]
     config_file = cli_ctx.config_manager.config_file

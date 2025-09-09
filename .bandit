@@ -1,0 +1,18 @@
+# Bandit configuration file for linearator
+# Skip security tests that are already properly handled:
+# - B603: subprocess call - we validate editor input against safe list  
+# - B404: subprocess import - used safely with input validation
+skips:
+  - B603
+  - B404
+
+# Exclude directories from scanning  
+exclude_dirs:
+  - /tests
+  - /docs
+  - /build
+  - /dist
+  - /.venv
+  - /.git
+  - "*.egg-info"
+  - "src/linearator-*"

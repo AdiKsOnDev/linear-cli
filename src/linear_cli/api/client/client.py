@@ -770,9 +770,12 @@ class LinearClient:
 
             if project_data:
                 return dict(project_data) if isinstance(project_data, dict) else None
-        except Exception:
-            # If direct ID lookup fails, continue to name search
-            pass
+        except Exception as e:
+            # If direct ID lookup fails (e.g., invalid UUID format or entity not found),
+            # continue to name search. Log the exception for debugging.
+            import logging
+            logging.debug(f"Direct project ID lookup failed: {e}")
+            # Continue to name-based search
 
         # If not found, try searching by name with simple query
         from ..queries import FIND_PROJECT_BY_NAME_QUERY, GET_PROJECT_QUERY

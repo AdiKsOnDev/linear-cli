@@ -108,8 +108,8 @@ jobs:
           
       - name: Run Bandit security scan
         run: |
-          bandit -r src/linear_cli/ -f json -o bandit-report.json || true
-          bandit -r src/linear_cli/
+          bandit -c .bandit -r src/linear_cli/ -f json -o bandit-report.json || true
+          bandit -c .bandit -r src/linear_cli/
           
       - name: Run Safety vulnerability scan
         run: |
