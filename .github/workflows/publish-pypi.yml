@@ -64,7 +64,7 @@ jobs:
     
     - name: Test source installation
       run: |
-        pip uninstall -y linear-cli
+        pip uninstall -y linearator
         pip install dist/*.tar.gz
         linear --version
         linear --help
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/linear-cli
+      url: https://pypi.org/p/linearator
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
@@ -85,9 +85,6 @@ jobs:
     
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        # Using trusted publishing - no API token needed!
-        # Just need to configure it in PyPI settings
 
   publish-to-testpypi:
     name: Publish to TestPyPI
@@ -95,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/linear-cli
+      url: https://test.pypi.org/p/linearator
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
