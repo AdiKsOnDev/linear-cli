@@ -14,6 +14,7 @@ import click
 from rich.console import Console
 from rich.logging import RichHandler
 
+from .. import __version__
 from ..api.auth import LinearAuthenticator
 from ..api.client import LinearClient
 from ..config.manager import ConfigManager, LinearConfig
@@ -125,7 +126,7 @@ cli_context = LinearCLIContext()
 @click.option("--no-color", is_flag=True, help="Disable colored output")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 @click.option("--debug", is_flag=True, help="Enable debug output")
-@click.version_option()
+@click.version_option(version=__version__)
 @click.pass_context
 def main(
     ctx: click.Context,
