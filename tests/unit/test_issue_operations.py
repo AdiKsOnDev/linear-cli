@@ -157,15 +157,28 @@ class TestIssueOperations:
             ]
         }
 
+        # Mock the search response for identifier lookup
+        mock_search_response = {
+            "searchIssues": {
+                "nodes": [
+                    {
+                        "id": "issue_123",
+                        "identifier": "ENG-123", 
+                        "title": "Test Issue",
+                    }
+                ]
+            }
+        }
+
         with patch.object(
-            client, "get_issues", new_callable=AsyncMock
-        ) as mock_get_issues:
-            mock_get_issues.return_value = mock_issues_response
+            client, "execute_query", new_callable=AsyncMock
+        ) as mock_execute:
+            mock_execute.return_value = mock_search_response
 
             result = await client.get_issue("ENG-123")
 
-            assert result == mock_issues_response["nodes"][0]
-            mock_get_issues.assert_called_once_with(limit=1)
+            assert result == mock_search_response["searchIssues"]["nodes"][0]
+            mock_execute.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_get_issue_not_found(self, client):

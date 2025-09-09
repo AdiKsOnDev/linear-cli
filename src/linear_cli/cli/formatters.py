@@ -10,6 +10,7 @@ from typing import Any
 
 from rich.console import Console
 from rich.json import JSON
+from rich.markdown import Markdown
 from rich.table import Table
 from rich.text import Text
 
@@ -270,15 +271,13 @@ class OutputFormatter:
         if description:
             console.print()
             console.print("[dim]Description:[/dim]")
-            # Simple markdown-like formatting
-            description_lines = description.split("\n")
-            for line in description_lines:
-                if line.strip().startswith("# "):
-                    console.print(f"[bold]{line.strip()[2:]}[/bold]")
-                elif line.strip().startswith("## "):
-                    console.print(f"[bold dim]{line.strip()[3:]}[/bold dim]")
-                else:
-                    console.print(line)
+            # Render markdown in terminal using Rich's Markdown
+            try:
+                markdown = Markdown(description)
+                console.print(markdown)
+            except Exception:
+                # Fallback to plain text if markdown rendering fails
+                console.print(description)
 
         # Comments
         comments = issue.get("comments", {}).get("nodes", [])
