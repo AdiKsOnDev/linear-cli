@@ -75,6 +75,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Label Processing**: Enhanced label formatting to handle both GraphQL and list formats
 - **Package Structure**: Resolved import path issues from project rename
 
+## [1.0.5] - 2024-12-09
+
+### Changed
+- **Package Name**: Renamed PyPI package from `linear-cli` to `linearator` to avoid naming conflicts
+- **Publishing**: Added automated PyPI publishing workflow with GitHub trusted publishing
+- **Release Process**: Implemented automatic package building, testing, and publishing on release
+
+### Added
+- **Automated Publishing**: Complete CI/CD pipeline for PyPI package distribution
+- **Multi-Python Testing**: Automated testing on Python 3.12 and 3.13 during publishing
+- **Security**: GitHub trusted publishing integration (no API tokens required)
+- **Release Artifacts**: Automatic upload of wheel and source distributions to GitHub releases
+
+### Technical
+- **Workflow**: Added `.github/workflows/publish-pypi.yml` for automated publishing
+- **Environment**: Optional PyPI environment configuration for additional security
+- **Testing**: Pre-publish testing ensures package integrity before distribution
+
 ## [Unreleased]
 
 ### Planned Features

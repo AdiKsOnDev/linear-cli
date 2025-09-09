@@ -1,10 +1,10 @@
-# Linear CLI
+# Linearator
 
 A comprehensive command-line interface for Linear issue management, enabling efficient project workflow automation and team collaboration through the Linear API.
 
 ## Overview
 
-Linear CLI is a powerful CLI tool that streamlines Linear project management workflows by providing command-line access to all core Linear functionality. Built with Python and designed for developers, project managers, and teams who prefer terminal-based workflows or need to automate Linear operations.
+Linearator is a powerful CLI tool that streamlines Linear project management workflows by providing command-line access to all core Linear functionality. Built with Python and designed for developers, project managers, and teams who prefer terminal-based workflows or need to automate Linear operations.
 
 ## Key Features
 
@@ -36,22 +36,22 @@ Linear CLI is a powerful CLI tool that streamlines Linear project management wor
 ### From PyPI (Recommended)
 
 ```bash
-pip install linear-cli
+pip install linearator
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/linear-cli/linear-cli.git
-cd linear-cli
+git clone https://github.com/AdiKsOnDev/linearator.git
+cd linearator
 pip install -e .
 ```
 
 ### Development Installation
 
 ```bash
-git clone https://github.com/linear-cli/linear-cli.git
-cd linear-cli
+git clone https://github.com/AdiKsOnDev/linearator.git
+cd linearator
 make install-dev
 ```
 
@@ -63,26 +63,29 @@ First, authenticate with Linear:
 
 ```bash
 # OAuth flow (recommended)
-linear-cli auth login
+linear auth login
 
 # Or use API key
-linear-cli auth login --api-key YOUR_API_KEY
+linear auth login --api-key YOUR_API_KEY
+
+# Or set environment variable
+export LINEAR_API_KEY=YOUR_API_KEY
 ```
 
 ### 2. Basic Usage
 
 ```bash
 # List your issues
-linear-cli issue list
+linear issue list
 
 # Create a new issue
-linear-cli issue create --title "Bug fix" --description "Fix login error" --team "ENG"
+linear issue create --title "Bug fix" --description "Fix login error" --team "ENG"
 
 # Update issue status
-linear-cli issue update ISS-123 --status "In Progress"
+linear issue update ISS-123 --status "In Progress"
 
 # Search issues
-linear-cli search "login bug" --status "Todo" --assignee "john@company.com"
+linear search "login bug" --status "Todo" --assignee "john@company.com"
 ```
 
 ### 3. Team Operations
@@ -212,15 +215,15 @@ progress_bars = true
 ### Environment Variables
 
 ```bash
+export LINEAR_API_KEY="your_api_token"
 export LINEARATOR_DEFAULT_TEAM="Engineering"
-export LINEARATOR_API_TOKEN="your_api_token"
 export LINEARATOR_OUTPUT_FORMAT="json"
 ```
 
 ### Command Line Options
 
 ```bash
-linear-cli --team "Engineering" --format json issue list
+linear --team "Engineering" --format json issue list
 ```
 
 ## Output Formats
