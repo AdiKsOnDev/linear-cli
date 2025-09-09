@@ -4,7 +4,7 @@ A comprehensive command-line interface for Linear issue management, enabling eff
 
 ## Overview
 
-Linearator is a powerful CLI tool that streamlines Linear project management workflows by providing command-line access to all core Linear functionality. Built with Python and designed for developers, project managers, and teams who prefer terminal-based workflows or need to automate Linear operations.
+Linearator is a powerful CLI tool that streamlines Linear project management workflows by providing command-line access to core Linear functionality. Built with Python and designed for developers, project managers, and teams who prefer terminal-based workflows or need to automate Linear operations.
 
 ## Key Features
 
@@ -14,16 +14,22 @@ Linearator is a powerful CLI tool that streamlines Linear project management wor
 - **Bulk Operations**: Perform batch updates on multiple issues simultaneously
 - **Status Management**: Update issue states, priorities, and assignments
 
+### Project Management
+- **Project Operations**: List projects, view project details, and track project health
+- **Project Updates**: Create and manage project status updates with health indicators
+- **Project Timeline**: View project update history and track progress over time
+- **Smart Lookup**: Reference projects by both ID and human-readable names
+
 ### Team & Label Management
-- **Team Operations**: List teams, switch contexts, manage team-specific configurations
+- **Team Operations**: List teams, view team details, and manage team-specific configurations
 - **Label Management**: Create, update, and apply labels to organize issues effectively
-- **User Management**: View team members, workload distribution, and assignment suggestions
+- **User Management**: View team members and workload analysis
 
 ### Advanced Capabilities
-- **Powerful Search**: Full-text search with advanced query syntax and saved searches
+- **Powerful Search**: Full-text search with advanced filtering capabilities
 - **Interactive Mode**: Guided issue creation and management workflows
-- **Multiple Output Formats**: JSON, table, and plain text formatting options
-- **Shell Integration**: Command completion and aliases for efficient usage
+- **Multiple Output Formats**: JSON, table, and YAML formatting options
+- **Shell Integration**: Command completion for efficient usage
 
 ### Authentication & Security
 - **OAuth Flow**: Secure authentication with Linear's OAuth system
@@ -88,17 +94,20 @@ linear issue update ISS-123 --status "In Progress"
 linear search "login bug" --status "Todo" --assignee "john@company.com"
 ```
 
-### 3. Team Operations
+### 3. Team and Project Operations
 
 ```bash
 # List available teams
-linear-cli team list
+linear team list
 
-# Switch default team context
-linear-cli team switch "Engineering"
+# View team details
+linear team show "Engineering"
 
-# View team members
-linear-cli user list --team "Engineering"
+# List projects
+linear project list
+
+# View project details
+linear project show "My Project"
 ```
 
 ## Command Reference
@@ -107,87 +116,113 @@ linear-cli user list --team "Engineering"
 
 ```bash
 # Create issues
-linear-cli issue create --title "Title" --description "Description" --team "TEAM"
-linear-cli issue create --interactive  # Guided creation
+linear issue create --title "Title" --description "Description" --team "TEAM"
 
 # List and filter issues
-linear-cli issue list --status "In Progress" --assignee "user@email.com"
-linear-cli issue list --label "bug,urgent" --team "Backend"
+linear issue list --status "In Progress" --assignee "user@email.com"
+linear issue list --labels "bug,urgent" --team "Backend"
 
 # Update issues
-linear-cli issue update ISS-123 --status "Done" --assignee "user@email.com"
-linear-cli issue update ISS-123 --add-label "critical" --priority "High"
+linear issue update ISS-123 --status "Done" --assignee "user@email.com"
+linear issue update ISS-123 --labels "critical" --priority "High"
+
+# Show issue details
+linear issue show ISS-123
 
 # Delete issues
-linear-cli issue delete ISS-123
+linear issue delete ISS-123
 ```
 
 ### Bulk Operations
 
 ```bash
 # Bulk status updates
-linear-cli bulk update-status --status "In Progress" --filter "assignee:user@email.com"
+linear bulk update-state --status "In Progress" --filter "assignee:user@email.com"
 
 # Bulk label management
-linear-cli bulk add-label "refactor" --filter "team:Backend"
+linear bulk label --add "refactor" --filter "team:Backend"
 
 # Bulk assignment
-linear-cli bulk assign "user@email.com" --filter "status:Todo,label:urgent"
+linear bulk assign "user@email.com" --filter "status:Todo"
 ```
 
 ### Search Operations
 
 ```bash
 # Basic search
-linear-cli search "authentication bug"
+linear search "authentication bug"
 
 # Advanced search with filters
-linear-cli search "login" --status "Todo,In Progress" --created-after "2024-01-01"
+linear search "login" --state "Todo" --priority 3
+linear search "bug" --labels "urgent" --assignee "user@email.com"
 
-# Save and manage searches
-linear-cli search save "urgent-bugs" "priority:urgent AND status:Todo"
-linear-cli search run "urgent-bugs"
+# Advanced search with date filtering
+linear search-advanced issues "api bug" --team "Backend" --limit 50
 ```
 
 ### Team & User Management
 
 ```bash
 # Team operations
-linear-cli team list
-linear-cli team switch "Frontend"
-linear-cli team info "Backend"
+linear team list
+linear team show "Backend"
 
 # User operations
-linear-cli user list
-linear-cli user workload --team "Engineering"
-linear-cli user info "user@email.com"
+linear user list
+linear user show "user@email.com"
+linear user workload
+```
+
+### Project Management
+
+```bash
+# List all projects
+linear project list
+
+# View project details
+linear project show "My Project"
+
+# Create project status update
+linear project update "My Project" "Made good progress this week" --health onTrack
+
+# View project update history
+linear project updates "My Project"
 ```
 
 ### Label Management
 
 ```bash
 # List labels
-linear-cli label list
+linear label list
 
 # Create labels
-linear-cli label create "refactor" --description "Code refactoring tasks" --color "#FF5722"
+linear label create "refactor" --description "Code refactoring tasks" --color "#FF5722"
 
-# Apply labels to issues
-linear-cli label apply "bug" ISS-123 ISS-124
+# Update labels
+linear label update "bug" --description "Updated description" --color "#FF0000"
+
+# Delete labels
+linear label delete "old-label"
 ```
 
 ### Configuration
 
 ```bash
 # View configuration
-linear-cli config show
+linear config show
 
-# Set default values
-linear-cli config set default.team "Engineering"
-linear-cli config set output.format "table"
+# Set configuration values
+linear config set default_team "Engineering"
+linear config set output_format "table"
+
+# Edit configuration in editor
+linear config edit
 
 # Reset configuration
-linear-cli config reset
+linear config reset
+
+# Unset configuration values
+linear config unset default_team
 ```
 
 ## Configuration
@@ -237,7 +272,7 @@ ISS-124 Add user profiles  Todo          jane@co.com   feature
 
 ### JSON Format
 ```bash
-linear-cli issue list --format json
+linear issue list --format json
 ```
 
 ```json
@@ -253,20 +288,19 @@ linear-cli issue list --format json
 ]
 ```
 
-### Plain Text Format
+### YAML Format
 ```bash
-linear-cli issue list --format plain
+linear issue list --format yaml
 ```
 
 ## Advanced Usage
 
 ### Interactive Mode
 
-For complex operations, use interactive mode:
+Start interactive mode for guided workflows:
 
 ```bash
-linear-cli issue create --interactive
-linear-cli search --interactive
+linear interactive
 ```
 
 ### Shell Completion
@@ -275,22 +309,13 @@ Enable shell completion for faster workflow:
 
 ```bash
 # Bash
-eval "$(_LINEARATOR_COMPLETE=bash_source linear-cli)"
+eval "$(_LINEARATOR_COMPLETE=bash_source linear)"
 
-# Zsh
-eval "$(_LINEARATOR_COMPLETE=zsh_source linear-cli)"
+# Zsh  
+eval "$(_LINEARATOR_COMPLETE=zsh_source linear)"
 
 # Fish
-_LINEARATOR_COMPLETE=fish_source linear-cli | source
-```
-
-### Command Aliases
-
-Set up aliases for frequently used commands:
-
-```bash
-linear-cli config alias "my-issues" "issue list --assignee me"
-linear-cli config alias "urgent" "search 'priority:urgent'"
+_LINEARATOR_COMPLETE=fish_source linear | source
 ```
 
 ## Integration Examples
@@ -301,10 +326,10 @@ linear-cli config alias "urgent" "search 'priority:urgent'"
 # GitHub Actions example
 - name: Create Linear issue for failed build
   run: |
-    linear-cli issue create \
+    linear issue create \
       --title "Build failed: ${{ github.ref }}" \
       --description "Build failure in ${{ github.repository }}" \
-      --label "ci,bug" \
+      --labels "ci,bug" \
       --team "Engineering"
 ```
 
@@ -314,10 +339,10 @@ linear-cli config alias "urgent" "search 'priority:urgent'"
 #!/bin/bash
 # Daily standup preparation
 echo "Your issues for today:"
-linear-cli issue list --assignee me --status "In Progress,Todo"
+linear issue list --assignee me --state "In Progress"
 
-echo "Urgent team issues:"
-linear-cli search "priority:urgent AND team:$TEAM"
+echo "Urgent issues:"
+linear search "bug" --priority 4 --state "Todo"
 ```
 
 ## Development
@@ -330,8 +355,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ```bash
 # Clone repository
-git clone https://github.com/linear-cli/linear-cli.git
-cd linear-cli
+git clone https://github.com/AdiKsOnDev/linearator.git
+cd linearator
 
 # Install development dependencies
 make install-dev
@@ -339,11 +364,12 @@ make install-dev
 # Run tests
 make test
 
-# Run linting
+# Run linting and formatting
 make lint
+make format
 
-# Build documentation
-make docs
+# Run security checks
+make security-check
 ```
 
 ### Running Tests
@@ -352,12 +378,14 @@ make docs
 # Run all tests
 make test
 
-# Run specific test categories
-make test-unit
-make test-integration
-
-# Run with coverage
+# Run tests with coverage
 make test-coverage
+
+# Run linting checks
+make lint
+
+# Check code formatting
+make format-check
 ```
 
 ## Requirements
@@ -372,9 +400,8 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) file for 
 
 ## Support
 
-- **Documentation**: [linear-cli.readthedocs.io](https://linear-cli.readthedocs.io)
-- **Issues**: [GitHub Issues](https://github.com/linear-cli/linear-cli/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/linear-cli/linear-cli/discussions)
+- **Issues**: [GitHub Issues](https://github.com/AdiKsOnDev/linearator/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/AdiKsOnDev/linearator/discussions)
 
 ## Changelog
 
