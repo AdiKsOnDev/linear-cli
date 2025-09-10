@@ -188,14 +188,16 @@ jobs:
           path: dist/
           
       - name: Test wheel installation
+        shell: bash
         run: |
           pip install dist/*.whl
           linear --version
           linear --help
           
       - name: Test source installation
+        shell: bash
         run: |
-          pip uninstall -y linear-cli
+          pip uninstall -y linearator
           pip install dist/*.tar.gz
           linear --version
           linear --help
