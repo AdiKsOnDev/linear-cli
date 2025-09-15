@@ -458,6 +458,7 @@ class LinearClient:
         state_id: str | None = None,
         priority: int | None = None,
         label_ids: list[str] | None = None,
+        project_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Update an existing issue.
@@ -470,6 +471,7 @@ class LinearClient:
             state_id: New workflow state ID
             priority: New priority level
             label_ids: New list of label IDs
+            project_id: Project ID
 
         Returns:
             Updated issue data
@@ -498,6 +500,8 @@ class LinearClient:
             input_data["priority"] = priority
         if label_ids is not None:
             input_data["labelIds"] = label_ids
+        if project_id is not None:
+            input_data["projectId"] = project_id
 
         variables = {"id": issue_id, "input": input_data}
         result = await self.execute_query(UPDATE_ISSUE_MUTATION, variables)
@@ -748,7 +752,8 @@ class LinearClient:
 
         variables = {"first": limit}
         result = await self.execute_query(GET_PROJECTS_QUERY, variables)
-        return result.get("projects", {})
+        projects_data = result.get("projects", {})
+        return dict(projects_data) if isinstance(projects_data, dict) else {}
 
     async def get_project(self, project_id: str) -> dict[str, Any] | None:
         """
@@ -771,18 +776,21 @@ class LinearClient:
             if project_data:
                 return dict(project_data) if isinstance(project_data, dict) else None
         except Exception as e:
-            # If direct ID lookup fails (e.g., invalid UUID format or entity not found),
-            # continue to name search. Log the exception for debugging.
+            # WHY: Direct ID lookup can fail for two reasons:
+            # 1. Invalid UUID format (user provided a name, not ID)
+            # 2. Entity not found (invalid ID)
+            # We log for debugging but continue to name-based search as fallback
             import logging
 
             logging.debug(f"Direct project ID lookup failed: {e}")
             # Continue to name-based search
 
-        # If not found, try searching by name with simple query
+        # WHY: Use lightweight query first to find project by name, then detailed query for full data
+        # This is more efficient than fetching full details for all projects just to find one
         from ..queries import FIND_PROJECT_BY_NAME_QUERY, GET_PROJECT_QUERY
 
-        variables = {"first": 100}
-        result = await self.execute_query(FIND_PROJECT_BY_NAME_QUERY, variables)
+        search_variables: dict[str, Any] = {"first": 100}
+        result = await self.execute_query(FIND_PROJECT_BY_NAME_QUERY, search_variables)
         projects_data = result.get("projects", {})
 
         for project in projects_data.get("nodes", []):
@@ -860,7 +868,57 @@ class LinearClient:
 
         variables = {"projectId": project["id"], "first": limit}
         result = await self.execute_query(GET_PROJECT_UPDATES_QUERY, variables)
-        return result.get("projectUpdates", {})
+        updates_data = result.get("projectUpdates", {})
+        return dict(updates_data) if isinstance(updates_data, dict) else {}
+
+    async def create_project(
+        self,
+        name: str,
+        description: str | None = None,
+        team_ids: list[str] | None = None,
+        lead_id: str | None = None,
+        state: str = "planned",
+        start_date: str | None = None,
+        target_date: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Create a new project.
+
+        Args:
+            name: Project name
+            description: Project description
+            team_ids: List of team IDs to associate with the project
+            lead_id: Project lead user ID
+            state: Project state (planned, started, paused, completed, canceled)
+            start_date: Start date (ISO 8601 format)
+            target_date: Target completion date (ISO 8601 format)
+
+        Returns:
+            Created project data
+        """
+        from ..queries import CREATE_PROJECT_MUTATION
+
+        input_data: dict[str, Any] = {"name": name}
+
+        if description:
+            input_data["description"] = description
+        if team_ids:
+            input_data["teamIds"] = team_ids
+        if lead_id:
+            input_data["leadId"] = lead_id
+        if state:
+            input_data["state"] = state
+        if start_date:
+            input_data["startDate"] = start_date
+        if target_date:
+            input_data["targetDate"] = target_date
+
+        variables = {"input": input_data}
+        result = await self.execute_query(CREATE_PROJECT_MUTATION, variables)
+        project_create_data = result.get("projectCreate", {})
+        return (
+            dict(project_create_data) if isinstance(project_create_data, dict) else {}
+        )
 
     def close(self) -> None:
         """Close the client and cleanup resources."""
