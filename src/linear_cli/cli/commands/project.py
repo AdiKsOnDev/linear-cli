@@ -48,7 +48,8 @@ def list(ctx: click.Context, limit: int) -> None:
     )
 
     async def fetch_projects() -> dict[str, Any]:
-        return await client.get_projects(limit=limit)
+        result = await client.get_projects(limit=limit)
+        return dict(result) if isinstance(result, dict) else {}
 
     try:
         projects_data = asyncio.run(fetch_projects())
@@ -80,7 +81,8 @@ def show(ctx: click.Context, project_id: str) -> None:
     )
 
     async def fetch_project() -> dict[str, Any] | None:
-        return await client.get_project(project_id)
+        result = await client.get_project(project_id)
+        return dict(result) if isinstance(result, dict) else None
 
     try:
         project_data = asyncio.run(fetch_project())
@@ -121,9 +123,10 @@ def update(
     client = cli_ctx.get_client()
 
     async def create_update() -> dict[str, Any]:
-        return await client.create_project_update(
+        result = await client.create_project_update(
             project_id=project_id, content=content, health=health
         )
+        return dict(result) if isinstance(result, dict) else {}
 
     try:
         update_data = asyncio.run(create_update())
@@ -135,6 +138,133 @@ def update(
     except Exception as e:
         print_error(f"Failed to create project update: {e}")
         raise click.Abort() from e
+
+
+@project.command()
+@click.argument("name")
+@click.option("--description", "-d", help="Project description")
+@click.option(
+    "--team", "-t", multiple=True, help="Team key or ID (can be used multiple times)"
+)
+@click.option("--lead", help="Project lead email or ID")
+@click.option(
+    "--state",
+    type=click.Choice(["planned", "started", "paused", "completed", "canceled"]),
+    default="planned",
+    help="Project state (default: planned)",
+)
+@click.option("--start-date", help="Start date (YYYY-MM-DD)")
+@click.option("--target-date", help="Target completion date (YYYY-MM-DD)")
+@click.pass_context
+def create(
+    ctx: click.Context,
+    name: str,
+    description: str,
+    team: tuple[str, ...],
+    lead: str,
+    state: str,
+    start_date: str,
+    target_date: str,
+) -> None:
+    """
+    Create a new project.
+
+    Creates a project with the specified name and optional metadata.
+    Use --team multiple times to associate multiple teams with the project.
+
+    Examples:
+        linear project create "My New Project"
+        linear project create "Feature X" --description "New feature development"
+        linear project create "Bug Fixes" --team ENG --team QA --lead john@example.com
+        linear project create "Q4 Initiative" --state started --target-date 2024-12-31
+    """
+    cli_ctx = ctx.obj["cli_context"]
+    client = cli_ctx.get_client()
+    config = cli_ctx.config
+
+    async def create_project() -> dict[str, Any]:
+        # Resolve teams if provided
+        team_ids = None
+        if team:
+            # WHY: Import constants locally to avoid circular import issues
+            # These constants are only needed for this specific function
+            from ...constants import TEAM_ID_MIN_LENGTH, TEAM_ID_PREFIX
+
+            teams = await client.get_teams()
+            team_ids = []
+
+            for team_identifier in team:
+                team_id = None
+
+                # Check if it's already a team ID
+                if (
+                    team_identifier.startswith(TEAM_ID_PREFIX)
+                    or len(team_identifier) > TEAM_ID_MIN_LENGTH
+                ):
+                    team_id = team_identifier
+                else:
+                    # Look up team by key
+                    for t in teams:
+                        if t.get("key") == team_identifier:
+                            team_id = t["id"]
+                            break
+
+                if not team_id:
+                    raise ValueError(f"Team not found: {team_identifier}")
+
+                team_ids.append(team_id)
+
+        # Resolve lead if provided
+        lead_id = None
+        if lead:
+            if "@" in lead:
+                # Email - look up user ID
+                users = await client.get_users()
+                for user in users:
+                    if user.get("email") == lead:
+                        lead_id = user["id"]
+                        break
+                if not lead_id:
+                    raise ValueError(f"User not found: {lead}")
+            else:
+                # Assume it's a user ID
+                lead_id = lead
+
+        create_result = await client.create_project(
+            name=name,
+            description=description,
+            team_ids=team_ids,
+            lead_id=lead_id,
+            state=state,
+            start_date=start_date,
+            target_date=target_date,
+        )
+        return dict(create_result) if isinstance(create_result, dict) else {}
+
+    try:
+        result = asyncio.run(create_project())
+
+        if result.get("success"):
+            project = result.get("project", {})
+            project_name = project.get("name", name)
+            from ..formatters import print_success
+
+            print_success(f"Created project: {project_name}")
+
+            # Show project details
+            formatter = OutputFormatter(
+                output_format=config.output_format, no_color=config.no_color
+            )
+            formatter.format_project(project)
+        else:
+            print_error("Failed to create project")
+            raise click.Abort()
+
+    except Exception as e:
+        print_error(f"Failed to create project: {e}")
+        if config.debug:
+            console.print_exception()
+        raise click.Abort() from None
 
 
 @project.command()
@@ -166,7 +296,8 @@ def updates(ctx: click.Context, project_id: str, limit: int) -> None:
     )
 
     async def fetch_updates() -> dict[str, Any]:
-        return await client.get_project_updates(project_id=project_id, limit=limit)
+        result = await client.get_project_updates(project_id=project_id, limit=limit)
+        return dict(result) if isinstance(result, dict) else {}
 
     try:
         updates_data = asyncio.run(fetch_updates())
