@@ -189,6 +189,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI Reliability**: Excluded keyring-dependent tests from GitHub Actions (7 tests) while maintaining local development testing
 - **Configuration Management**: Centralized bandit security configuration with documented exceptions
 
+## [1.2.0] - 2025-09-15
+
+### Added
+- **🎯 Project Assignment to Issues**: Issues can now be assigned to projects during creation and updates
+  - `linear issue create "Bug fix" --project "Q4 Sprint"` - Assign project by name during creation
+  - `linear issue update ENG-123 --project "Backend Refactor"` - Update existing issue with project assignment
+  - Supports both project names and IDs with comprehensive validation
+  - Smart project lookup with user-friendly error messages
+- **📋 Enhanced Label Management**: Multi-team label discovery and filtering capabilities
+  - `linear label list --team ENG --team QA` - Check labels across multiple specific teams
+  - `linear label list --all-teams` - View labels from all accessible teams at once
+  - Backward compatibility maintained with existing single-team filtering
+  - Team context displayed for better label organization
+- **🏗️ Project Creation**: Complete project lifecycle management functionality
+  - `linear project create "New Project" --description "Project desc" --team ENG` - Create projects with full configuration
+  - Team assignment, lead assignment, and state management support
+  - Comprehensive validation and user-friendly error handling
+  - Integration with existing project management commands
+
+### Enhanced
+- **GraphQL API Coverage**: Extended with new project creation mutations and enhanced label queries
+- **CLI Consistency**: All new functionality follows existing command patterns and output formatting
+- **Error Handling**: Robust validation with graceful degradation and helpful user feedback
+- **Type Safety**: Complete mypy compliance with proper type annotations throughout
+
+### Fixed
+- **Code Quality**: Resolved 17 mypy type safety errors in formatters module
+  - Fixed missing generic type parameters and return type annotations
+  - Restructured dynamic method assignment patterns for better maintainability
+  - Achieved 100% mypy compliance across all modified files
+- **Style Issues**: Applied comprehensive code formatting with ruff
+  - Eliminated all trailing whitespace and formatting inconsistencies
+  - Consistent code style across the entire codebase
+
+### Documentation
+- **Comprehensive WHY Comments**: Added business logic explanations for complex operations
+  - Explained team info enrichment logic for multi-team label context
+  - Documented project lookup strategy reasoning and performance optimizations
+  - Added clear documentation for GraphQL query purposes and efficiency considerations
+- **Complete Docstring Coverage**: 100% docstring coverage for all new functionality
+- **CLI Help Integration**: All new commands properly documented with examples and usage patterns
+
 ## [Unreleased]
 
 ### Planned Features
