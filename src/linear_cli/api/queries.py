@@ -671,12 +671,54 @@ query GetProjectUpdates($projectId: ID!, $first: Int, $after: String) {
 """
 
 
+# Lightweight query to find projects by name without fetching full details
+# Used as first step in name-based project lookup for efficiency
 FIND_PROJECT_BY_NAME_QUERY = """
 query FindProjectByName($first: Int) {
     projects(first: $first) {
         nodes {
             id
             name
+        }
+    }
+}
+"""
+
+CREATE_PROJECT_MUTATION = """
+mutation CreateProject($input: ProjectCreateInput!) {
+    projectCreate(input: $input) {
+        success
+        project {
+            id
+            name
+            description
+            url
+            state
+            health
+            progress
+            startDate
+            targetDate
+            createdAt
+            updatedAt
+            creator {
+                id
+                name
+                displayName
+                email
+            }
+            lead {
+                id
+                name
+                displayName
+                email
+            }
+            teams {
+                nodes {
+                    id
+                    name
+                    key
+                }
+            }
         }
     }
 }
