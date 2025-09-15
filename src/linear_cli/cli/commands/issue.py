@@ -133,6 +133,7 @@ def list(
     help="Issue priority (0=None, 1=Low, 2=Normal, 3=High, 4=Urgent)",
 )
 @click.option("--labels", "-L", help="Label names (comma-separated)")
+@click.option("--project", help="Project name or ID to assign the issue to")
 @click.pass_context
 def create(
     ctx: click.Context,
@@ -142,6 +143,7 @@ def create(
     team: str,
     priority: str,
     labels: str,
+    project: str,
 ) -> None:
     """
     Create a new issue.
@@ -154,6 +156,7 @@ def create(
         linear-cli issue create "New feature" --description "Add user profiles"
         linear-cli issue create "Bug fix" --team ENG --assignee jane@example.com --priority 3
         linear-cli issue create "Enhancement" --labels "feature,ui" --description "Improve UX"
+        linear-cli issue create "Database migration" --project "Q4 Backend Work" --team ENG
     """
     cli_ctx = ctx.obj["cli_context"]
     client = cli_ctx.get_client()
@@ -225,6 +228,17 @@ def create(
         if priority:
             priority_int = int(priority)
 
+        # Resolve project if provided
+        project_id = None
+        if project:
+            project_data = await client.get_project(project)
+            if project_data:
+                project_id = project_data["id"]
+            else:
+                console.print(
+                    f"[yellow]Warning: Project '{project}' not found, skipping project assignment[/yellow]"
+                )
+
         create_result = await client.create_issue(
             title=title,
             description=description,
@@ -232,6 +246,7 @@ def create(
             assignee_id=assignee_id,
             priority=priority_int,
             label_ids=label_ids if label_ids else None,
+            project_id=project_id,
         )
         return dict(create_result) if isinstance(create_result, dict) else {}
 
@@ -313,6 +328,7 @@ def show(ctx: click.Context, issue_id: str) -> None:
     help="New issue priority (0=None, 1=Low, 2=Normal, 3=High, 4=Urgent)",
 )
 @click.option("--labels", "-L", help="New labels (comma-separated, replaces existing)")
+@click.option("--project", help="Project name or ID to assign the issue to")
 @click.pass_context
 def update(
     ctx: click.Context,
@@ -323,6 +339,7 @@ def update(
     state: str,
     priority: str,
     labels: str,
+    project: str,
 ) -> None:
     """
     Update an issue.
@@ -335,13 +352,14 @@ def update(
         linear-cli issue update ENG-123 --state "Done" --assignee john@example.com
         linear-cli issue update ENG-123 --priority 4 --labels "bug,critical"
         linear-cli issue update ENG-123 --description "Updated description"
+        linear-cli issue update ENG-123 --project "Backend Improvements"
     """
     cli_ctx = ctx.obj["cli_context"]
     client = cli_ctx.get_client()
     config = cli_ctx.config
 
     # Check if any update options were provided
-    if not any([title, description, assignee, state, priority, labels]):
+    if not any([title, description, assignee, state, priority, labels, project]):
         print_error("No update options provided. Use --help to see available options.")
         raise click.Abort()
 
@@ -414,6 +432,17 @@ def update(
         if priority:
             priority_int = int(priority)
 
+        # Resolve project if provided
+        project_id = None
+        if project:
+            project_data = await client.get_project(project)
+            if project_data:
+                project_id = project_data["id"]
+            else:
+                console.print(
+                    f"[yellow]Warning: Project '{project}' not found, skipping project assignment[/yellow]"
+                )
+
         update_result = await client.update_issue(
             issue_id=issue_id,
             title=title,
@@ -422,6 +451,7 @@ def update(
             state_id=state_id,
             priority=priority_int,
             label_ids=label_ids if label_ids else None,
+            project_id=project_id,
         )
         return dict(update_result) if isinstance(update_result, dict) else {}
 
