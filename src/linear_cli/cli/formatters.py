@@ -82,7 +82,7 @@ def get_state_text(state: dict[str, Any] | None) -> Text:
     return Text(name, style=style)
 
 
-def format_labels(labels: dict[str, Any] | list | None) -> str:
+def format_labels(labels: dict[str, Any] | list[Any] | None) -> str:
     """Format labels list for display."""
     if not labels:
         return ""
@@ -406,42 +406,6 @@ class OutputFormatter:
         console.print(table)
         console.print(f"\n[dim]Found {len(users)} user(s)[/dim]")
 
-    def format_generic(self, data: Any) -> None:
-        """Format generic data structure."""
-        if self.output_format == "json":
-            self._print_json(data)
-        else:
-            # For table format, just print as JSON since we don't know the structure
-            console.print(
-                "[yellow]Generic data (use --format json for better output):[/yellow]"
-            )
-            self._print_json(data)
-
-
-def print_success(message: str) -> None:
-    """Print success message."""
-    console.print(f"[green]✓ {message}[/green]")
-
-
-def print_error(message: str) -> None:
-    """Print error message."""
-    console.print(f"[red]✗ {message}[/red]")
-
-
-def print_warning(message: str) -> None:
-    """Print warning message."""
-    console.print(f"[yellow]⚠ {message}[/yellow]")
-
-
-def print_info(message: str) -> None:
-    """Print info message."""
-    console.print(f"[blue]ℹ {message}[/blue]")
-
-
-# Add project formatting methods to OutputFormatter class
-def _add_project_methods():
-    """Add project formatting methods to OutputFormatter class."""
-
     def format_projects(self, projects_data: dict[str, Any]) -> None:
         """Format projects data for output."""
         if self.output_format == "json":
@@ -495,7 +459,7 @@ def _add_project_methods():
                 lead_name = lead.get("displayName") or lead.get("name", "")
 
             target_date = (
-                format_datetime_util(project.get("targetDate"), "short")
+                format_datetime_util(project.get("targetDate") or "", "short")
                 if project.get("targetDate")
                 else "No target"
             )
@@ -554,7 +518,7 @@ def _add_project_methods():
 
         # Dates
         start_date = (
-            format_datetime_util(project.get("startDate"), "short")
+            format_datetime_util(project.get("startDate") or "", "short")
             if project.get("startDate")
             else None
         )
@@ -562,7 +526,7 @@ def _add_project_methods():
             console.print(f"[dim]Start Date:[/dim] {start_date}")
 
         target_date = (
-            format_datetime_util(project.get("targetDate"), "short")
+            format_datetime_util(project.get("targetDate") or "", "short")
             if project.get("targetDate")
             else None
         )
@@ -638,14 +602,33 @@ def _add_project_methods():
 
         console.print(table)
 
-    # Add methods to OutputFormatter class
-    OutputFormatter.format_projects = format_projects
-    OutputFormatter.format_project = format_project
-    OutputFormatter.format_project_updates = format_project_updates
-    OutputFormatter._format_projects_table = _format_projects_table
-    OutputFormatter._format_project_details = _format_project_details
-    OutputFormatter._format_project_updates_table = _format_project_updates_table
+    def format_generic(self, data: Any) -> None:
+        """Format generic data structure."""
+        if self.output_format == "json":
+            self._print_json(data)
+        else:
+            # For table format, just print as JSON since we don't know the structure
+            console.print(
+                "[yellow]Generic data (use --format json for better output):[/yellow]"
+            )
+            self._print_json(data)
 
 
-# Add the methods when module is imported
-_add_project_methods()
+def print_success(message: str) -> None:
+    """Print success message."""
+    console.print(f"[green]✓ {message}[/green]")
+
+
+def print_error(message: str) -> None:
+    """Print error message."""
+    console.print(f"[red]✗ {message}[/red]")
+
+
+def print_warning(message: str) -> None:
+    """Print warning message."""
+    console.print(f"[yellow]⚠ {message}[/yellow]")
+
+
+def print_info(message: str) -> None:
+    """Print info message."""
+    console.print(f"[blue]ℹ {message}[/blue]")
