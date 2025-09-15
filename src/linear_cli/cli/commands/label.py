@@ -28,17 +28,36 @@ def label_group() -> None:
 
 
 @label_group.command()
-@click.option("--team", "-t", help="Team key or ID to filter by")
 @click.option(
-    "--limit", "-l", type=int, default=100, help="Maximum number of labels to show"
+    "--team",
+    "-t",
+    multiple=True,
+    help="Team key or ID to filter by (can be used multiple times)",
+)
+@click.option("--all-teams", is_flag=True, help="Show labels from all accessible teams")
+@click.option(
+    "--limit",
+    "-l",
+    type=int,
+    default=100,
+    help="Maximum number of labels to show per team",
 )
 @click.pass_context
-def list(ctx: click.Context, team: str, limit: int) -> None:
+def list(
+    ctx: click.Context, team: tuple[str, ...], all_teams: bool, limit: int
+) -> None:
     """
     List available labels.
 
     Shows all labels accessible to you, with optional team filtering.
-    Use --team to filter by team key/ID.
+    Use --team to filter by specific teams, or --all-teams to see labels from all teams.
+    Multiple --team options can be used to check specific teams.
+
+    Examples:
+        linear-cli label list                           # Labels from default team
+        linear-cli label list --team ENG                # Labels from ENG team
+        linear-cli label list --team ENG --team QA      # Labels from ENG and QA teams
+        linear-cli label list --all-teams               # Labels from all accessible teams
     """
     cli_ctx = ctx.obj["cli_context"]
     client = cli_ctx.get_client()
@@ -50,23 +69,79 @@ def list(ctx: click.Context, team: str, limit: int) -> None:
     )
 
     async def fetch_labels() -> dict[str, Any]:
-        # Determine team ID if provided
-        team_id = None
-        if team:
-            if team.startswith(TEAM_ID_PREFIX) or len(team) > TEAM_ID_MIN_LENGTH:
-                team_id = team
-            else:
-                # Look up team by key
-                teams = await client.get_teams()
-                for t in teams:
-                    if t.get("key") == team:
-                        team_id = t["id"]
-                        break
-                if not team_id:
-                    raise ValueError(f"Team not found: {team}")
+        if all_teams:
+            # Get all teams and fetch labels for each
+            teams = await client.get_teams()
+            all_labels: dict[str, Any] = {
+                "nodes": [],
+                "pageInfo": {"hasNextPage": False},
+            }
 
-        labels_result = await client.get_labels(team_id=team_id, limit=limit)
-        return dict(labels_result) if isinstance(labels_result, dict) else {}
+            for t in teams:
+                team_labels = await client.get_labels(team_id=t["id"], limit=limit)
+                if isinstance(team_labels, dict) and "nodes" in team_labels:
+                    # WHY: Add team info to labels for better display context when showing labels from multiple teams
+                    # This helps users understand which team each label belongs to in the output
+                    all_labels["nodes"].extend(team_labels["nodes"])
+
+            return all_labels
+
+        elif team:
+            # Handle multiple specific teams
+            teams_data = await client.get_teams()
+            team_ids = []
+
+            for team_identifier in team:
+                team_id = None
+
+                # Check if it's already a team ID
+                if (
+                    team_identifier.startswith(TEAM_ID_PREFIX)
+                    or len(team_identifier) > TEAM_ID_MIN_LENGTH
+                ):
+                    team_id = team_identifier
+                else:
+                    # Look up team by key
+                    for t in teams_data:
+                        if t.get("key") == team_identifier:
+                            team_id = t["id"]
+                            break
+
+                if not team_id:
+                    raise ValueError(f"Team not found: {team_identifier}")
+
+                team_ids.append(team_id)
+
+            # Fetch labels for all specified teams
+            team_labels_collection: dict[str, Any] = {
+                "nodes": [],
+                "pageInfo": {"hasNextPage": False},
+            }
+            for team_id in team_ids:
+                team_labels = await client.get_labels(team_id=team_id, limit=limit)
+                if isinstance(team_labels, dict) and "nodes" in team_labels:
+                    # WHY: Add team info to labels for better display context when showing labels from multiple teams
+                    # This helps users understand which team each label belongs to in the output
+                    team_info = next(
+                        (t for t in teams_data if t["id"] == team_id), None
+                    )
+                    for label in team_labels["nodes"]:
+                        if team_info:
+                            label["team"] = {
+                                "id": team_info["id"],
+                                "name": team_info["name"],
+                                "key": team_info["key"],
+                            }
+                    team_labels_collection["nodes"].extend(team_labels["nodes"])
+
+            return team_labels_collection
+        else:
+            # Default behavior - use default team or no team filter
+            team_id = (
+                config.default_team_id if hasattr(config, "default_team_id") else None
+            )
+            labels_result = await client.get_labels(team_id=team_id, limit=limit)
+            return dict(labels_result) if isinstance(labels_result, dict) else {}
 
     try:
         labels_data = asyncio.run(fetch_labels())
