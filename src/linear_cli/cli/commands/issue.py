@@ -133,7 +133,10 @@ def list(
     help="Issue priority (0=None, 1=Low, 2=Normal, 3=High, 4=Urgent)",
 )
 @click.option("--labels", "-L", help="Label names (comma-separated)")
-@click.option("--project", help="Project name or ID to assign the issue to (supports both names and IDs)")
+@click.option(
+    "--project",
+    help="Project name or ID to assign the issue to (supports both names and IDs)",
+)
 @click.pass_context
 def create(
     ctx: click.Context,
@@ -329,7 +332,10 @@ def show(ctx: click.Context, issue_id: str) -> None:
     help="New issue priority (0=None, 1=Low, 2=Normal, 3=High, 4=Urgent)",
 )
 @click.option("--labels", "-L", help="New labels (comma-separated, replaces existing)")
-@click.option("--project", help="Project name or ID to assign the issue to (supports both names and IDs)")
+@click.option(
+    "--project",
+    help="Project name or ID to assign the issue to (supports both names and IDs)",
+)
 @click.pass_context
 def update(
     ctx: click.Context,

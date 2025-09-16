@@ -144,7 +144,10 @@ def update(
 @click.argument("name")
 @click.option("--description", "-d", help="Project description")
 @click.option(
-    "--team", "-t", multiple=True, help="Team key or ID to associate with project (can be used multiple times)"
+    "--team",
+    "-t",
+    multiple=True,
+    help="Team key or ID to associate with project (can be used multiple times)",
 )
 @click.option("--lead", help="Project lead email or ID (user who manages the project)")
 @click.option(

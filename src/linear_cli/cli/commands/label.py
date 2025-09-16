@@ -34,7 +34,9 @@ def label_group() -> None:
     multiple=True,
     help="Team key or ID to filter by (can be used multiple times for specific teams)",
 )
-@click.option("--all-teams", is_flag=True, help="Show labels from all accessible teams at once")
+@click.option(
+    "--all-teams", is_flag=True, help="Show labels from all accessible teams at once"
+)
 @click.option(
     "--limit",
     "-l",
