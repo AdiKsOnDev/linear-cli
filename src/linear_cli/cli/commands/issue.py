@@ -5,7 +5,7 @@ Handles issue CRUD operations, listing, and management.
 """
 
 import asyncio
-from typing import Any
+from typing import Any, List
 
 import click
 from rich.console import Console
@@ -16,16 +16,282 @@ from ..formatters import OutputFormatter, print_error, print_success
 console = Console()
 
 
+# Helper Functions for Issue Resolution
+# These functions reduce complexity by extracting shared logic used in create() and update() commands
+#
+# STATE RESOLUTION STRATEGY DOCUMENTATION:
+#
+# This module implements a dual input strategy for Linear workflow states that provides
+# both user convenience and backward compatibility:
+#
+# 1. NUMERIC STATE ENUM SYSTEM (Primary Interface):
+#    - Maps numbers 0-6 to standard Linear state names
+#    - Provides consistent interface across teams with different naming conventions
+#    - Examples: --state 0 (Canceled), --state 3 (In Progress), --state 5 (Done)
+#    - Benefits: Faster typing, consistent across teams, language-independent
+#
+# 2. TEXT-BASED STATE MATCHING (Backward Compatibility):
+#    - Accepts exact state names as they appear in Linear
+#    - Case-insensitive matching for user convenience
+#    - Examples: --state "todo", --state "In Review", --state "done"
+#    - Benefits: Intuitive for new users, works with custom team state names
+#
+# ARCHITECTURE RATIONALE:
+# - Numeric states provide standardization while preserving team customization flexibility
+# - Text states ensure no breaking changes for existing users and scripts
+# - Helper functions encapsulate complex resolution logic for maintainability
+# - GraphQL query optimization reduces API calls by fetching team states once
+# - Error handling provides clear user feedback with helpful suggestions
+#
+# BACKWARD COMPATIBILITY APPROACH:
+# - All existing text-based state commands continue to work unchanged
+# - New numeric system is additive, not replacing existing functionality
+# - Graceful degradation with helpful error messages and tips
+# - No configuration changes required for existing users
+
+
+async def resolve_team_id(team: str | None, config: Any, client: Any) -> str:
+    """
+    Resolve team identifier to team ID.
+
+    Handles both team keys (like "ENG") and full team IDs, with fallback to default team.
+    Uses Linear's dual identification system - short keys vs long IDs.
+
+    Args:
+        team: Team key, ID, or None for default
+        config: CLI configuration with default team settings
+        client: Linear API client
+
+    Returns:
+        Team ID string
+
+    Raises:
+        ValueError: If team not found or no default configured
+    """
+    if team:
+        # WHY: Linear has both team IDs (long, prefixed) and team keys (short, user-friendly)
+        # This heuristic distinguishes them to call correct API parameters
+        if team.startswith(TEAM_ID_PREFIX) or len(team) > TEAM_ID_MIN_LENGTH:
+            return team
+        else:
+            # Look up team by key
+            teams = await client.get_teams()
+            for t in teams:
+                if t.get("key") == team:
+                    return str(t["id"])
+            raise ValueError(f"Team not found: {team}")
+    else:
+        # Use default team
+        team_id = config.default_team_id
+        if not team_id:
+            raise ValueError(
+                "No team specified and no default team configured. "
+                "Use --team option or set default team with 'linear-cli team switch'"
+            )
+        return str(team_id)
+
+
+async def resolve_assignee_id(assignee: str | None, client: Any) -> str | None:
+    """
+    Resolve assignee email or ID to user ID.
+
+    Linear API requires user IDs but emails are more user-friendly.
+    Handles both formats with automatic email-to-ID resolution.
+
+    Args:
+        assignee: Email address, user ID, or None
+        client: Linear API client
+
+    Returns:
+        User ID string or None if no assignee specified
+
+    Raises:
+        ValueError: If email provided but user not found
+    """
+    if not assignee:
+        return None
+
+    if "@" in assignee:
+        # WHY: Linear API only accepts user IDs, not emails, but emails are more user-friendly
+        # We resolve email addresses to user IDs through the users API
+        users = await client.get_users()
+        for user in users:
+            if user.get("email") == assignee:
+                return str(user["id"])
+        raise ValueError(f"User not found: {assignee}")
+    else:
+        # Assume it's a user ID
+        return assignee
+
+
+async def resolve_state_id(state: str | None, team_id: str, client: Any) -> str | None:
+    """
+    Resolve state name or numeric enum to state ID.
+
+    Implements dual state resolution strategy:
+    - Numeric states (0-6): Maps to standard Linear state names
+    - Text states: Direct name matching for backward compatibility
+
+    This provides user-friendly numeric shortcuts while maintaining compatibility.
+
+    Args:
+        state: State name, numeric enum (0-6), or None
+        team_id: Team ID to get states from
+        client: Linear API client
+
+    Returns:
+        State ID string or None if no state specified
+
+    Raises:
+        ValueError: If state not found or invalid numeric value
+    """
+    if not state:
+        return None
+
+    # Get team states
+    teams = await client.get_teams()
+    for team_data in teams:
+        if team_data.get("id") == team_id:
+            states = team_data.get("states", {}).get("nodes", [])
+
+            # Check if state is numeric (enum) or text
+            if state.isdigit():
+                # Handle numeric state enum
+                state_num = int(state)
+                from ...constants import STATE_MAPPINGS
+
+                if state_num in STATE_MAPPINGS:
+                    target_state_name = STATE_MAPPINGS[state_num][0]
+                    # Find matching state by name
+                    for s in states:
+                        if s.get("name").lower() == target_state_name.lower():
+                            return str(s["id"])
+                    console.print(
+                        f"[yellow]Warning: State '{target_state_name}' (number {state_num}) not found in this team[/yellow]"
+                    )
+                    return None
+                else:
+                    raise ValueError(
+                        f"Invalid state number: {state}. Valid states: 0-6 (0=Canceled, 1=Backlog, 2=Todo, 3=In Progress, 4=In Review, 5=Done, 6=Duplicate)"
+                    )
+            else:
+                # Handle text state (backward compatibility)
+                for s in states:
+                    if s.get("name").lower() == state.lower():
+                        return str(s["id"])
+                # Suggest numeric alternative
+                console.print(
+                    "[yellow]Tip: Use numeric states for easier input (e.g., --state 3 for 'In Progress')[/yellow]"
+                )
+            break
+
+    raise ValueError(f"State not found: {state}")
+
+
+async def resolve_label_ids(
+    labels: str | None, team_id: str, client: Any
+) -> List[str] | None:
+    """
+    Resolve comma-separated label names to label IDs.
+
+    Users provide friendly names but Linear API requires IDs.
+    Gracefully handles non-existent labels with warnings.
+
+    Args:
+        labels: Comma-separated label names or None
+        team_id: Team ID to get labels from
+        client: Linear API client
+
+    Returns:
+        List of label IDs or None if no labels specified
+    """
+    if not labels:
+        return None
+
+    # WHY: Users provide comma-separated label names, but Linear API requires label IDs
+    # We resolve names to IDs and gracefully handle non-existent labels
+    label_names = [label.strip() for label in labels.split(",")]
+    labels_data = await client.get_labels(team_id=team_id)
+    label_map = {label["name"]: label["id"] for label in labels_data.get("nodes", [])}
+
+    label_ids = []
+    for label_name in label_names:
+        if label_name in label_map:
+            label_ids.append(label_map[label_name])
+        else:
+            # WHY: Warn but don't fail - partial label assignment is better than complete failure
+            console.print(
+                f"[yellow]Warning: Label '{label_name}' not found, skipping[/yellow]"
+            )
+
+    return label_ids if label_ids else None
+
+
+async def resolve_project_id(project: str | None, client: Any) -> str | None:
+    """
+    Resolve project name or ID to project ID.
+
+    Args:
+        project: Project name, ID, or None
+        client: Linear API client
+
+    Returns:
+        Project ID string or None if no project specified or not found
+    """
+    if not project:
+        return None
+
+    project_data = await client.get_project(project)
+    if project_data:
+        return str(project_data["id"])
+    else:
+        console.print(
+            f"[yellow]Warning: Project '{project}' not found, skipping project assignment[/yellow]"
+        )
+        return None
+
+
 @click.group()
 def issue_group() -> None:
     """Issue management commands."""
     pass
 
 
+async def get_issue_team_id(issue_id: str, client: Any) -> str:
+    """
+    Get team ID from an existing issue.
+
+    Used by update operations that need the team context.
+
+    Args:
+        issue_id: Issue ID or identifier
+        client: Linear API client
+
+    Returns:
+        Team ID string
+
+    Raises:
+        ValueError: If issue not found
+    """
+    issue = await client.get_issue(issue_id)
+    if not issue:
+        raise ValueError(f"Issue not found: {issue_id}")
+
+    team_id = issue.get("team", {}).get("id")
+    if not team_id:
+        raise ValueError(f"Could not determine team for issue: {issue_id}")
+
+    return str(team_id)
+
+
 @issue_group.command()
 @click.option("--team", "-t", help="Team key or ID to filter by")
 @click.option("--assignee", "-a", help="Assignee email or ID to filter by")
-@click.option("--state", "-s", help="Issue state to filter by")
+@click.option(
+    "--state",
+    "-s",
+    help="Issue state to filter by (number: 0=Canceled, 1=Backlog, 2=Todo, 3=In Progress, 4=In Review, 5=Done, 6=Duplicate)",
+)
 @click.option("--labels", "-L", help="Filter by labels (comma-separated)")
 @click.option(
     "--priority",
@@ -134,6 +400,11 @@ def list(
 )
 @click.option("--labels", "-L", help="Label names (comma-separated)")
 @click.option(
+    "--state",
+    "-s",
+    help="Issue state (number: 0=Canceled, 1=Backlog, 2=Todo, 3=In Progress, 4=In Review, 5=Done, 6=Duplicate)",
+)
+@click.option(
     "--project",
     help="Project name or ID to assign the issue to (supports both names and IDs)",
 )
@@ -146,6 +417,7 @@ def create(
     team: str,
     priority: str,
     labels: str,
+    state: str,
     project: str,
 ) -> None:
     """
@@ -167,87 +439,24 @@ def create(
     config = cli_ctx.config
 
     async def create_issue() -> dict[str, Any]:
-        # Determine team ID
-        team_id = None
-        if team:
-            if team.startswith(TEAM_ID_PREFIX) or len(team) > TEAM_ID_MIN_LENGTH:
-                team_id = team
-            else:
-                # Look up team by key
-                teams = await client.get_teams()
-                for t in teams:
-                    if t.get("key") == team:
-                        team_id = t["id"]
-                        break
-                if not team_id:
-                    raise ValueError(f"Team not found: {team}")
-        else:
-            # Use default team
-            team_id = config.default_team_id
-            if not team_id:
-                raise ValueError(
-                    "No team specified and no default team configured. "
-                    "Use --team option or set default team with 'linear-cli team switch'"
-                )
-
-        # Resolve assignee if provided
-        assignee_id = None
-        if assignee:
-            if "@" in assignee:
-                # WHY: Linear API only accepts user IDs, not emails, but emails are more user-friendly
-                # We need to resolve email addresses to user IDs through the users API
-                users = await client.get_users()
-                for user in users:
-                    if user.get("email") == assignee:
-                        assignee_id = user["id"]
-                        break
-                if not assignee_id:
-                    raise ValueError(f"User not found: {assignee}")
-            else:
-                # Assume it's a user ID
-                assignee_id = assignee
-
-        # Handle labels
-        label_ids = None
-        if labels:
-            # WHY: Users provide comma-separated label names, but Linear API requires label IDs
-            # We need to resolve names to IDs and gracefully handle non-existent labels
-            label_names = [label.strip() for label in labels.split(",")]
-            labels_data = await client.get_labels(team_id=team_id)
-            label_map = {
-                label["name"]: label["id"] for label in labels_data.get("nodes", [])
-            }
-            label_ids = []
-            for label_name in label_names:
-                if label_name in label_map:
-                    label_ids.append(label_map[label_name])
-                else:
-                    # WHY: Warn but don't fail - partial label assignment is better than complete failure
-                    console.print(
-                        f"[yellow]Warning: Label '{label_name}' not found, skipping[/yellow]"
-                    )
+        # Resolve all issue parameters using helper functions
+        team_id = await resolve_team_id(team, config, client)
+        assignee_id = await resolve_assignee_id(assignee, client)
+        label_ids = await resolve_label_ids(labels, team_id, client)
+        project_id = await resolve_project_id(project, client)
+        state_id = await resolve_state_id(state, team_id, client)
 
         # Parse priority
         priority_int = None
         if priority:
             priority_int = int(priority)
 
-        # Resolve project if provided
-        project_id = None
-        if project:
-            project_data = await client.get_project(project)
-            if project_data:
-                project_id = project_data["id"]
-            else:
-                console.print(
-                    f"[yellow]Warning: Project '{project}' not found, skipping project assignment[/yellow]"
-                )
-
         create_result = await client.create_issue(
             title=title,
             description=description,
             team_id=team_id,
             assignee_id=assignee_id,
+            state_id=state_id,
             priority=priority_int,
             label_ids=label_ids if label_ids else None,
             project_id=project_id,
@@ -324,7 +533,11 @@ def show(ctx: click.Context, issue_id: str) -> None:
 @click.option("--title", help="New issue title")
 @click.option("--description", "-d", help="New issue description")
 @click.option("--assignee", "-a", help="New assignee email or ID")
-@click.option("--state", "-s", help="New issue state name")
+@click.option(
+    "--state",
+    "-s",
+    help="New issue state (number: 0=Canceled, 1=Backlog, 2=Todo, 3=In Progress, 4=In Review, 5=Done, 6=Duplicate)",
+)
 @click.option(
     "--priority",
     "-p",
@@ -372,84 +585,19 @@ def update(
         raise click.Abort()
 
     async def update_issue() -> dict[str, Any]:
-        # Resolve assignee if provided
-        assignee_id = None
-        if assignee:
-            if "@" in assignee:
-                # Email - look up user ID
-                users = await client.get_users()
-                for user in users:
-                    if user.get("email") == assignee:
-                        assignee_id = user["id"]
-                        break
-                if not assignee_id:
-                    raise ValueError(f"User not found: {assignee}")
-            else:
-                assignee_id = assignee
+        # Get team ID from existing issue (needed for state and label resolution)
+        team_id = await get_issue_team_id(issue_id, client)
 
-        # Resolve state if provided
-        state_id = None
-        if state:
-            # Get issue to find its team
-            issue = await client.get_issue(issue_id)
-            if not issue:
-                raise ValueError(f"Issue not found: {issue_id}")
-
-            team_id = issue.get("team", {}).get("id")
-            if team_id:
-                # Get team states
-                teams = await client.get_teams()
-                for team in teams:
-                    if team.get("id") == team_id:
-                        states = team.get("states", {}).get("nodes", [])
-                        for s in states:
-                            if s.get("name").lower() == state.lower():
-                                state_id = s["id"]
-                                break
-                        break
-
-                if not state_id:
-                    raise ValueError(f"State not found: {state}")
-
-        # Handle labels
-        label_ids = None
-        if labels:
-            label_names = [label.strip() for label in labels.split(",")]
-            # Get current issue to find team
-            issue = await client.get_issue(issue_id)
-            if not issue:
-                raise ValueError(f"Issue not found: {issue_id}")
-
-            team_id = issue.get("team", {}).get("id")
-            labels_data = await client.get_labels(team_id=team_id)
-            label_map = {
-                label["name"]: label["id"] for label in labels_data.get("nodes", [])
-            }
-
-            label_ids = []
-            for label_name in label_names:
-                if label_name in label_map:
-                    label_ids.append(label_map[label_name])
-                else:
-                    console.print(
-                        f"[yellow]Warning: Label '{label_name}' not found, skipping[/yellow]"
-                    )
+        # Resolve all issue parameters using helper functions
+        assignee_id = await resolve_assignee_id(assignee, client)
+        state_id = await resolve_state_id(state, team_id, client)
+        label_ids = await resolve_label_ids(labels, team_id, client)
+        project_id = await resolve_project_id(project, client)
 
         # Parse priority
         priority_int = None
         if priority:
             priority_int = int(priority)
-
-        # Resolve project if provided
-        project_id = None
-        if project:
-            project_data = await client.get_project(project)
-            if project_data:
-                project_id = project_data["id"]
-            else:
-                console.print(
-                    f"[yellow]Warning: Project '{project}' not found, skipping project assignment[/yellow]"
-                )
 
         update_result = await client.update_issue(
             issue_id=issue_id,

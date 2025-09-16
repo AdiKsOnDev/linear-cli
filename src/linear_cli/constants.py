@@ -18,6 +18,39 @@ PRIORITY_LEVELS: dict[int, tuple[str, str]] = {
 # Default priority when None or invalid priority is provided
 DEFAULT_PRIORITY = 0
 
+# Linear State Enum Mappings
+# Maps numeric state values to common Linear state names for user convenience
+# This provides a consistent interface across teams with different state names
+#
+# BACKWARD COMPATIBILITY DESIGN:
+# This mapping system is designed to work alongside existing text-based state input,
+# not replace it. Users can continue using exact state names (case-insensitive)
+# while also having the option of faster numeric shortcuts.
+#
+# CROSS-TEAM STANDARDIZATION:
+# Different Linear teams often use different state names (e.g., "To Do" vs "Todo" vs "Backlog").
+# These numeric mappings provide a standardized interface that works across all teams
+# by mapping to the most common state name patterns in Linear workspaces.
+#
+# IMPLEMENTATION STRATEGY:
+# - State resolution first checks if input is numeric (0-6)
+# - If numeric, maps to standard name and searches team states for case-insensitive match
+# - If text, performs direct case-insensitive search in team states
+# - Provides helpful tips when text input fails to encourage numeric adoption
+# - Graceful fallback ensures no functionality loss for existing users
+STATE_MAPPINGS: dict[int, tuple[str, str]] = {
+    0: ("Canceled", "dim"),
+    1: ("Backlog", "blue"),
+    2: ("Todo", "yellow"),
+    3: ("In Progress", "green"),
+    4: ("In Review", "orange"),
+    5: ("Done", "bright_green bold"),
+    6: ("Duplicate", "dim"),
+}
+
+# Default state when None or invalid state is provided
+DEFAULT_STATE = 1
+
 # Color Pattern Mappings for Hex to Rich Color Approximation
 # Used to convert Linear's hex colors to terminal-friendly Rich color names
 COLOR_PATTERNS: dict[str, str] = {

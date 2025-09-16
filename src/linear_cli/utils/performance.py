@@ -97,7 +97,7 @@ class PersistentCache:
             with open(cache_file, "w", encoding="utf-8") as f:
                 json.dump(cache_data, f, ensure_ascii=False, indent=2)
             logger.debug(f"Cached value for key: {key} (TTL: {ttl}s)")
-        except (json.JSONEncodeError, OSError) as e:
+        except (json.JSONDecodeError, OSError) as e:
             logger.warning(f"Error writing cache file {cache_file}: {e}")
 
     def delete(self, key: str) -> None:

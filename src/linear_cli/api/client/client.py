@@ -108,6 +108,136 @@ class LinearClient:
 
         return self._gql_client
 
+    async def _handle_transport_error(
+        self, error: TransportError, attempt: int
+    ) -> tuple[bool, int]:
+        """
+        Handle transport errors with appropriate retry logic.
+        
+        Args:
+            error: Transport error to handle
+            attempt: Current attempt number
+            
+        Returns:
+            Tuple of (should_retry, wait_time)
+            
+        Raises:
+            AuthenticationError: If authentication fails
+            RateLimitError: If rate limit exceeded
+            LinearAPIError: For non-retryable errors
+        """
+        if not (hasattr(error, "response") and error.response):
+            raise LinearAPIError(f"Transport error: {error}") from error
+            
+        status_code = error.response.status_code
+        
+        if status_code == 401:
+            # Token expired, try to refresh
+            try:
+                self.authenticator.refresh_token()
+                # Reset client to use new token
+                self._gql_client = None
+                self._transport = None
+                return True, 0  # Continue immediately
+            except AuthenticationError as auth_err:
+                raise AuthenticationError(
+                    "Authentication failed - please login again"
+                ) from auth_err
+                
+        elif status_code == 429:
+            # Rate limited
+            wait_time = 60  # Default wait time
+            if "Retry-After" in error.response.headers:
+                wait_time = int(error.response.headers["Retry-After"])
+                
+            if attempt < self.config.max_retries:
+                logger.warning(
+                    f"Rate limited, waiting {wait_time}s (attempt {attempt + 1})"
+                )
+                return True, wait_time
+            else:
+                raise RateLimitError("Rate limit exceeded") from None
+                
+        elif 500 <= status_code < 600:
+            # Server error, retry
+            if attempt < self.config.max_retries:
+                wait_time = 2**attempt  # Exponential backoff
+                logger.warning(
+                    f"Server error {status_code}, retrying in {wait_time}s"
+                )
+                return True, wait_time
+                
+        # Non-retryable error
+        raise LinearAPIError(f"Transport error: {error}") from error
+
+    async def _handle_timeout_error(self, error: Exception, attempt: int) -> tuple[bool, int]:
+        """
+        Handle timeout errors with retry logic.
+        
+        Args:
+            error: Exception to handle
+            attempt: Current attempt number
+            
+        Returns:
+            Tuple of (should_retry, wait_time)
+            
+        Raises:
+            LinearAPIError: If non-retryable or max retries exceeded
+        """
+        if attempt < self.config.max_retries and "timeout" in str(error).lower():
+            wait_time = 2**attempt
+            logger.warning(f"Timeout error, retrying in {wait_time}s")
+            return True, wait_time
+        
+        # Non-retryable or max retries exceeded
+        raise LinearAPIError(f"Query execution failed: {error}") from error
+
+    async def _execute_query_with_retries(
+        self, query: str, variables: dict[str, Any] | None, use_cache: bool
+    ) -> dict[str, Any]:
+        """
+        Execute GraphQL query with retry logic.
+        
+        Args:
+            query: GraphQL query string
+            variables: Query variables
+            use_cache: Whether to cache results
+            
+        Returns:
+            Query result data
+        """
+        client = self._get_gql_client()
+        
+        for attempt in range(self.config.max_retries + 1):
+            try:
+                # Parse and execute query
+                parsed_query = gql(query)
+                result = await client.execute_async(
+                    parsed_query, variable_values=variables
+                )
+
+                # Cache successful results
+                if use_cache and self.cache and result:
+                    self.cache.set(query, variables, result)
+
+                return result
+
+            except TransportError as e:
+                should_retry, wait_time = await self._handle_transport_error(e, attempt)
+                if should_retry:
+                    if wait_time > 0:
+                        await asyncio.sleep(wait_time)
+                    continue
+
+            except Exception as e:
+                should_retry, wait_time = await self._handle_timeout_error(e, attempt)
+                if should_retry:
+                    await asyncio.sleep(wait_time)
+                    continue
+
+        # Should not reach here
+        raise LinearAPIError("Max retries exceeded")
+
     async def execute_query(
         self,
         query: str,
@@ -140,90 +270,7 @@ class LinearClient:
         await self.rate_limiter.acquire()
 
         try:
-            # Get GraphQL client
-            client = self._get_gql_client()
-
-            # Execute query with retry logic
-            for attempt in range(self.config.max_retries + 1):
-                try:
-                    # Parse and execute query
-                    parsed_query = gql(query)
-                    result = await client.execute_async(
-                        parsed_query, variable_values=variables
-                    )
-
-                    # Cache successful results
-                    if use_cache and self.cache and result:
-                        self.cache.set(query, variables, result)
-
-                    return result
-
-                except TransportError as e:
-                    # Handle HTTP errors
-                    if hasattr(e, "response") and e.response:
-                        status_code = e.response.status_code
-
-                        if status_code == 401:
-                            # Token expired, try to refresh
-                            try:
-                                self.authenticator.refresh_token()
-                                # Reset client to use new token
-                                self._gql_client = None
-                                self._transport = None
-                                continue
-                            except AuthenticationError as auth_err:
-                                raise AuthenticationError(
-                                    "Authentication failed - please login again"
-                                ) from auth_err
-
-                        elif status_code == 429:
-                            # Rate limited
-                            wait_time = 60  # Default wait time
-                            if (
-                                hasattr(e, "response")
-                                and "Retry-After" in e.response.headers
-                            ):
-                                wait_time = int(e.response.headers["Retry-After"])
-
-                            if attempt < self.config.max_retries:
-                                logger.warning(
-                                    f"Rate limited, waiting {wait_time}s (attempt {attempt + 1})"
-                                )
-                                await asyncio.sleep(wait_time)
-                                continue
-                            else:
-                                raise RateLimitError("Rate limit exceeded") from None
-
-                        elif 500 <= status_code < 600:
-                            # Server error, retry
-                            if attempt < self.config.max_retries:
-                                wait_time = 2**attempt  # Exponential backoff
-                                logger.warning(
-                                    f"Server error {status_code}, retrying in {wait_time}s"
-                                )
-                                await asyncio.sleep(wait_time)
-                                continue
-
-                    # Non-retryable error or max retries reached
-                    raise LinearAPIError(f"Transport error: {e}") from e
-
-                except Exception as e:
-                    if (
-                        attempt < self.config.max_retries
-                        and "timeout" in str(e).lower()
-                    ):
-                        # Timeout error, retry
-                        wait_time = 2**attempt
-                        logger.warning(f"Timeout error, retrying in {wait_time}s")
-                        await asyncio.sleep(wait_time)
-                        continue
-
-                    # Other errors
-                    raise LinearAPIError(f"Query execution failed: {e}") from e
-
-            # Should not reach here
-            raise LinearAPIError("Max retries exceeded")
-
+            return await self._execute_query_with_retries(query, variables, use_cache)
         except AuthenticationError:
             # Re-raise authentication errors
             raise
@@ -268,8 +315,34 @@ class LinearClient:
         """
         Get list of teams accessible to the user.
 
+        CRITICAL FIX DOCUMENTATION:
+        This query includes the 'states' field which was missing in previous versions,
+        causing complete failure of all state update operations. Here's what happened:
+
+        PROBLEM:
+        - The GraphQL query was missing the 'states { nodes { ... } }' field
+        - When issue commands tried to resolve state names to IDs, they got empty state lists
+        - This caused ALL state update operations to fail silently or with confusing errors
+        - Users couldn't set states on issue creation or updates using either text or numeric inputs
+
+        ROOT CAUSE:
+        - The Linear API requires explicit field selection in GraphQL queries
+        - Team states are not returned by default - they must be explicitly requested
+        - Without state data, the state resolution logic had no states to match against
+
+        SOLUTION:
+        - Added complete 'states' field with nested 'nodes' containing id, name, type, color
+        - This provides all necessary state information for the numeric state enum system
+        - Now state resolution works for both numeric (0-6) and text-based state inputs
+
+        IMPACT:
+        - Fixes the core state update functionality that was completely broken
+        - Enables the numeric state enum feature (0=Canceled, 1=Backlog, etc.)
+        - Restores backward compatibility with text-based state names
+        - Essential for issue create and update commands to function properly
+
         Returns:
-            List of team information
+            List of team information including complete state data
         """
         query = """
         query {
@@ -284,6 +357,14 @@ class LinearClient:
                     members {
                         nodes {
                             id
+                        }
+                    }
+                    states {
+                        nodes {
+                            id
+                            name
+                            type
+                            color
                         }
                     }
                 }
