@@ -231,6 +231,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Complete Docstring Coverage**: 100% docstring coverage for all new functionality
 - **CLI Help Integration**: All new commands properly documented with examples and usage patterns
 
+## [1.2.1] - 2025-09-16
+
+### Improved
+- **Enhanced CLI Help Text**: Improved clarity and examples for all new functionality
+  - Clarified that `--project` parameter supports both project names and IDs
+  - Enhanced multi-team label filtering help text with better descriptions
+  - Added comprehensive usage examples showcasing project assignment features
+  - Improved project creation help with clearer team association descriptions
+  - Added examples demonstrating combined parameter usage
+
+### Documentation
+- **CLI Help Integration**: All new commands now have comprehensive help text with practical examples
+- **User Experience**: Better guidance for users discovering new project assignment and label management features
+
 ## [Unreleased]
 
 ### Planned Features
