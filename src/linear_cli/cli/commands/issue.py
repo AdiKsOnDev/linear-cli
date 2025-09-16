@@ -5,7 +5,7 @@ Handles issue CRUD operations, listing, and management.
 """
 
 import asyncio
-from typing import Any, List
+from typing import Any
 
 import click
 from rich.console import Console
@@ -190,7 +190,7 @@ async def resolve_state_id(state: str | None, team_id: str, client: Any) -> str 
 
 async def resolve_label_ids(
     labels: str | None, team_id: str, client: Any
-) -> List[str] | None:
+) -> list[str] | None:
     """
     Resolve comma-separated label names to label IDs.
 

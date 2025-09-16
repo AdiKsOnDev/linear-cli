@@ -113,14 +113,14 @@ class LinearClient:
     ) -> tuple[bool, int]:
         """
         Handle transport errors with appropriate retry logic.
-        
+
         Args:
             error: Transport error to handle
             attempt: Current attempt number
-            
+
         Returns:
             Tuple of (should_retry, wait_time)
-            
+
         Raises:
             AuthenticationError: If authentication fails
             RateLimitError: If rate limit exceeded
@@ -128,9 +128,9 @@ class LinearClient:
         """
         if not (hasattr(error, "response") and error.response):
             raise LinearAPIError(f"Transport error: {error}") from error
-            
+
         status_code = error.response.status_code
-        
+
         if status_code == 401:
             # Token expired, try to refresh
             try:
@@ -143,13 +143,13 @@ class LinearClient:
                 raise AuthenticationError(
                     "Authentication failed - please login again"
                 ) from auth_err
-                
+
         elif status_code == 429:
             # Rate limited
             wait_time = 60  # Default wait time
             if "Retry-After" in error.response.headers:
                 wait_time = int(error.response.headers["Retry-After"])
-                
+
             if attempt < self.config.max_retries:
                 logger.warning(
                     f"Rate limited, waiting {wait_time}s (attempt {attempt + 1})"
@@ -157,30 +157,30 @@ class LinearClient:
                 return True, wait_time
             else:
                 raise RateLimitError("Rate limit exceeded") from None
-                
+
         elif 500 <= status_code < 600:
             # Server error, retry
             if attempt < self.config.max_retries:
                 wait_time = 2**attempt  # Exponential backoff
-                logger.warning(
-                    f"Server error {status_code}, retrying in {wait_time}s"
-                )
+                logger.warning(f"Server error {status_code}, retrying in {wait_time}s")
                 return True, wait_time
-                
+
         # Non-retryable error
         raise LinearAPIError(f"Transport error: {error}") from error
 
-    async def _handle_timeout_error(self, error: Exception, attempt: int) -> tuple[bool, int]:
+    async def _handle_timeout_error(
+        self, error: Exception, attempt: int
+    ) -> tuple[bool, int]:
         """
         Handle timeout errors with retry logic.
-        
+
         Args:
             error: Exception to handle
             attempt: Current attempt number
-            
+
         Returns:
             Tuple of (should_retry, wait_time)
-            
+
         Raises:
             LinearAPIError: If non-retryable or max retries exceeded
         """
@@ -188,7 +188,7 @@ class LinearClient:
             wait_time = 2**attempt
             logger.warning(f"Timeout error, retrying in {wait_time}s")
             return True, wait_time
-        
+
         # Non-retryable or max retries exceeded
         raise LinearAPIError(f"Query execution failed: {error}") from error
 
@@ -197,17 +197,17 @@ class LinearClient:
     ) -> dict[str, Any]:
         """
         Execute GraphQL query with retry logic.
-        
+
         Args:
             query: GraphQL query string
             variables: Query variables
             use_cache: Whether to cache results
-            
+
         Returns:
             Query result data
         """
         client = self._get_gql_client()
-        
+
         for attempt in range(self.config.max_retries + 1):
             try:
                 # Parse and execute query
