@@ -144,9 +144,9 @@ def update(
 @click.argument("name")
 @click.option("--description", "-d", help="Project description")
 @click.option(
-    "--team", "-t", multiple=True, help="Team key or ID (can be used multiple times)"
+    "--team", "-t", multiple=True, help="Team key or ID to associate with project (can be used multiple times)"
 )
-@click.option("--lead", help="Project lead email or ID")
+@click.option("--lead", help="Project lead email or ID (user who manages the project)")
 @click.option(
     "--state",
     type=click.Choice(["planned", "started", "paused", "completed", "canceled"]),
@@ -177,6 +177,7 @@ def create(
         linear project create "Feature X" --description "New feature development"
         linear project create "Bug Fixes" --team ENG --team QA --lead john@example.com
         linear project create "Q4 Initiative" --state started --target-date 2024-12-31
+        linear project create "Mobile App" --team ENG --team DESIGN --description "iOS/Android app"
     """
     cli_ctx = ctx.obj["cli_context"]
     client = cli_ctx.get_client()

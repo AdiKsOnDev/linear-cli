@@ -32,9 +32,9 @@ def label_group() -> None:
     "--team",
     "-t",
     multiple=True,
-    help="Team key or ID to filter by (can be used multiple times)",
+    help="Team key or ID to filter by (can be used multiple times for specific teams)",
 )
-@click.option("--all-teams", is_flag=True, help="Show labels from all accessible teams")
+@click.option("--all-teams", is_flag=True, help="Show labels from all accessible teams at once")
 @click.option(
     "--limit",
     "-l",
@@ -55,9 +55,10 @@ def list(
 
     Examples:
         linear-cli label list                           # Labels from default team
-        linear-cli label list --team ENG                # Labels from ENG team
-        linear-cli label list --team ENG --team QA      # Labels from ENG and QA teams
+        linear-cli label list --team ENG                # Labels from ENG team only
+        linear-cli label list --team ENG --team QA      # Labels from both ENG and QA teams
         linear-cli label list --all-teams               # Labels from all accessible teams
+        linear-cli label list --all-teams --limit 50    # Limit labels per team
     """
     cli_ctx = ctx.obj["cli_context"]
     client = cli_ctx.get_client()
