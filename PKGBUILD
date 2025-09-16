@@ -8,7 +8,16 @@ pkgdesc="A comprehensive CLI tool for Linear issue management with advanced sear
 arch=('any')
 url="https://github.com/AdiKsOnDev/linearator"
 license=('MIT')
-depends=('python>=3.12' 'python-pip')
+depends=(
+    'python'
+    'python-httpx'
+    'python-keyring'
+    'python-gql'
+    'python-tomli-w'
+    'python-dotenv'
+    'python-pydantic'
+    'python-rich'
+)
 makedepends=('python-build' 'python-installer' 'python-wheel' 'python-setuptools')
 optdepends=(
     'keyrings.alt: Alternative keyring backends for credential storage'
