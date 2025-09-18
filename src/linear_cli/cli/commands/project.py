@@ -349,16 +349,29 @@ def list_milestones(
             print_error(f"Project not found: {project_id}")
             return {}
         
-        result = await client.get_milestones(
-            project_id=project_data["id"],
-            limit=limit
-        )
-        return dict(result) if isinstance(result, dict) else {}
+        # Get all milestones and filter client-side
+        # WHY: Linear's GraphQL schema doesn't support project filtering for milestones
+        # so we fetch all milestones and filter by project ID on the client side
+        result = await client.get_milestones(limit=limit)
+        if isinstance(result, dict) and "nodes" in result:
+            # Filter milestones by project ID
+            project_milestones = []
+            for milestone in result["nodes"]:
+                if milestone.get("project", {}).get("id") == project_data["id"]:
+                    project_milestones.append(milestone)
+            
+            return {
+                "nodes": project_milestones,
+                "pageInfo": result.get("pageInfo", {})
+            }
+        
+        return {}
 
     try:
         milestones_data = asyncio.run(fetch_milestones())
-        if milestones_data:
-            formatter.format_milestones(milestones_data)
+        if milestones_data and milestones_data.get("nodes"):
+            # Pass the nodes list to the formatter
+            formatter.format_milestones(milestones_data["nodes"])
     except Exception as e:
         print_error(f"Failed to list project milestones: {e}")
         raise click.Abort() from e
@@ -388,15 +401,14 @@ def show_milestone(ctx: click.Context, project_id: str, milestone_id: str) -> No
     )
 
     async def fetch_milestone() -> dict[str, Any] | None:
-        # First try direct lookup
-        milestone_data = await client.get_milestone(milestone_id)
-        if not milestone_data:
-            # Try resolving by name within project context
-            resolved_id = await client.resolve_milestone_id(milestone_id, project_id)
-            if resolved_id:
-                milestone_data = await client.get_milestone(resolved_id)
+        # WHY: Always resolve milestone ID first since user can provide either ID or name
+        # Direct lookup only works with actual milestone IDs, not names
+        resolved_id = await client.resolve_milestone_id(milestone_id, project_id)
+        if resolved_id:
+            milestone_data = await client.get_milestone(resolved_id)
+            return dict(milestone_data) if milestone_data else None
         
-        return dict(milestone_data) if milestone_data else None
+        return None
 
     try:
         milestone_data = asyncio.run(fetch_milestone())
