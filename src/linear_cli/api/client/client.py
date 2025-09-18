@@ -485,6 +485,7 @@ class LinearClient:
         label_ids: list[str] | None = None,
         parent_id: str | None = None,
         project_id: str | None = None,
+        milestone_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Create a new issue.
@@ -499,6 +500,7 @@ class LinearClient:
             label_ids: List of label IDs
             parent_id: Parent issue ID
             project_id: Project ID
+            milestone_id: Milestone ID
 
         Returns:
             Created issue data
@@ -524,6 +526,8 @@ class LinearClient:
             input_data["parentId"] = parent_id
         if project_id:
             input_data["projectId"] = project_id
+        if milestone_id:
+            input_data["projectMilestoneId"] = milestone_id
 
         variables = {"input": input_data}
         result = await self.execute_query(CREATE_ISSUE_MUTATION, variables)
@@ -540,6 +544,7 @@ class LinearClient:
         priority: int | None = None,
         label_ids: list[str] | None = None,
         project_id: str | None = None,
+        milestone_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Update an existing issue.
@@ -553,6 +558,7 @@ class LinearClient:
             priority: New priority level
             label_ids: New list of label IDs
             project_id: Project ID
+            milestone_id: Milestone ID
 
         Returns:
             Updated issue data
@@ -583,6 +589,8 @@ class LinearClient:
             input_data["labelIds"] = label_ids
         if project_id is not None:
             input_data["projectId"] = project_id
+        if milestone_id is not None:
+            input_data["projectMilestoneId"] = milestone_id
 
         variables = {"id": issue_id, "input": input_data}
         result = await self.execute_query(UPDATE_ISSUE_MUTATION, variables)
@@ -1000,6 +1008,282 @@ class LinearClient:
         return (
             dict(project_create_data) if isinstance(project_create_data, dict) else {}
         )
+
+    # Milestone methods
+    async def get_milestones(
+        self,
+        project_id: str | None = None,
+        limit: int = 50,
+        after: str | None = None,
+        target_date_after: str | None = None,
+        target_date_before: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get list of milestones with optional filtering.
+
+        Retrieves milestones from Linear with support for project scoping,
+        pagination, and date range filtering. Results are sorted by target date.
+
+        Args:
+            project_id: Filter by project ID - restricts to specific project
+            limit: Maximum milestones to return (1-100, default: 50)
+            after: Cursor for pagination - get milestones after this point
+            target_date_after: ISO 8601 date - only milestones due after this
+            target_date_before: ISO 8601 date - only milestones due before this
+
+        Returns:
+            Dict with 'nodes' (milestone list) and 'pageInfo' (pagination data)
+            Each milestone includes project, creator, target date, and issue count
+
+        Raises:
+            LinearAPIError: If API request fails
+            ValueError: If date filters are invalid ISO 8601 format
+
+        Example:
+            # Get upcoming milestones for a project
+            milestones = await client.get_milestones(
+                project_id="proj_123",
+                target_date_after="2024-01-01T00:00:00Z",
+                limit=20
+            )
+        """
+        from ..queries import GET_MILESTONES_QUERY, build_milestone_filter
+
+        # Build filter
+        filter_kwargs: dict[str, Any] = {}
+        if project_id:
+            filter_kwargs["project_id"] = project_id
+        if target_date_after:
+            filter_kwargs["target_date_after"] = target_date_after
+        if target_date_before:
+            filter_kwargs["target_date_before"] = target_date_before
+
+        milestone_filter = (
+            build_milestone_filter(**filter_kwargs) if filter_kwargs else None
+        )
+
+        variables = {
+            "first": limit,
+            "after": after,
+            "filter": milestone_filter,
+        }
+
+        result = await self.execute_query(GET_MILESTONES_QUERY, variables)
+        milestones_data = result.get("projectMilestones", {})
+        return dict(milestones_data) if isinstance(milestones_data, dict) else {}
+
+    async def get_milestone(self, milestone_id: str) -> dict[str, Any] | None:
+        """
+        Get a single milestone by ID.
+
+        Args:
+            milestone_id: Milestone ID
+
+        Returns:
+            Milestone data or None if not found
+        """
+        from ..queries import GET_MILESTONE_QUERY
+
+        variables = {"id": milestone_id}
+        result = await self.execute_query(GET_MILESTONE_QUERY, variables)
+        milestone_data = result.get("projectMilestone")
+        return dict(milestone_data) if isinstance(milestone_data, dict) else None
+
+    async def get_project_milestones(
+        self, project_id: str, limit: int = 50, after: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Get milestones for a specific project.
+
+        Args:
+            project_id: Project ID
+            limit: Maximum number of milestones to return
+            after: Cursor for pagination
+
+        Returns:
+            Project milestones data with pagination info
+        """
+        from ..queries import GET_PROJECT_MILESTONES_QUERY
+
+        variables = {
+            "projectId": project_id,
+            "first": limit,
+            "after": after,
+        }
+
+        result = await self.execute_query(GET_PROJECT_MILESTONES_QUERY, variables)
+        milestones_data = result.get("projectMilestones", {})
+        return dict(milestones_data) if isinstance(milestones_data, dict) else {}
+
+    async def create_milestone(
+        self,
+        name: str,
+        project_id: str,
+        description: str | None = None,
+        target_date: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Create a new milestone.
+
+        Args:
+            name: Milestone name
+            project_id: Project ID to associate milestone with
+            description: Milestone description
+            target_date: Target completion date (ISO 8601 format)
+
+        Returns:
+            Created milestone data
+        """
+        from ..queries import CREATE_MILESTONE_MUTATION
+
+        input_data: dict[str, Any] = {
+            "name": name,
+            "projectId": project_id,
+        }
+
+        if description:
+            input_data["description"] = description
+        if target_date:
+            input_data["targetDate"] = target_date
+
+        variables = {"input": input_data}
+        result = await self.execute_query(CREATE_MILESTONE_MUTATION, variables)
+        milestone_create_data = result.get("projectMilestoneCreate", {})
+        return (
+            dict(milestone_create_data)
+            if isinstance(milestone_create_data, dict)
+            else {}
+        )
+
+    async def update_milestone(
+        self,
+        milestone_id: str,
+        name: str | None = None,
+        description: str | None = None,
+        target_date: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Update an existing milestone.
+
+        Args:
+            milestone_id: Milestone ID
+            name: New milestone name
+            description: New milestone description
+            target_date: New target completion date (ISO 8601 format)
+
+        Returns:
+            Updated milestone data
+        """
+        from ..queries import UPDATE_MILESTONE_MUTATION
+
+        input_data: dict[str, Any] = {}
+
+        if name is not None:
+            input_data["name"] = name
+        if description is not None:
+            input_data["description"] = description
+        if target_date is not None:
+            input_data["targetDate"] = target_date
+
+        variables = {"id": milestone_id, "input": input_data}
+        result = await self.execute_query(UPDATE_MILESTONE_MUTATION, variables)
+        milestone_update_data = result.get("projectMilestoneUpdate", {})
+        return (
+            dict(milestone_update_data)
+            if isinstance(milestone_update_data, dict)
+            else {}
+        )
+
+    async def delete_milestone(self, milestone_id: str) -> bool:
+        """
+        Delete a milestone.
+
+        Args:
+            milestone_id: Milestone ID
+
+        Returns:
+            True if successful
+        """
+        from ..queries import DELETE_MILESTONE_MUTATION
+
+        variables = {"id": milestone_id}
+        result = await self.execute_query(DELETE_MILESTONE_MUTATION, variables)
+        delete_data = result.get("projectMilestoneDelete", {})
+        success_value = (
+            delete_data.get("success", False)
+            if isinstance(delete_data, dict)
+            else False
+        )
+        return bool(success_value)
+
+    async def assign_issue_to_milestone(
+        self, issue_id: str, milestone_id: str | None
+    ) -> dict[str, Any]:
+        """
+        Assign an issue to a milestone or remove milestone assignment.
+
+        Args:
+            issue_id: Issue ID or identifier
+            milestone_id: Milestone ID (None to remove assignment)
+
+        Returns:
+            Updated issue data
+        """
+        from ..queries import ASSIGN_ISSUE_TO_MILESTONE_MUTATION
+
+        # If using identifier, get the actual ID first
+        if "-" in issue_id and not issue_id.startswith("issue_"):
+            issue = await self.get_issue(issue_id)
+            if not issue:
+                raise LinearAPIError(f"Issue not found: {issue_id}")
+            issue_id = issue["id"]
+
+        variables = {"issueId": issue_id, "milestoneId": milestone_id}
+        result = await self.execute_query(ASSIGN_ISSUE_TO_MILESTONE_MUTATION, variables)
+        issue_update_data = result.get("issueUpdate", {})
+        return dict(issue_update_data) if isinstance(issue_update_data, dict) else {}
+
+    async def resolve_milestone_id(
+        self, milestone_identifier: str, project_id: str | None = None
+    ) -> str | None:
+        """
+        Resolve milestone name or ID to actual milestone ID.
+        WHY: Users prefer friendly milestone names ("Sprint 1") but Linear API
+        requires milestone IDs. This provides name-to-ID resolution with optional
+        project scoping to handle duplicate milestone names across projects.
+        SEARCH STRATEGY:
+        - First checks if input looks like milestone ID (starts with "milestone_" or >30 chars)
+        - For names, searches project-scoped milestones first (more efficient)
+        - Falls back to organization-wide search if no project specified
+        - Case-insensitive matching for user convenience
+        Args:
+            milestone_identifier: Milestone name ("Sprint 1") or ID ("milestone_123")
+            project_id: Optional project ID for scoped search - improves performance
+                       and handles duplicate names across projects
+        Returns:
+            Milestone ID string, or None if not found
+            Example:
+            # Resolve milestone name within project context
+            milestone_id = await client.resolve_milestone_id("Sprint 1", "proj_123")
+        """
+        # If it looks like an ID, return as-is
+        if (
+            milestone_identifier.startswith("milestone_")
+            or len(milestone_identifier) > 30
+        ):
+            return milestone_identifier
+
+        # Search for milestone by name  
+        # NOTE: Temporarily searching all milestones due to GraphQL filter issues
+        # TODO: Fix project-scoped milestone filtering
+        milestones_data = await self.get_milestones(limit=100)
+
+        nodes = milestones_data.get("nodes", [])
+        for milestone in nodes:
+            if milestone.get("name", "").lower() == milestone_identifier.lower():
+                return milestone.get("id")
+
+        return None
 
     def close(self) -> None:
         """Close the client and cleanup resources."""
