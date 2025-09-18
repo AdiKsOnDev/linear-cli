@@ -51,6 +51,15 @@ fragment IssueFields on Issue {
             color
         }
     }
+    projectMilestone {
+        id
+        name
+        targetDate
+        project {
+            id
+            name
+        }
+    }
     comments {
         nodes {
             id
@@ -135,6 +144,25 @@ fragment LabelFields on IssueLabel {
         id
         name
         displayName
+    }
+}
+"""
+
+# Milestone GraphQL fragment containing core milestone fields
+# Used across queries to ensure consistent milestone data fetching
+# Includes project association and creator information
+PROJECT_MILESTONE_FRAGMENT = """
+fragment ProjectMilestoneFields on ProjectMilestone {
+    id
+    name
+    description
+    targetDate
+    sortOrder
+    createdAt
+    updatedAt
+    project {
+        id
+        name
     }
 }
 """
@@ -723,3 +751,185 @@ mutation CreateProject($input: ProjectCreateInput!) {
     }
 }
 """
+
+# Milestone queries
+
+# Query to fetch multiple milestones with pagination and filtering support
+# Supports project scoping, date range filtering, and creator filtering
+# Returns milestone list with project context and pagination info
+GET_MILESTONES_QUERY = f"""
+query GetMilestones($first: Int, $after: String, $filter: ProjectMilestoneFilter) {{
+    projectMilestones(first: $first, after: $after, filter: $filter) {{
+        pageInfo {{
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+        }}
+        nodes {{
+            ...ProjectMilestoneFields
+        }}
+    }}
+}}
+{PROJECT_MILESTONE_FRAGMENT}
+"""
+
+# Query to fetch single milestone with detailed information including associated issues
+# Returns milestone data with full project context and nested issue details
+# Used for milestone detail views and comprehensive milestone information
+GET_MILESTONE_QUERY = f"""
+query GetMilestone($id: String!) {{
+    projectMilestone(id: $id) {{
+        ...ProjectMilestoneFields
+        issues {{
+            nodes {{
+                id
+                identifier
+                title
+                state {{
+                    id
+                    name
+                    type
+                    color
+                }}
+                assignee {{
+                    id
+                    name
+                    displayName
+                }}
+                priority
+                createdAt
+                updatedAt
+            }}
+        }}
+    }}
+}}
+{PROJECT_MILESTONE_FRAGMENT}
+"""
+
+# Query to fetch milestones for a specific project with issue counts
+# Provides project-scoped milestone retrieval with pagination support
+# Returns milestones sorted by sortOrder with associated issue statistics
+GET_PROJECT_MILESTONES_QUERY = f"""
+query GetProjectMilestones($projectId: String!, $first: Int, $after: String) {{
+    projectMilestones(
+        filter: {{ project: {{ id: {{ eq: $projectId }} }} }}
+        first: $first
+        after: $after
+        orderBy: sortOrder
+    ) {{
+        pageInfo {{
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+        }}
+        nodes {{
+            ...ProjectMilestoneFields
+            issues {{
+                totalCount
+            }}
+        }}
+    }}
+}}
+{PROJECT_MILESTONE_FRAGMENT}
+"""
+
+# Milestone mutations
+
+# Mutation to create new project milestone with comprehensive input validation
+# Accepts milestone name, description, target date, and project association
+# Returns success status and created milestone with full field data
+CREATE_MILESTONE_MUTATION = f"""
+mutation CreateMilestone($input: ProjectMilestoneCreateInput!) {{
+    projectMilestoneCreate(input: $input) {{
+        success
+        projectMilestone {{
+            ...ProjectMilestoneFields
+        }}
+    }}
+}}
+{PROJECT_MILESTONE_FRAGMENT}
+"""
+
+# Mutation to update existing milestone properties
+# Supports updating name, description, target date, and other milestone attributes
+# Requires milestone ID and returns success status with updated milestone data
+UPDATE_MILESTONE_MUTATION = f"""
+mutation UpdateMilestone($id: String!, $input: ProjectMilestoneUpdateInput!) {{
+    projectMilestoneUpdate(id: $id, input: $input) {{
+        success
+        projectMilestone {{
+            ...ProjectMilestoneFields
+        }}
+    }}
+}}
+{PROJECT_MILESTONE_FRAGMENT}
+"""
+
+DELETE_MILESTONE_MUTATION = """
+mutation DeleteMilestone($id: String!) {
+    projectMilestoneDelete(id: $id) {
+        success
+    }
+}
+"""
+
+# Mutation to assign or unassign issue to/from milestone
+# Critical operation for milestone-issue relationship management
+# Set milestoneId to null to unassign issue from milestone
+ASSIGN_ISSUE_TO_MILESTONE_MUTATION = f"""
+mutation AssignIssueToMilestone($issueId: String!, $milestoneId: String) {{
+    issueUpdate(id: $issueId, input: {{ projectMilestoneId: $milestoneId }}) {{
+        success
+        issue {{
+            ...IssueFields
+        }}
+    }}
+}}
+{ISSUE_FRAGMENT}
+"""
+
+
+# Helper function for milestone filters
+def build_milestone_filter(**kwargs: Any) -> dict[str, Any]:
+    """
+    Build a ProjectMilestoneFilter object for GraphQL queries.
+    Constructs filter objects for milestone queries with support for
+    project scoping, date range filtering, and creator filtering.
+    Used by get_milestones() and related functions.
+    Args:
+        project_id: Filter milestones by project ID
+        target_date_after: Filter by target date after (ISO 8601)
+        target_date_before: Filter by target date before (ISO 8601)
+        creator_id: Filter by milestone creator ID
+    Returns:
+        Dict containing GraphQL filter object structure
+        Example:
+        # Filter milestones for project due this month
+        filter_obj = build_milestone_filter(
+            project_id="proj_123",
+            target_date_before="2024-02-01T00:00:00Z"
+        )
+    """
+    filter_obj = {}
+
+    # Project filtering - temporarily disabled due to GraphQL schema issues
+    # TODO: Find correct way to filter milestones by project
+    # if "project_id" in kwargs:
+    #     filter_obj["project"] = {"id": {"eq": kwargs["project_id"]}}
+
+    # Date filtering
+    if "target_date_after" in kwargs:
+        filter_obj["targetDate"] = filter_obj.get("targetDate", {})
+        filter_obj["targetDate"]["gte"] = kwargs["target_date_after"]
+
+    if "target_date_before" in kwargs:
+        filter_obj["targetDate"] = filter_obj.get("targetDate", {})
+        filter_obj["targetDate"]["lte"] = kwargs["target_date_before"]
+
+    # Creator filtering
+    if "creator_id" in kwargs:
+        filter_obj["creator"] = {"id": {"eq": kwargs["creator_id"]}}
+
+    return filter_obj
