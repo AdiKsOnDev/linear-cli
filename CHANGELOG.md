@@ -5,6 +5,34 @@ All notable changes to Linear CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-09-18
+
+### Added
+- **Milestone Management System**: Complete project milestone management with CRUD operations
+- **Project-Scoped Milestones**: Milestone commands integrated under `linear project` for better organization
+- **Issue-Milestone Assignment**: Seamless milestone assignment during issue creation and updates
+- **Milestone Test Data Generator**: Automated creation of projects, milestones, and linked issues for testing
+
+### Changed
+- **BREAKING**: Milestone commands moved from `linear milestone` to `linear project` subcommands for better UX
+- **Command Structure**: Milestone operations now require project context for improved organization
+- **Issue Creation**: Enhanced with `--project` and `--milestone` options for comprehensive workflow integration
+
+### New Commands
+- `linear project milestones <project>` - List milestones for a project
+- `linear project milestone <project> <milestone>` - Show milestone details with issues
+- `linear project create-milestone <project> <name>` - Create new project milestone
+- `linear project update-milestone <project> <milestone>` - Update milestone properties
+- `linear project delete-milestone <project> <milestone>` - Delete milestone with confirmation
+- `linear project milestone-issues <project> <milestone>` - List issues assigned to milestone
+- `linear project create-test-data --team <team>` - Generate comprehensive test datasets
+
+### Technical Improvements
+- **GraphQL Integration**: Complete milestone fragment and query implementation
+- **Name Resolution**: Smart milestone name-to-ID resolution with project scoping
+- **Error Handling**: Enhanced validation for milestone-issue assignment constraints
+- **Test Coverage**: Comprehensive unit test suite for all milestone functionality
+
 ## [1.0.0] - 2024-09-04
 
 ### Added
