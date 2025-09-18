@@ -97,7 +97,9 @@ class TestProjectMilestones:
         )
 
         assert result.exit_code == 0
-        mock_cli_context.get_client().get_project.assert_called_once_with("Test Project")
+        mock_cli_context.get_client().get_project.assert_called_once_with(
+            "Test Project"
+        )
         mock_cli_context.get_client().get_milestones.assert_called_once_with(limit=50)
 
     def test_list_milestones_project_not_found(self, runner, mock_cli_context):
@@ -128,7 +130,9 @@ class TestShowMilestone:
         }
 
         # Mock milestone resolution first
-        mock_cli_context.get_client().resolve_milestone_id.return_value = "milestone_123"
+        mock_cli_context.get_client().resolve_milestone_id.return_value = (
+            "milestone_123"
+        )
         mock_cli_context.get_client().get_milestone.return_value = milestone_data
 
         result = runner.invoke(
@@ -138,18 +142,21 @@ class TestShowMilestone:
         )
 
         assert result.exit_code == 0
-        mock_cli_context.get_client().resolve_milestone_id.assert_called_once_with("milestone_123", "Test Project")
-        mock_cli_context.get_client().get_milestone.assert_called_once_with("milestone_123")
+        mock_cli_context.get_client().resolve_milestone_id.assert_called_once_with(
+            "milestone_123", "Test Project"
+        )
+        mock_cli_context.get_client().get_milestone.assert_called_once_with(
+            "milestone_123"
+        )
 
     def test_show_milestone_by_name_with_resolution(self, runner, mock_cli_context):
         """Test showing milestone by name with resolution."""
-        milestone_data = {
-            "id": "milestone_123",
-            "name": "Sprint 1"
-        }
+        milestone_data = {"id": "milestone_123", "name": "Sprint 1"}
 
         # Mock name resolution
-        mock_cli_context.get_client().resolve_milestone_id.return_value = "milestone_123"
+        mock_cli_context.get_client().resolve_milestone_id.return_value = (
+            "milestone_123"
+        )
         mock_cli_context.get_client().get_milestone.return_value = milestone_data
 
         result = runner.invoke(
@@ -159,8 +166,12 @@ class TestShowMilestone:
         )
 
         assert result.exit_code == 0
-        mock_cli_context.get_client().resolve_milestone_id.assert_called_once_with("Sprint 1", "Test Project")
-        mock_cli_context.get_client().get_milestone.assert_called_once_with("milestone_123")
+        mock_cli_context.get_client().resolve_milestone_id.assert_called_once_with(
+            "Sprint 1", "Test Project"
+        )
+        mock_cli_context.get_client().get_milestone.assert_called_once_with(
+            "milestone_123"
+        )
 
 
 class TestCreateMilestone:
@@ -259,7 +270,9 @@ class TestUpdateMilestone:
     def test_update_project_milestone(self, runner, mock_cli_context):
         """Test updating milestone in a project."""
         # Mock milestone resolution
-        mock_cli_context.get_client().resolve_milestone_id.return_value = "milestone_123"
+        mock_cli_context.get_client().resolve_milestone_id.return_value = (
+            "milestone_123"
+        )
 
         # Mock update result
         update_result = {
@@ -273,7 +286,13 @@ class TestUpdateMilestone:
 
         result = runner.invoke(
             project,
-            ["update-milestone", "Test Project", "Sprint 1", "--name", "Sprint 1 Updated"],
+            [
+                "update-milestone",
+                "Test Project",
+                "Sprint 1",
+                "--name",
+                "Sprint 1 Updated",
+            ],
             obj={"cli_context": mock_cli_context},
         )
 
@@ -294,7 +313,9 @@ class TestDeleteMilestone:
     def test_delete_project_milestone(self, runner, mock_cli_context):
         """Test deleting milestone from a project."""
         # Mock milestone resolution
-        mock_cli_context.get_client().resolve_milestone_id.return_value = "milestone_123"
+        mock_cli_context.get_client().resolve_milestone_id.return_value = (
+            "milestone_123"
+        )
         mock_cli_context.get_client().delete_milestone.return_value = True
 
         result = runner.invoke(
@@ -307,11 +328,15 @@ class TestDeleteMilestone:
         assert result.exit_code == 0
         assert "Deleted milestone: Sprint 1" in result.output
 
-        mock_cli_context.get_client().delete_milestone.assert_called_once_with("milestone_123")
+        mock_cli_context.get_client().delete_milestone.assert_called_once_with(
+            "milestone_123"
+        )
 
     def test_delete_milestone_with_yes_flag(self, runner, mock_cli_context):
         """Test deleting milestone with --yes flag."""
-        mock_cli_context.get_client().resolve_milestone_id.return_value = "milestone_123"
+        mock_cli_context.get_client().resolve_milestone_id.return_value = (
+            "milestone_123"
+        )
         mock_cli_context.get_client().delete_milestone.return_value = True
 
         result = runner.invoke(
@@ -330,7 +355,9 @@ class TestMilestoneIssues:
     def test_list_milestone_issues(self, runner, mock_cli_context):
         """Test listing issues in a project milestone."""
         # Mock milestone resolution
-        mock_cli_context.get_client().resolve_milestone_id.return_value = "milestone_123"
+        mock_cli_context.get_client().resolve_milestone_id.return_value = (
+            "milestone_123"
+        )
 
         # Mock milestone data with issues
         milestone_data = {
@@ -431,11 +458,13 @@ class TestProjectMilestoneIntegration:
             "update-milestone",
             "delete-milestone",
             "milestone-issues",
-            "create-test-data"
+            "create-test-data",
         ]
 
         for expected in expected_milestone_commands:
-            assert expected in command_names, f"Command {expected} not found in project commands"
+            assert expected in command_names, (
+                f"Command {expected} not found in project commands"
+            )
 
     def test_milestone_commands_require_project_context(self):
         """Test that milestone commands properly require project context."""
@@ -455,14 +484,16 @@ class TestProjectMilestoneIntegration:
             create_milestone,
             update_milestone,
             delete_milestone,
-            list_milestone_issues
+            list_milestone_issues,
         ]
 
         for cmd in commands_with_project_arg:
             # Check that first parameter is project_id
-            params = [p for p in cmd.params if hasattr(p, 'name')]
-            project_params = [p for p in params if 'project' in p.name.lower()]
-            assert len(project_params) > 0, f"Command {cmd.name} missing project parameter"
+            params = [p for p in cmd.params if hasattr(p, "name")]
+            project_params = [p for p in params if "project" in p.name.lower()]
+            assert len(project_params) > 0, (
+                f"Command {cmd.name} missing project parameter"
+            )
 
 
 if __name__ == "__main__":

@@ -1284,8 +1284,10 @@ class LinearClient:
         if project_id:
             # First pass: look for exact match in the specified project
             for milestone in nodes:
-                if (milestone.get("name", "").lower() == milestone_identifier.lower() and
-                    milestone.get("project", {}).get("id") == project_id):
+                if (
+                    milestone.get("name", "").lower() == milestone_identifier.lower()
+                    and milestone.get("project", {}).get("id") == project_id
+                ):
                     return milestone.get("id")
 
         # Fallback: search all milestones without project constraint

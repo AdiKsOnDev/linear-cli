@@ -318,13 +318,11 @@ def updates(ctx: click.Context, project_id: str, limit: int) -> None:
 
 @project.command("milestones")
 @click.argument("project_id")
-@click.option("--limit", "-l", type=int, default=50, help="Maximum number of milestones to show")
+@click.option(
+    "--limit", "-l", type=int, default=50, help="Maximum number of milestones to show"
+)
 @click.pass_context
-def list_milestones(
-    ctx: click.Context,
-    project_id: str,
-    limit: int
-) -> None:
+def list_milestones(ctx: click.Context, project_id: str, limit: int) -> None:
     """
     List milestones for a project.
 
@@ -360,10 +358,7 @@ def list_milestones(
                 if milestone.get("project", {}).get("id") == project_data["id"]:
                     project_milestones.append(milestone)
 
-            return {
-                "nodes": project_milestones,
-                "pageInfo": result.get("pageInfo", {})
-            }
+            return {"nodes": project_milestones, "pageInfo": result.get("pageInfo", {})}
 
         return {}
 
@@ -429,7 +424,11 @@ def show_milestone(ctx: click.Context, project_id: str, milestone_id: str) -> No
 @click.option("--target-date", help="Target completion date (YYYY-MM-DD)")
 @click.pass_context
 def create_milestone(
-    ctx: click.Context, project_id: str, name: str, description: str | None, target_date: str | None
+    ctx: click.Context,
+    project_id: str,
+    name: str,
+    description: str | None,
+    target_date: str | None,
 ) -> None:
     """
     Create a new milestone for a project.
@@ -465,7 +464,9 @@ def create_milestone(
                 parsed_date = datetime.strptime(target_date, "%Y-%m-%d")
                 formatted_date = f"{parsed_date.strftime('%Y-%m-%d')}T00:00:00Z"
             except ValueError:
-                print_error(f"Invalid date format: {target_date}. Use YYYY-MM-DD format.")
+                print_error(
+                    f"Invalid date format: {target_date}. Use YYYY-MM-DD format."
+                )
                 return {}
 
         result = await client.create_milestone(
@@ -541,7 +542,9 @@ def update_milestone(
                 parsed_date = datetime.strptime(target_date, "%Y-%m-%d")
                 formatted_date = f"{parsed_date.strftime('%Y-%m-%d')}T00:00:00Z"
             except ValueError:
-                print_error(f"Invalid date format: {target_date}. Use YYYY-MM-DD format.")
+                print_error(
+                    f"Invalid date format: {target_date}. Use YYYY-MM-DD format."
+                )
                 return {}
 
         result = await client.update_milestone(
@@ -575,7 +578,9 @@ def update_milestone(
 @click.argument("milestone_id")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
 @click.pass_context
-def delete_milestone(ctx: click.Context, project_id: str, milestone_id: str, yes: bool) -> None:
+def delete_milestone(
+    ctx: click.Context, project_id: str, milestone_id: str, yes: bool
+) -> None:
     """
     Delete a milestone from a project.
 
@@ -600,7 +605,10 @@ def delete_milestone(ctx: click.Context, project_id: str, milestone_id: str, yes
 
     try:
         if not yes:
-            click.confirm(f"Are you sure you want to delete milestone '{milestone_id}'?", abort=True)
+            click.confirm(
+                f"Are you sure you want to delete milestone '{milestone_id}'?",
+                abort=True,
+            )
 
         success = asyncio.run(delete_milestone_async())
         if success:
@@ -616,9 +624,13 @@ def delete_milestone(ctx: click.Context, project_id: str, milestone_id: str, yes
 @project.command("milestone-issues")
 @click.argument("project_id")
 @click.argument("milestone_id")
-@click.option("--limit", "-l", type=int, default=50, help="Maximum number of issues to show")
+@click.option(
+    "--limit", "-l", type=int, default=50, help="Maximum number of issues to show"
+)
 @click.pass_context
-def list_milestone_issues(ctx: click.Context, project_id: str, milestone_id: str, limit: int) -> None:
+def list_milestone_issues(
+    ctx: click.Context, project_id: str, milestone_id: str, limit: int
+) -> None:
     """
     List issues in a project milestone.
 
@@ -652,7 +664,9 @@ def list_milestone_issues(ctx: click.Context, project_id: str, milestone_id: str
         if not milestone_data:
             raise click.Abort()
 
-        console.print(f"[bold]Issues in milestone:[/bold] {milestone_data.get('name', milestone_id)}")
+        console.print(
+            f"[bold]Issues in milestone:[/bold] {milestone_data.get('name', milestone_id)}"
+        )
 
         issues = milestone_data.get("issues", {}).get("nodes", [])
         if not issues:
@@ -670,9 +684,18 @@ def list_milestone_issues(ctx: click.Context, project_id: str, milestone_id: str
 
 @project.command("create-test-data")
 @click.option("--team", "-t", required=True, help="Team key or ID to use for test data")
-@click.option("--projects", type=int, default=1, help="Number of test projects to create")
-@click.option("--milestones-per-project", type=int, default=3, help="Number of milestones per project")
-@click.option("--issues-per-milestone", type=int, default=5, help="Number of issues per milestone")
+@click.option(
+    "--projects", type=int, default=1, help="Number of test projects to create"
+)
+@click.option(
+    "--milestones-per-project",
+    type=int,
+    default=3,
+    help="Number of milestones per project",
+)
+@click.option(
+    "--issues-per-milestone", type=int, default=5, help="Number of issues per milestone"
+)
 @click.pass_context
 def create_test_data(
     ctx: click.Context,
@@ -730,7 +753,9 @@ def create_test_data(
 
                 # Create milestones for this project
                 for milestone_num in range(1, milestones_per_project + 1):
-                    status.update(f"Creating milestone {milestone_num} for project {project_num}...")
+                    status.update(
+                        f"Creating milestone {milestone_num} for project {project_num}..."
+                    )
 
                     milestone_name = f"Milestone {milestone_num}"
                     milestone_result = await client.create_milestone(
@@ -740,7 +765,9 @@ def create_test_data(
                     )
 
                     if not milestone_result.get("success"):
-                        console.print(f"[red]Failed to create milestone {milestone_name}[/red]")
+                        console.print(
+                            f"[red]Failed to create milestone {milestone_name}[/red]"
+                        )
                         continue
 
                     milestone_id = milestone_result["projectMilestone"]["id"]
@@ -748,7 +775,9 @@ def create_test_data(
 
                     # Create issues for this milestone
                     for issue_num in range(1, issues_per_milestone + 1):
-                        status.update(f"Creating issue {issue_num} for milestone {milestone_num}...")
+                        status.update(
+                            f"Creating issue {issue_num} for milestone {milestone_num}..."
+                        )
 
                         # WHY: Use secure random choice for realistic test data variety
                         # Different priorities and states make testing more realistic
