@@ -251,6 +251,33 @@ async def resolve_project_id(project: str | None, client: Any) -> str | None:
         return None
 
 
+async def resolve_milestone_id(
+    milestone: str | None, client: Any, project_id: str | None = None
+) -> str | None:
+    """
+    Resolve milestone name or ID to milestone ID.
+
+    Args:
+        milestone: Milestone name, ID, or None
+        client: Linear API client
+        project_id: Optional project ID for scoped search
+
+    Returns:
+        Milestone ID string or None if no milestone specified or not found
+    """
+    if not milestone:
+        return None
+
+    milestone_id = await client.resolve_milestone_id(milestone, project_id)
+    if milestone_id:
+        return str(milestone_id)
+    else:
+        console.print(
+            f"[yellow]Warning: Milestone '{milestone}' not found, skipping milestone assignment[/yellow]"
+        )
+        return None
+
+
 @click.group()
 def issue_group() -> None:
     """Issue management commands."""
@@ -408,6 +435,11 @@ def list(
     "--project",
     help="Project name or ID to assign the issue to (supports both names and IDs)",
 )
+@click.option(
+    "--milestone",
+    "-m",
+    help="Milestone name or ID to assign the issue to",
+)
 @click.pass_context
 def create(
     ctx: click.Context,
@@ -419,6 +451,7 @@ def create(
     labels: str,
     state: str,
     project: str,
+    milestone: str,
 ) -> None:
     """
     Create a new issue.
@@ -445,6 +478,7 @@ def create(
         label_ids = await resolve_label_ids(labels, team_id, client)
         project_id = await resolve_project_id(project, client)
         state_id = await resolve_state_id(state, team_id, client)
+        milestone_id = await resolve_milestone_id(milestone, client, project_id)
 
         # Parse priority
         priority_int = None
@@ -460,6 +494,7 @@ def create(
             priority=priority_int,
             label_ids=label_ids if label_ids else None,
             project_id=project_id,
+            milestone_id=milestone_id,
         )
         return dict(create_result) if isinstance(create_result, dict) else {}
 
@@ -549,6 +584,11 @@ def show(ctx: click.Context, issue_id: str) -> None:
     "--project",
     help="Project name or ID to assign the issue to (supports both names and IDs)",
 )
+@click.option(
+    "--milestone",
+    "-m",
+    help="Milestone name or ID to assign the issue to (use 'none' to remove)",
+)
 @click.pass_context
 def update(
     ctx: click.Context,
@@ -560,6 +600,7 @@ def update(
     priority: str,
     labels: str,
     project: str,
+    milestone: str,
 ) -> None:
     """
     Update an issue.
@@ -580,7 +621,9 @@ def update(
     config = cli_ctx.config
 
     # Check if any update options were provided
-    if not any([title, description, assignee, state, priority, labels, project]):
+    if not any(
+        [title, description, assignee, state, priority, labels, project, milestone]
+    ):
         print_error("No update options provided. Use --help to see available options.")
         raise click.Abort()
 
@@ -593,6 +636,14 @@ def update(
         state_id = await resolve_state_id(state, team_id, client)
         label_ids = await resolve_label_ids(labels, team_id, client)
         project_id = await resolve_project_id(project, client)
+
+        # Handle milestone resolution (special case for 'none' to remove milestone)
+        milestone_id = None
+        if milestone:
+            if milestone.lower() == "none":
+                milestone_id = None  # This will remove the milestone assignment
+            else:
+                milestone_id = await resolve_milestone_id(milestone, client, project_id)
 
         # Parse priority
         priority_int = None
@@ -608,6 +659,7 @@ def update(
             priority=priority_int,
             label_ids=label_ids if label_ids else None,
             project_id=project_id,
+            milestone_id=milestone_id if milestone else None,
         )
         return dict(update_result) if isinstance(update_result, dict) else {}
 
