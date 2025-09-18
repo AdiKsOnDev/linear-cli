@@ -42,15 +42,15 @@ def get_pypi_checksum(package_name: str, version: str) -> str | None:
         url = f"https://pypi.org/pypi/{package_name}/{version}/json"
         with urllib.request.urlopen(url) as response:
             data = json.loads(response.read().decode())
-        
+
         # Find the source distribution
         for file_info in data['urls']:
             if file_info['packagetype'] == 'sdist':
                 return file_info['digests']['sha256']
-        
+
         print(f"⚠️  No source distribution found for {package_name} {version}")
         return None
-        
+
     except Exception as e:
         print(f"⚠️  Failed to get checksum from PyPI: {e}")
         return None
@@ -59,13 +59,13 @@ def get_pypi_checksum(package_name: str, version: str) -> str | None:
 def update_pyproject_toml(root_dir: Path, new_version: str) -> bool:
     """Update version in pyproject.toml."""
     pyproject_file = root_dir / "pyproject.toml"
-    
+
     if not pyproject_file.exists():
         print(f"❌ {pyproject_file} not found")
         return False
-    
+
     content = pyproject_file.read_text()
-    
+
     # Update version line
     updated_content = re.sub(
         r'^version = "[^"]*"',
@@ -73,11 +73,11 @@ def update_pyproject_toml(root_dir: Path, new_version: str) -> bool:
         content,
         flags=re.MULTILINE
     )
-    
+
     if updated_content == content:
         print(f"⚠️  No version found in {pyproject_file}")
         return False
-    
+
     pyproject_file.write_text(updated_content)
     print(f"✅ Updated version in {pyproject_file}")
     return True
@@ -86,13 +86,13 @@ def update_pyproject_toml(root_dir: Path, new_version: str) -> bool:
 def update_init_py(root_dir: Path, new_version: str) -> bool:
     """Update version in src/linear_cli/__init__.py."""
     init_file = root_dir / "src" / "linear_cli" / "__init__.py"
-    
+
     if not init_file.exists():
         print(f"❌ {init_file} not found")
         return False
-    
+
     content = init_file.read_text()
-    
+
     # Update __version__ line
     updated_content = re.sub(
         r'^__version__ = "[^"]*"',
@@ -100,11 +100,11 @@ def update_init_py(root_dir: Path, new_version: str) -> bool:
         content,
         flags=re.MULTILINE
     )
-    
+
     if updated_content == content:
         print(f"⚠️  No __version__ found in {init_file}")
         return False
-    
+
     init_file.write_text(updated_content)
     print(f"✅ Updated __version__ in {init_file}")
     return True
@@ -113,18 +113,18 @@ def update_init_py(root_dir: Path, new_version: str) -> bool:
 def make_version_test_dynamic(root_dir: Path) -> bool:
     """Make the version test dynamic by importing __version__ instead of hardcoding."""
     test_file = root_dir / "tests" / "unit" / "test_cli_basic.py"
-    
+
     if not test_file.exists():
         print(f"❌ {test_file} not found")
         return False
-    
+
     content = test_file.read_text()
-    
+
     # Check if already dynamic
     if 'from linear_cli import __version__' in content:
         print(f"ℹ️  Version test already dynamic in {test_file}")
         return True
-    
+
     # Add import at the top if not present
     if 'from linear_cli import __version__' not in content:
         lines = content.split('\n')
@@ -135,10 +135,10 @@ def make_version_test_dynamic(root_dir: Path) -> bool:
                 import_index = i + 1
             elif line.strip() == '' and import_index > 0:
                 break
-        
+
         lines.insert(import_index, 'from linear_cli import __version__')
         content = '\n'.join(lines)
-    
+
     # Replace hardcoded version with dynamic import
     pattern = r'(def test_cli_version\(self\):.*?assert\s+)"[0-9]+\.[0-9]+\.[0-9]+"(\s+in\s+result\.output)'
     updated_content = re.sub(
@@ -147,26 +147,26 @@ def make_version_test_dynamic(root_dir: Path) -> bool:
         content,
         flags=re.DOTALL
     )
-    
+
     # Also handle simpler patterns
     pattern2 = r'(assert\s+)"[0-9]+\.[0-9]+\.[0-9]+"(\s+in\s+result\.output)'
     lines = updated_content.split('\n')
     updated_lines = []
     inside_version_test = False
-    
+
     for line in lines:
         if 'def test_cli_version(' in line:
             inside_version_test = True
         elif inside_version_test and line.strip().startswith('def '):
             inside_version_test = False
-        
+
         if inside_version_test and re.search(pattern2, line):
             line = re.sub(pattern2, r'\1__version__\2', line)
-        
+
         updated_lines.append(line)
-    
+
     updated_content = '\n'.join(updated_lines)
-    
+
     if updated_content != content:
         test_file.write_text(updated_content)
         print(f"✅ Made version test dynamic in {test_file}")
@@ -179,13 +179,13 @@ def make_version_test_dynamic(root_dir: Path) -> bool:
 def update_test_version(root_dir: Path, new_version: str) -> bool:
     """Update version assertion in test files."""
     test_file = root_dir / "tests" / "unit" / "test_cli_basic.py"
-    
+
     if not test_file.exists():
         print(f"❌ {test_file} not found")
         return False
-    
+
     content = test_file.read_text()
-    
+
     # Only update the specific version test that checks --version output
     # Look for the test_cli_version method and update only the version assertion
     pattern = r'(def test_cli_version\(self\):.*?assert\s+)"[0-9]+\.[0-9]+\.[0-9]+"(\s+in\s+result\.output)'
@@ -195,7 +195,7 @@ def update_test_version(root_dir: Path, new_version: str) -> bool:
         content,
         flags=re.DOTALL
     )
-    
+
     if updated_content == content:
         # Try alternative pattern for different test format
         pattern = r'(assert\s+)"[0-9]+\.[0-9]+\.[0-9]+"(\s+in\s+result\.output)'
@@ -203,19 +203,19 @@ def update_test_version(root_dir: Path, new_version: str) -> bool:
         updated_lines = []
         found_version_test = False
         inside_version_test = False
-        
+
         for line in lines:
             if 'def test_cli_version(' in line:
                 inside_version_test = True
             elif inside_version_test and line.strip().startswith('def '):
                 inside_version_test = False
-            
+
             if inside_version_test and re.search(pattern, line):
                 line = re.sub(pattern, f'\\1"{new_version}"\\2', line)
                 found_version_test = True
-            
+
             updated_lines.append(line)
-        
+
         if found_version_test:
             test_file.write_text('\n'.join(updated_lines))
             print(f"✅ Updated CLI version test assertion in {test_file}")
@@ -232,13 +232,13 @@ def update_test_version(root_dir: Path, new_version: str) -> bool:
 def get_current_version(root_dir: Path) -> str | None:
     """Get current version from pyproject.toml."""
     pyproject_file = root_dir / "pyproject.toml"
-    
+
     if not pyproject_file.exists():
         return None
-    
+
     content = pyproject_file.read_text()
     match = re.search(r'^version = "([^"]*)"', content, re.MULTILINE)
-    
+
     return match.group(1) if match else None
 
 
@@ -255,11 +255,11 @@ def update_pkgbuild(root_dir: Path, new_version: str, checksum: str | None = Non
         True if successful, False otherwise
     """
     pkgbuild_file = root_dir / "PKGBUILD"
-    
+
     if not pkgbuild_file.exists():
         print(f"⚠️  {pkgbuild_file} not found - skipping PKGBUILD update")
         return True  # Don't fail if PKGBUILD doesn't exist
-    
+
     # Get checksum if not provided
     if checksum is None:
         print("🔍 Fetching SHA256 checksum from PyPI...")
@@ -267,9 +267,9 @@ def update_pkgbuild(root_dir: Path, new_version: str, checksum: str | None = Non
         if checksum is None:
             print("❌ Cannot update PKGBUILD without checksum")
             return False
-    
+
     content = pkgbuild_file.read_text()
-    
+
     # Update version
     updated_content = re.sub(
         r'^pkgver=.*',
@@ -277,7 +277,7 @@ def update_pkgbuild(root_dir: Path, new_version: str, checksum: str | None = Non
         content,
         flags=re.MULTILINE
     )
-    
+
     # Reset pkgrel to 1 for new version
     updated_content = re.sub(
         r'^pkgrel=.*',
@@ -285,7 +285,7 @@ def update_pkgbuild(root_dir: Path, new_version: str, checksum: str | None = Non
         updated_content,
         flags=re.MULTILINE
     )
-    
+
     # Update checksum
     updated_content = re.sub(
         r'^sha256sums=\([\'"][^\'\"]*[\'\"]\)',
@@ -293,13 +293,13 @@ def update_pkgbuild(root_dir: Path, new_version: str, checksum: str | None = Non
         updated_content,
         flags=re.MULTILINE
     )
-    
+
     if updated_content == content:
         print(f"⚠️  No changes made to {pkgbuild_file}")
         return False
-    
+
     pkgbuild_file.write_text(updated_content)
-    print(f"✅ Updated PKGBUILD version and checksum")
+    print("✅ Updated PKGBUILD version and checksum")
     return True
 
 
@@ -314,14 +314,14 @@ def generate_srcinfo(root_dir: Path) -> bool:
         True if successful, False otherwise
     """
     import subprocess
-    
+
     pkgbuild_file = root_dir / "PKGBUILD"
     srcinfo_file = root_dir / ".SRCINFO"
-    
+
     if not pkgbuild_file.exists():
         print("⚠️  PKGBUILD not found - skipping .SRCINFO generation")
         return True
-    
+
     try:
         # Generate .SRCINFO using makepkg
         result = subprocess.run(
@@ -331,11 +331,11 @@ def generate_srcinfo(root_dir: Path) -> bool:
             text=True,
             check=True
         )
-        
+
         srcinfo_file.write_text(result.stdout)
-        print(f"✅ Generated .SRCINFO from PKGBUILD")
+        print("✅ Generated .SRCINFO from PKGBUILD")
         return True
-        
+
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed to generate .SRCINFO: {e}")
         return False
@@ -347,21 +347,21 @@ def generate_srcinfo(root_dir: Path) -> bool:
 def add_changelog_entry(root_dir: Path, new_version: str) -> bool:
     """Add new release entry to CHANGELOG.md."""
     changelog_file = root_dir / "CHANGELOG.md"
-    
+
     if not changelog_file.exists():
         print(f"❌ {changelog_file} not found")
         return False
-    
+
     content = changelog_file.read_text()
-    
+
     # Find the [Unreleased] section
     unreleased_pattern = r'## \[Unreleased\]'
     match = re.search(unreleased_pattern, content)
-    
+
     if not match:
         print("⚠️  No [Unreleased] section found in CHANGELOG.md")
         return False
-    
+
     # Insert new version section before [Unreleased]
     today = datetime.now().strftime("%Y-%m-%d")
     new_section = f"""## [{new_version}] - {today}
@@ -379,7 +379,7 @@ def add_changelog_entry(root_dir: Path, new_version: str) -> bool:
 - 
 
 ## [Unreleased]"""
-    
+
     # Replace [Unreleased] with new section + [Unreleased]
     updated_content = re.sub(
         r'## \[Unreleased\]',
@@ -387,7 +387,7 @@ def add_changelog_entry(root_dir: Path, new_version: str) -> bool:
         content,
         count=1
     )
-    
+
     changelog_file.write_text(updated_content)
     print(f"✅ Added {new_version} section to {changelog_file}")
     print(f"📝 Please edit {changelog_file} to add release notes")
@@ -433,22 +433,22 @@ def main():
         action="store_true",
         help="Make version test dynamic by importing __version__ (recommended)"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Validate version format
     if not validate_version(args.version):
         print(f"❌ Invalid version format: {args.version}")
         print("Version must be in format: X.Y.Z (e.g., 1.2.3)")
         sys.exit(1)
-    
+
     root_dir = get_project_root()
     current_version = get_current_version(root_dir)
-    
+
     print(f"🚀 Preparing release {args.version}")
     if current_version:
         print(f"📦 Current version: {current_version}")
-    
+
     if args.dry_run:
         print("🔍 DRY RUN - No changes will be made")
         print("\nFiles that would be updated:")
@@ -462,24 +462,24 @@ def main():
             print(f"  - {root_dir / 'PKGBUILD'}")
             print(f"  - {root_dir / '.SRCINFO'}")
         return
-    
+
     # Update version in all files
     success = True
-    
+
     # Update Python files unless --aur-only is specified
     if not args.aur_only:
         success &= update_pyproject_toml(root_dir, args.version)
         success &= update_init_py(root_dir, args.version)
-        
+
         # Handle test version updates based on flag
         if args.dynamic_version_test:
             success &= make_version_test_dynamic(root_dir)
         else:
             success &= update_test_version(root_dir, args.version)
-        
+
         if not args.no_changelog:
             success &= add_changelog_entry(root_dir, args.version)
-    
+
     # Handle AUR updates
     if not args.no_aur:
         if args.wait_for_pypi:
@@ -488,7 +488,7 @@ def main():
         else:
             success &= update_pkgbuild(root_dir, args.version)
             success &= generate_srcinfo(root_dir)
-    
+
     if success:
         print(f"\n🎉 Successfully prepared release {args.version}!")
         print("\nNext steps:")
@@ -497,7 +497,7 @@ def main():
         print(f"3. Commit changes: git add . && git commit -m 'chore: prepare release v{args.version}'")
         print(f"4. Create release: git tag v{args.version} && git push origin v{args.version}")
         print("5. Publish GitHub release to trigger PyPI upload")
-        
+
         if not args.no_aur and not args.wait_for_pypi:
             print("\nAUR Release Steps:")
             print("6. After PyPI release, update AUR repository:")

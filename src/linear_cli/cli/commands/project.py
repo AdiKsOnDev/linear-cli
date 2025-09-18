@@ -321,15 +321,15 @@ def updates(ctx: click.Context, project_id: str, limit: int) -> None:
 @click.option("--limit", "-l", type=int, default=50, help="Maximum number of milestones to show")
 @click.pass_context
 def list_milestones(
-    ctx: click.Context, 
-    project_id: str, 
+    ctx: click.Context,
+    project_id: str,
     limit: int
 ) -> None:
     """
     List milestones for a project.
-    
+
     PROJECT_ID can be the project ID or name.
-    
+
     Examples:
         linear project milestones "My Project"
         linear project milestones project_123 --limit 10
@@ -348,7 +348,7 @@ def list_milestones(
         if not project_data:
             print_error(f"Project not found: {project_id}")
             return {}
-        
+
         # Get all milestones and filter client-side
         # WHY: Linear's GraphQL schema doesn't support project filtering for milestones
         # so we fetch all milestones and filter by project ID on the client side
@@ -359,12 +359,12 @@ def list_milestones(
             for milestone in result["nodes"]:
                 if milestone.get("project", {}).get("id") == project_data["id"]:
                     project_milestones.append(milestone)
-            
+
             return {
                 "nodes": project_milestones,
                 "pageInfo": result.get("pageInfo", {})
             }
-        
+
         return {}
 
     try:
@@ -384,10 +384,10 @@ def list_milestones(
 def show_milestone(ctx: click.Context, project_id: str, milestone_id: str) -> None:
     """
     Show milestone details for a project.
-    
+
     PROJECT_ID can be the project ID or name.
     MILESTONE_ID can be the milestone ID or name.
-    
+
     Examples:
         linear project milestone "My Project" "Sprint 1"
         linear project milestone project_123 milestone_456
@@ -407,7 +407,7 @@ def show_milestone(ctx: click.Context, project_id: str, milestone_id: str) -> No
         if resolved_id:
             milestone_data = await client.get_milestone(resolved_id)
             return dict(milestone_data) if milestone_data else None
-        
+
         return None
 
     try:
@@ -415,7 +415,7 @@ def show_milestone(ctx: click.Context, project_id: str, milestone_id: str) -> No
         if not milestone_data:
             print_error(f"Milestone not found: {milestone_id}")
             raise click.Abort()
-        
+
         formatter.format_milestone(milestone_data)
     except Exception as e:
         print_error(f"Failed to get milestone: {e}")
@@ -433,9 +433,9 @@ def create_milestone(
 ) -> None:
     """
     Create a new milestone for a project.
-    
+
     PROJECT_ID can be the project ID or name.
-    
+
     Examples:
         linear project create-milestone "My Project" "Sprint 1"
         linear project create-milestone project_123 "Sprint 2" --description "Q2 goals"
@@ -455,7 +455,7 @@ def create_milestone(
         if not project_data:
             print_error(f"Project not found: {project_id}")
             return {}
-        
+
         # Convert date format if provided
         formatted_date = None
         if target_date:
@@ -480,7 +480,7 @@ def create_milestone(
         result = asyncio.run(create_milestone_async())
         if not result:
             return
-            
+
         if result.get("success"):
             milestone = result.get("projectMilestone", {})
             milestone_name = milestone.get("name", name)
@@ -511,10 +511,10 @@ def update_milestone(
 ) -> None:
     """
     Update a milestone in a project.
-    
+
     PROJECT_ID can be the project ID or name.
     MILESTONE_ID can be the milestone ID or name.
-    
+
     Examples:
         linear project update-milestone "My Project" "Sprint 1" --name "Sprint 1 Updated"
         linear project update-milestone project_123 milestone_456 --target-date 2024-04-15
@@ -556,7 +556,7 @@ def update_milestone(
         result = asyncio.run(update_milestone_async())
         if not result:
             return
-            
+
         if result.get("success"):
             milestone = result.get("projectMilestone", {})
             milestone_name = milestone.get("name", milestone_id)
@@ -578,10 +578,10 @@ def update_milestone(
 def delete_milestone(ctx: click.Context, project_id: str, milestone_id: str, yes: bool) -> None:
     """
     Delete a milestone from a project.
-    
+
     PROJECT_ID can be the project ID or name.
     MILESTONE_ID can be the milestone ID or name.
-    
+
     Examples:
         linear project delete-milestone "My Project" "Sprint 1"
         linear project delete-milestone project_123 milestone_456 --yes
@@ -601,7 +601,7 @@ def delete_milestone(ctx: click.Context, project_id: str, milestone_id: str, yes
     try:
         if not yes:
             click.confirm(f"Are you sure you want to delete milestone '{milestone_id}'?", abort=True)
-        
+
         success = asyncio.run(delete_milestone_async())
         if success:
             print_success(f"Deleted milestone: {milestone_id}")
@@ -614,17 +614,17 @@ def delete_milestone(ctx: click.Context, project_id: str, milestone_id: str, yes
 
 
 @project.command("milestone-issues")
-@click.argument("project_id")  
+@click.argument("project_id")
 @click.argument("milestone_id")
 @click.option("--limit", "-l", type=int, default=50, help="Maximum number of issues to show")
 @click.pass_context
 def list_milestone_issues(ctx: click.Context, project_id: str, milestone_id: str, limit: int) -> None:
     """
     List issues in a project milestone.
-    
+
     PROJECT_ID can be the project ID or name.
     MILESTONE_ID can be the milestone ID or name.
-    
+
     Examples:
         linear project milestone-issues "My Project" "Sprint 1"
         linear project milestone-issues project_123 milestone_456 --limit 20
@@ -651,18 +651,18 @@ def list_milestone_issues(ctx: click.Context, project_id: str, milestone_id: str
         milestone_data = asyncio.run(fetch_milestone_issues())
         if not milestone_data:
             raise click.Abort()
-            
+
         console.print(f"[bold]Issues in milestone:[/bold] {milestone_data.get('name', milestone_id)}")
-        
+
         issues = milestone_data.get("issues", {}).get("nodes", [])
         if not issues:
             console.print("[dim]No issues found in this milestone.[/dim]")
             return
-            
+
         # Format issues using existing formatter
         issues_data = {"nodes": issues}
         formatter.format_issues(issues_data)
-        
+
     except Exception as e:
         print_error(f"Failed to get milestone issues: {e}")
         raise click.Abort() from e
@@ -683,9 +683,9 @@ def create_test_data(
 ) -> None:
     """
     Create comprehensive test data for milestone testing.
-    
+
     Creates test projects with milestones and linked issues for testing milestone functionality.
-    
+
     Examples:
         linear project create-test-data --team ENG
         linear project create-test-data --team ENG --projects 2 --milestones-per-project 2
@@ -697,22 +697,22 @@ def create_test_data(
         # Find team
         teams = await client.get_teams()
         team_data = None
-        
+
         for t in teams:
             if t.get("key") == team or t.get("id") == team:
                 team_data = t
                 break
-                
+
         if not team_data:
             print_error(f"Team not found: {team}")
             return {"projects": 0, "milestones": 0, "issues": 0}
 
         counts = {"projects": 0, "milestones": 0, "issues": 0}
-        
+
         with console.status("[bold green]Creating test data...") as status:
             for project_num in range(1, projects + 1):
                 status.update(f"Creating project {project_num}/{projects}...")
-                
+
                 # Create project
                 project_name = f"Test Project {project_num}"
                 project_result = await client.create_project(
@@ -720,65 +720,65 @@ def create_test_data(
                     description=f"Test project for milestone testing - {project_num}",
                     team_ids=[team_data["id"]],
                 )
-                
+
                 if not project_result.get("success"):
                     console.print(f"[red]Failed to create project {project_name}[/red]")
                     continue
-                    
+
                 project_id = project_result["project"]["id"]
                 counts["projects"] += 1
-                
+
                 # Create milestones for this project
                 for milestone_num in range(1, milestones_per_project + 1):
                     status.update(f"Creating milestone {milestone_num} for project {project_num}...")
-                    
+
                     milestone_name = f"Milestone {milestone_num}"
                     milestone_result = await client.create_milestone(
                         name=milestone_name,
                         project_id=project_id,
                         description=f"Test milestone {milestone_num} for {project_name}",
                     )
-                    
+
                     if not milestone_result.get("success"):
                         console.print(f"[red]Failed to create milestone {milestone_name}[/red]")
                         continue
-                        
-                    milestone_id = milestone_result["projectMilestone"]["id"] 
+
+                    milestone_id = milestone_result["projectMilestone"]["id"]
                     counts["milestones"] += 1
-                    
+
                     # Create issues for this milestone
                     for issue_num in range(1, issues_per_milestone + 1):
                         status.update(f"Creating issue {issue_num} for milestone {milestone_num}...")
-                        
+
                         # WHY: Use secure random choice for realistic test data variety
                         # Different priorities and states make testing more realistic
                         priorities = ["No priority", "Low", "Medium", "High", "Urgent"]
-                        priority = secrets.choice(priorities)
-                        
+                        secrets.choice(priorities)
+
                         issue_title = f"Test issue {issue_num} for {milestone_name}"
                         issue_result = await client.create_issue(
                             title=issue_title,
-                            description=f"Test issue created for milestone testing",
+                            description="Test issue created for milestone testing",
                             team_id=team_data["id"],
-                            priority=3,  # Medium priority 
+                            priority=3,  # Medium priority
                             project_id=project_id,
                             milestone_id=milestone_id,
                         )
-                        
+
                         if issue_result.get("success"):
                             counts["issues"] += 1
-        
+
         return counts
 
     try:
         console.print(f"[bold]Creating test data for team: {team}[/bold]")
         counts = asyncio.run(create_test_data_async())
-        
+
         console.print("\n[green]✓[/green] Test data creation completed!")
         console.print(f"[dim]Projects created:[/dim] {counts['projects']}")
         console.print(f"[dim]Milestones created:[/dim] {counts['milestones']}")
         console.print(f"[dim]Issues created:[/dim] {counts['issues']}")
-        
+
     except Exception as e:
         print_error(f"Failed to create test data: {e}")
         raise click.Abort() from e

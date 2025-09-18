@@ -34,7 +34,7 @@ def mock_client():
 
     # Mock project methods
     client.get_project = AsyncMock()
-    
+
     # Mock milestone methods
     client.get_milestones = AsyncMock()
     client.get_milestone = AsyncMock()
@@ -42,7 +42,7 @@ def mock_client():
     client.update_milestone = AsyncMock()
     client.delete_milestone = AsyncMock()
     client.resolve_milestone_id = AsyncMock()
-    
+
     # Mock other methods
     client.get_teams = AsyncMock()
     client.get_users = AsyncMock()
@@ -421,19 +421,19 @@ class TestProjectMilestoneIntegration:
     def test_project_milestone_command_hierarchy(self):
         """Test that milestone commands are properly integrated as project subcommands."""
         from linear_cli.cli.commands.project import project
-        
+
         # Check that milestone-related commands are registered
         command_names = [cmd.name for cmd in project.commands.values()]
         expected_milestone_commands = [
             "milestones",
-            "milestone", 
+            "milestone",
             "create-milestone",
             "update-milestone",
             "delete-milestone",
             "milestone-issues",
             "create-test-data"
         ]
-        
+
         for expected in expected_milestone_commands:
             assert expected in command_names, f"Command {expected} not found in project commands"
 
@@ -441,23 +441,23 @@ class TestProjectMilestoneIntegration:
         """Test that milestone commands properly require project context."""
         # All milestone commands should have project_id as first argument
         from linear_cli.cli.commands.project import (
+            create_milestone,
+            delete_milestone,
+            list_milestone_issues,
+            list_milestones,
+            show_milestone,
+            update_milestone,
+        )
+
+        commands_with_project_arg = [
             list_milestones,
             show_milestone,
             create_milestone,
             update_milestone,
             delete_milestone,
             list_milestone_issues
-        )
-        
-        commands_with_project_arg = [
-            list_milestones,
-            show_milestone, 
-            create_milestone,
-            update_milestone,
-            delete_milestone,
-            list_milestone_issues
         ]
-        
+
         for cmd in commands_with_project_arg:
             # Check that first parameter is project_id
             params = [p for p in cmd.params if hasattr(p, 'name')]

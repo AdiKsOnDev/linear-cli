@@ -1279,7 +1279,7 @@ class LinearClient:
         milestones_data = await self.get_milestones(limit=100)
 
         nodes = milestones_data.get("nodes", [])
-        
+
         # If project_id provided, prioritize milestones from that project
         if project_id:
             # First pass: look for exact match in the specified project
@@ -1287,7 +1287,7 @@ class LinearClient:
                 if (milestone.get("name", "").lower() == milestone_identifier.lower() and
                     milestone.get("project", {}).get("id") == project_id):
                     return milestone.get("id")
-        
+
         # Fallback: search all milestones without project constraint
         for milestone in nodes:
             if milestone.get("name", "").lower() == milestone_identifier.lower():
