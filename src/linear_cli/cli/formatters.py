@@ -173,6 +173,10 @@ class OutputFormatter:
         else:
             console.print(JSON.from_data(data))
 
+    def output_json(self, data: Any) -> None:
+        """Output data in JSON format - provides consistent interface for commands."""
+        self._print_json(data)
+
     def _format_issues_table(self, issues: list[dict[str, Any]]) -> None:
         """Format issues as a table."""
         if not issues:
@@ -257,6 +261,19 @@ class OutputFormatter:
         project = issue.get("project")
         if project:
             console.print(f"[dim]Project:[/dim] {project.get('name', '')}")
+
+        # Milestone
+        milestone = issue.get("projectMilestone")
+        if milestone:
+            milestone_name = milestone.get("name", "")
+            target_date = milestone.get("targetDate")
+            if target_date:
+                target_date_str = format_datetime_util(target_date, "short")
+                console.print(
+                    f"[dim]Milestone:[/dim] {milestone_name} (target: {target_date_str})"
+                )
+            else:
+                console.print(f"[dim]Milestone:[/dim] {milestone_name}")
 
         # Labels
         labels_str = format_labels(issue.get("labels"))
@@ -601,6 +618,193 @@ class OutputFormatter:
             )
 
         console.print(table)
+
+    def format_milestones(self, milestones: list[dict[str, Any]]) -> None:
+        """
+        Format and display milestones list.
+        Renders milestones in either table format (default) or JSON format
+        based on output_format setting. Table format includes sorting by
+        target date and comprehensive milestone information.
+        Args:
+            milestones: List of milestone dictionaries from Linear API
+        """
+        if self.output_format == "json":
+            console.print(JSON(json.dumps(milestones, default=str, indent=2)))
+        else:
+            self._format_milestones_table(milestones)
+
+    def format_milestone(self, milestone: dict[str, Any]) -> None:
+        """
+        Format and display single milestone details.
+        Shows comprehensive milestone information including project context,
+        dates, creator info, and associated issues. Renders description as
+        Markdown for rich formatting.
+        Args:
+            milestone: Single milestone dictionary from Linear API
+        """
+        if self.output_format == "json":
+            console.print(JSON(json.dumps(milestone, default=str, indent=2)))
+        else:
+            self._format_milestone_details(milestone)
+
+    def _format_milestones_table(self, milestones: list[dict[str, Any]]) -> None:
+        """Format milestones as a table."""
+        if not milestones:
+            console.print("[yellow]No milestones found.[/yellow]")
+            return
+
+        table = Table(title="Milestones", show_header=True, header_style="bold magenta")
+        table.add_column("Name", style="cyan", min_width=20)
+        table.add_column("Project", style="green", min_width=15)
+        table.add_column("Target Date", style="yellow", min_width=12)
+        table.add_column("Issues", justify="right", style="blue", min_width=8)
+        table.add_column("Creator", style="dim", min_width=15)
+        table.add_column("Created", style="dim", min_width=12)
+
+        # WHY: Sort milestones by target date with null dates last, then by name
+        # This ensures upcoming milestones appear first, while untargeted milestones
+        # are grouped at the end in alphabetical order for predictable display
+        milestones_sorted = sorted(
+            milestones,
+            key=lambda x: (
+                x.get("targetDate") is None,  # Null dates last
+                x.get("targetDate") or "",  # Date ascending
+                x.get("name", ""),  # Name ascending as tiebreaker
+            ),
+        )
+
+        for milestone in milestones_sorted:
+            name = milestone.get("name", "")
+            project = milestone.get("project", {})
+            project_name = project.get("name", "") if project else ""
+
+            target_date = milestone.get("targetDate")
+            target_date_str = (
+                format_datetime_util(target_date, "short")
+                if target_date
+                else "No target"
+            )
+
+            # Handle issue count - could be totalCount or nodes length
+            issues_data = milestone.get("issues", {})
+            if isinstance(issues_data, dict):
+                if "totalCount" in issues_data:
+                    issues_count = str(issues_data["totalCount"])
+                else:
+                    issues_count = str(len(issues_data.get("nodes", [])))
+            else:
+                issues_count = "0"
+
+            creator = milestone.get("creator", {})
+            creator_name = (
+                creator.get("displayName") or creator.get("name", "") if creator else ""
+            )
+
+            created_at = format_datetime(milestone.get("createdAt"))
+
+            table.add_row(
+                name,
+                project_name,
+                target_date_str,
+                issues_count,
+                creator_name,
+                created_at,
+            )
+
+        console.print(table)
+        console.print(f"\n[dim]Found {len(milestones)} milestone(s)[/dim]")
+
+    def _format_milestone_details(self, milestone: dict[str, Any]) -> None:
+        """Format detailed milestone information."""
+        console.print(f"[bold cyan]{milestone.get('name', '')}[/bold cyan]")
+        console.print()
+
+        # Project info
+        project = milestone.get("project", {})
+        if project:
+            console.print(f"[dim]Project:[/dim] {project.get('name', '')}")
+
+        # Target date
+        target_date = milestone.get("targetDate")
+        if target_date:
+            formatted_date = format_datetime_util(target_date, "full")
+            console.print(f"[dim]Target Date:[/dim] {formatted_date}")
+        else:
+            console.print("[dim]Target Date:[/dim] Not set")
+
+        # Creator
+        creator = milestone.get("creator", {})
+        if creator:
+            creator_name = creator.get("displayName") or creator.get("name", "")
+            console.print(f"[dim]Creator:[/dim] {creator_name}")
+
+        # Sort order
+        sort_order = milestone.get("sortOrder")
+        if sort_order is not None:
+            console.print(f"[dim]Sort Order:[/dim] {sort_order}")
+
+        # Dates
+        console.print(
+            f"[dim]Created:[/dim] {format_datetime(milestone.get('createdAt'))}"
+        )
+        console.print(
+            f"[dim]Updated:[/dim] {format_datetime(milestone.get('updatedAt'))}"
+        )
+
+        # Description
+        description = milestone.get("description")
+        if description:
+            console.print()
+            console.print("[dim]Description:[/dim]")
+            try:
+                markdown = Markdown(description)
+                console.print(markdown)
+            except Exception:
+                console.print(description)
+
+        # Issues in milestone
+        issues = milestone.get("issues", {}).get("nodes", [])
+        if issues:
+            console.print()
+            console.print(f"[dim]Issues ({len(issues)}):[/dim]")
+
+            # Create a mini table for issues
+            issues_table = Table(show_header=True, header_style="bold blue", box=None)
+            issues_table.add_column("ID", style="cyan", width=12)
+            issues_table.add_column("Title", style="bold", min_width=30)
+            issues_table.add_column("State", style="yellow", width=12)
+            issues_table.add_column("Assignee", style="green", width=15)
+            issues_table.add_column("Priority", width=8)
+
+            for issue in issues[:10]:  # Show only first 10 issues
+                identifier = issue.get("identifier", "")
+                title = truncate_text(issue.get("title", ""), 40)
+
+                state = issue.get("state", {})
+                state_text = get_state_text(state)
+
+                assignee = issue.get("assignee")
+                assignee_name = (
+                    assignee.get("displayName") or assignee.get("name", "")
+                    if assignee
+                    else "Unassigned"
+                )
+
+                priority = issue.get("priority", 0)
+                priority_text = get_priority_text(priority)
+
+                issues_table.add_row(
+                    identifier,
+                    title,
+                    state_text,
+                    assignee_name,
+                    priority_text,
+                )
+
+            console.print(issues_table)
+
+            if len(issues) > 10:
+                console.print(f"  [dim]... and {len(issues) - 10} more issues[/dim]")
 
     def format_generic(self, data: Any) -> None:
         """Format generic data structure."""
