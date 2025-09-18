@@ -10,15 +10,7 @@ import pytest
 from click.testing import CliRunner
 
 from linear_cli.api.client.client import LinearClient
-from linear_cli.cli.commands.project import (
-    create_milestone,
-    create_test_data,
-    delete_milestone,
-    list_milestone_issues,
-    list_milestones,
-    show_milestone,
-    update_milestone,
-)
+from linear_cli.cli.commands.project import project
 from linear_cli.config.manager import LinearConfig
 
 
@@ -44,7 +36,7 @@ def mock_client():
     client.get_project = AsyncMock()
     
     # Mock milestone methods
-    client.get_project_milestones = AsyncMock()
+    client.get_milestones = AsyncMock()
     client.get_milestone = AsyncMock()
     client.create_milestone = AsyncMock()
     client.update_milestone = AsyncMock()
@@ -53,6 +45,7 @@ def mock_client():
     
     # Mock other methods
     client.get_teams = AsyncMock()
+    client.get_users = AsyncMock()
     client.create_project = AsyncMock()
     client.create_issue = AsyncMock()
 
@@ -95,30 +88,25 @@ class TestProjectMilestones:
                 }
             ]
         }
-        mock_cli_context.get_client().get_project_milestones.return_value = milestones_data
+        mock_cli_context.get_client().get_milestones.return_value = milestones_data
 
         result = runner.invoke(
-            list_milestones,
-            ["Test Project"],
+            project,
+            ["milestones", "Test Project"],
             obj={"cli_context": mock_cli_context},
         )
 
         assert result.exit_code == 0
         mock_cli_context.get_client().get_project.assert_called_once_with("Test Project")
-        mock_cli_context.get_client().get_project_milestones.assert_called_once_with(
-            project_id="proj_123",
-            limit=50,
-            target_date_after=None,
-            target_date_before=None
-        )
+        mock_cli_context.get_client().get_milestones.assert_called_once_with(limit=50)
 
     def test_list_milestones_project_not_found(self, runner, mock_cli_context):
         """Test listing milestones for non-existent project."""
         mock_cli_context.get_client().get_project.return_value = None
 
         result = runner.invoke(
-            list_milestones,
-            ["NonExistent"],
+            project,
+            ["milestones", "NonExistent"],
             obj={"cli_context": mock_cli_context},
         )
 
@@ -139,36 +127,40 @@ class TestShowMilestone:
             "project": {"id": "proj_123", "name": "Test Project"},
         }
 
+        # Mock milestone resolution first
+        mock_cli_context.get_client().resolve_milestone_id.return_value = "milestone_123"
         mock_cli_context.get_client().get_milestone.return_value = milestone_data
 
         result = runner.invoke(
-            show_milestone,
-            ["Test Project", "milestone_123"],
+            project,
+            ["milestone", "Test Project", "milestone_123"],
             obj={"cli_context": mock_cli_context},
         )
 
         assert result.exit_code == 0
+        mock_cli_context.get_client().resolve_milestone_id.assert_called_once_with("milestone_123", "Test Project")
         mock_cli_context.get_client().get_milestone.assert_called_once_with("milestone_123")
 
     def test_show_milestone_by_name_with_resolution(self, runner, mock_cli_context):
         """Test showing milestone by name with resolution."""
-        # Mock initial lookup failure
-        mock_cli_context.get_client().get_milestone.side_effect = [None, {
+        milestone_data = {
             "id": "milestone_123",
             "name": "Sprint 1"
-        }]
+        }
 
         # Mock name resolution
         mock_cli_context.get_client().resolve_milestone_id.return_value = "milestone_123"
+        mock_cli_context.get_client().get_milestone.return_value = milestone_data
 
         result = runner.invoke(
-            show_milestone,
-            ["Test Project", "Sprint 1"],
+            project,
+            ["milestone", "Test Project", "Sprint 1"],
             obj={"cli_context": mock_cli_context},
         )
 
         assert result.exit_code == 0
         mock_cli_context.get_client().resolve_milestone_id.assert_called_once_with("Sprint 1", "Test Project")
+        mock_cli_context.get_client().get_milestone.assert_called_once_with("milestone_123")
 
 
 class TestCreateMilestone:
@@ -192,8 +184,8 @@ class TestCreateMilestone:
         mock_cli_context.get_client().create_milestone.return_value = create_result
 
         result = runner.invoke(
-            create_milestone,
-            ["Test Project", "Sprint 1"],
+            project,
+            ["create-milestone", "Test Project", "Sprint 1"],
             obj={"cli_context": mock_cli_context},
         )
 
@@ -225,8 +217,9 @@ class TestCreateMilestone:
         mock_cli_context.get_client().create_milestone.return_value = create_result
 
         result = runner.invoke(
-            create_milestone,
+            project,
             [
+                "create-milestone",
                 "Test Project",
                 "Sprint 1",
                 "--description",
@@ -251,8 +244,8 @@ class TestCreateMilestone:
         mock_cli_context.get_client().get_project.return_value = None
 
         result = runner.invoke(
-            create_milestone,
-            ["NonExistent", "Sprint 1"],
+            project,
+            ["create-milestone", "NonExistent", "Sprint 1"],
             obj={"cli_context": mock_cli_context},
         )
 
@@ -279,8 +272,8 @@ class TestUpdateMilestone:
         mock_cli_context.get_client().update_milestone.return_value = update_result
 
         result = runner.invoke(
-            update_milestone,
-            ["Test Project", "Sprint 1", "--name", "Sprint 1 Updated"],
+            project,
+            ["update-milestone", "Test Project", "Sprint 1", "--name", "Sprint 1 Updated"],
             obj={"cli_context": mock_cli_context},
         )
 
@@ -305,8 +298,8 @@ class TestDeleteMilestone:
         mock_cli_context.get_client().delete_milestone.return_value = True
 
         result = runner.invoke(
-            delete_milestone,
-            ["Test Project", "Sprint 1"],
+            project,
+            ["delete-milestone", "Test Project", "Sprint 1"],
             obj={"cli_context": mock_cli_context},
             input="y\n",
         )
@@ -322,8 +315,8 @@ class TestDeleteMilestone:
         mock_cli_context.get_client().delete_milestone.return_value = True
 
         result = runner.invoke(
-            delete_milestone,
-            ["Test Project", "Sprint 1", "--yes"],
+            project,
+            ["delete-milestone", "Test Project", "Sprint 1", "--yes"],
             obj={"cli_context": mock_cli_context},
         )
 
@@ -357,8 +350,8 @@ class TestMilestoneIssues:
         mock_cli_context.get_client().get_milestone.return_value = milestone_data
 
         result = runner.invoke(
-            list_milestone_issues,
-            ["Test Project", "Sprint 1"],
+            project,
+            ["milestone-issues", "Test Project", "Sprint 1"],
             obj={"cli_context": mock_cli_context},
         )
 
@@ -397,8 +390,8 @@ class TestCreateTestData:
         mock_cli_context.get_client().create_issue.return_value = issue_result
 
         result = runner.invoke(
-            create_test_data,
-            ["--team", "ENG"],
+            project,
+            ["create-test-data", "--team", "ENG"],
             obj={"cli_context": mock_cli_context},
         )
 
@@ -413,8 +406,8 @@ class TestCreateTestData:
         mock_cli_context.get_client().get_teams.return_value = []
 
         result = runner.invoke(
-            create_test_data,
-            ["--team", "NONEXISTENT"],
+            project,
+            ["create-test-data", "--team", "NONEXISTENT"],
             obj={"cli_context": mock_cli_context},
         )
 
