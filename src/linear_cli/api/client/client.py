@@ -1273,12 +1273,22 @@ class LinearClient:
         ):
             return milestone_identifier
 
-        # Search for milestone by name  
-        # NOTE: Temporarily searching all milestones due to GraphQL filter issues
-        # TODO: Fix project-scoped milestone filtering
+        # Search for milestone by name
+        # WHY: Linear's GraphQL doesn't support direct project filtering for milestones
+        # so we fetch all milestones and filter client-side with project preference
         milestones_data = await self.get_milestones(limit=100)
 
         nodes = milestones_data.get("nodes", [])
+        
+        # If project_id provided, prioritize milestones from that project
+        if project_id:
+            # First pass: look for exact match in the specified project
+            for milestone in nodes:
+                if (milestone.get("name", "").lower() == milestone_identifier.lower() and
+                    milestone.get("project", {}).get("id") == project_id):
+                    return milestone.get("id")
+        
+        # Fallback: search all milestones without project constraint
         for milestone in nodes:
             if milestone.get("name", "").lower() == milestone_identifier.lower():
                 return milestone.get("id")
