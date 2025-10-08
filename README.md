@@ -2,6 +2,24 @@
 
 A comprehensive command-line interface for Linear issue management, enabling efficient project workflow automation and team collaboration through the Linear API.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Command Reference](#command-reference)
+- [Configuration](#configuration)
+- [Output Formats](#output-formats)
+- [Advanced Usage](#advanced-usage)
+- [Integration Examples](#integration-examples)
+- [Project Structure](#project-structure)
+- [Development](#development)
+- [Requirements](#requirements)
+- [License](#license)
+- [Support](#support)
+- [Changelog](#changelog)
+
 ## Overview
 
 Linearator is a powerful CLI tool that streamlines Linear project management workflows by providing command-line access to core Linear functionality. Built with Python and designed for developers, project managers, and teams who prefer terminal-based workflows or need to automate Linear operations.
@@ -353,6 +371,59 @@ linear issue list --assignee me --state "In Progress"
 echo "Urgent issues:"
 linear search "bug" --priority 4 --state "Todo"
 ```
+
+## Project Structure
+
+```
+linearator/
+├── src/
+│   └── linear_cli/
+│       ├── api/                  # Linear API integration
+│       │   ├── auth/             # Authentication (OAuth, API keys)
+│       │   ├── client/           # GraphQL client implementation
+│       │   └── queries.py        # GraphQL query definitions
+│       ├── cli/                  # CLI application
+│       │   ├── commands/         # Command implementations
+│       │   │   ├── issue.py      # Issue management commands
+│       │   │   ├── project.py    # Project management commands
+│       │   │   ├── team.py       # Team operations
+│       │   │   ├── user.py       # User management
+│       │   │   ├── label.py      # Label operations
+│       │   │   ├── search.py     # Search functionality
+│       │   │   ├── bulk.py       # Bulk operations
+│       │   │   ├── auth.py       # Authentication commands
+│       │   │   ├── config.py     # Configuration management
+│       │   │   └── interactive.py # Interactive mode
+│       │   ├── app.py            # Main CLI application
+│       │   └── formatters.py     # Output formatting (table, JSON, YAML)
+│       ├── config/               # Configuration management
+│       │   ├── manager.py        # Config file handling
+│       │   └── exceptions.py     # Config-related exceptions
+│       ├── utils/                # Utility functions
+│       └── constants.py          # Application constants
+├── tests/                        # Test suite
+│   ├── unit/                     # Unit tests
+│   └── integration/              # Integration tests
+├── docs/                         # Documentation
+├── scripts/                      # Utility scripts
+├── .github/                      # GitHub workflows and templates
+│   └── workflows/                # CI/CD pipelines
+├── pyproject.toml                # Project configuration and dependencies
+├── Makefile                      # Development commands
+├── README.md                     # Project overview
+├── CONTRIBUTING.md               # Contribution guidelines
+├── CHANGELOG.md                  # Version history
+└── LICENSE                       # MIT License
+```
+
+### Key Components
+
+- **API Layer**: GraphQL client with comprehensive Linear API integration
+- **CLI Commands**: Modular command structure for all Linear operations
+- **Authentication**: OAuth and API key support with secure credential storage
+- **Output Formatters**: Flexible output in table, JSON, and YAML formats
+- **Configuration**: Multi-source config (files, env vars, CLI options)
+- **Testing**: Comprehensive test coverage with unit and integration tests
 
 ## Development
 
