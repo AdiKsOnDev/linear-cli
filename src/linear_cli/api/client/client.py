@@ -387,6 +387,8 @@ class LinearClient:
         priority: int | None = None,
         limit: int = 50,
         after: str | None = None,
+        created_after: str | None = None,
+        created_before: str | None = None,
         order_by: str = "updatedAt",
     ) -> dict[str, Any]:
         """
@@ -429,6 +431,12 @@ class LinearClient:
 
         if priority is not None:
             filter_kwargs["priority"] = priority
+
+        if created_before is not None:
+            filter_kwargs["created_before"] = created_before
+
+        if created_after is not None:
+            filter_kwargs["created_after"] = created_after
 
         issue_filter = build_issue_filter(**filter_kwargs) if filter_kwargs else None
 

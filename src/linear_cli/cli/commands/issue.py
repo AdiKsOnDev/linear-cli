@@ -329,6 +329,8 @@ async def get_issue_team_id(issue_id: str, client: Any) -> str:
 @click.option(
     "--limit", "-l", type=int, default=50, help="Maximum number of issues to show"
 )
+@click.option("--created-before", "-cb", help="Date until which to start looking for issues")
+@click.option("--created-after", "-ca", help="Date before which to start looking for issues")
 @click.pass_context
 def list(
     ctx: click.Context,
@@ -338,6 +340,8 @@ def list(
     labels: str,
     priority: str,
     limit: int,
+    created_after: str,
+    created_before: str,
 ) -> None:
     """
     List issues with optional filtering.
@@ -400,6 +404,8 @@ def list(
             labels=label_list,
             priority=priority_int,
             limit=limit,
+            created_before=created_before,
+            created_after=created_after
         )
         return dict(issues_result) if isinstance(issues_result, dict) else {}
 
