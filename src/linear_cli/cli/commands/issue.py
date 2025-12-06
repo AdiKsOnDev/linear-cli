@@ -360,6 +360,8 @@ def list(
     limit: int,
     created_after: str,
     created_before: str,
+    updated_after: str,
+    updated_before: str,
 ) -> None:
     """
     List issues with optional filtering.
@@ -424,6 +426,8 @@ def list(
             limit=limit,
             created_before=created_before,
             created_after=created_after,
+            updated_before=created_before,
+            updated_after=created_after,
         )
         return dict(issues_result) if isinstance(issues_result, dict) else {}
 
