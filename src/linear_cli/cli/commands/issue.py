@@ -330,10 +330,24 @@ async def get_issue_team_id(issue_id: str, client: Any) -> str:
     "--limit", "-l", type=int, default=50, help="Maximum number of issues to show"
 )
 @click.option(
-    "--created-before", "-cb", help="Date until which to start looking for issues"
+    "--created-before",
+    "-cb",
+    help="Filter issues created before this date (ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)",
 )
 @click.option(
-    "--created-after", "-ca", help="Date after which to start looking for issues"
+    "--created-after",
+    "-ca",
+    help="Filter issues created after this date (ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)",
+)
+@click.option(
+    "--updated-before",
+    "-ub",
+    help="Filter issues updated before this date (ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)",
+)
+@click.option(
+    "--updated-after",
+    "-ua",
+    help="Filter issues updated after this date (ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)",
 )
 @click.pass_context
 def list(

@@ -389,6 +389,8 @@ class LinearClient:
         after: str | None = None,
         created_after: str | None = None,
         created_before: str | None = None,
+        updated_after: str | None = None,
+        updated_before: str | None = None,
         order_by: str = "updatedAt",
     ) -> dict[str, Any]:
         """
@@ -437,6 +439,12 @@ class LinearClient:
 
         if created_after is not None:
             filter_kwargs["created_after"] = created_after
+
+        if updated_before is not None:
+            filter_kwargs["updated_before"] = updated_before
+
+        if updated_after is not None:
+            filter_kwargs["updated_after"] = updated_after
 
         issue_filter = build_issue_filter(**filter_kwargs) if filter_kwargs else None
 
